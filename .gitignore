@@ -44,3 +44,4 @@
 build/
 CMakeFiles/
 3rdParty/
+doc/

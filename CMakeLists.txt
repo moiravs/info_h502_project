@@ -32,8 +32,8 @@ target_include_directories(glad INTERFACE
 )
 
 # Define paths as macros
-add_compile_definitions(PATH_TO_OBJECTS="${CMAKE_CURRENT_SOURCE_DIR}/project/models")
-add_compile_definitions(PATH_TO_TEXTURE="${CMAKE_CURRENT_SOURCE_DIR}/project/textures")
+add_compile_definitions(PATH_TO_OBJECTS="${CMAKE_CURRENT_SOURCE_DIR}/assets/models")
+add_compile_definitions(PATH_TO_TEXTURE="${CMAKE_CURRENT_SOURCE_DIR}/assets/textures")
 add_compile_definitions(PATH_TO_SRC="${CMAKE_CURRENT_SOURCE_DIR}/project")
 
 add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
