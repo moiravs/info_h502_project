@@ -13,6 +13,7 @@
 
 #include "shader.h"
 #include "camera.h"
+#include "object.h"
 
 #include <chrono>
 #include <thread>
@@ -111,20 +112,41 @@ void APIENTRY glDebugOutput(GLenum source,
 		std::cout << "Severity: notification";
 		break;
 	}
-	std::cout << std::endl;
-	std::cout << std::endl;
 }
 #endif
 
 Camera camera(glm::vec3(0.0, 0.0, 0.1));
 
+void processInput(GLFWwindow *window)
+{
+	// Use the cameras class to change the parameters of the camera
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
+
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		camera.ProcessKeyboardMovement(LEFT, 0.1);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		camera.ProcessKeyboardMovement(RIGHT, 0.1);
+
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		camera.ProcessKeyboardMovement(FORWARD, 0.1);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		camera.ProcessKeyboardMovement(BACKWARD, 0.1);
+
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		camera.ProcessKeyboardRotation(1, 0.0, 1);
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		camera.ProcessKeyboardRotation(-1, 0.0, 1);
+
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+		camera.ProcessKeyboardRotation(0.0, 1.0, 1);
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		camera.ProcessKeyboardRotation(0.0, -1.0, 1);
+}
+
 int main(int argc, char *argv[])
 {
-	std::cout << "Welcome to the fourth exercise session for VR" << std::endl;
-	std::cout << "Create a framebuffer object\n"
-				 "Use it to make a smoke shader\n";
 
-	// Boilerplate
 	// Create the OpenGL context
 	if (!glfwInit())
 	{
@@ -149,7 +171,6 @@ int main(int argc, char *argv[])
 
 	glfwMakeContextCurrent(window);
 
-	// load openGL function
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		throw std::runtime_error("Failed to initialize GLAD");
@@ -168,13 +189,16 @@ int main(int argc, char *argv[])
 	}
 #endif
 
-	char fileVert[128] = PATH_TO_SRC "/../assets/shaders/FBO.vert";
-	char fileFrag[128] = PATH_TO_SRC "/../assets/shaders/FBO.frag";
-	Shader shader(fileVert, fileFrag);
-
+	// INIT shaders
+	Shader bunny(PATH_TO_SRC "/../assets/shaders/bunny.vert", PATH_TO_SRC "/../assets/shaders/bunny.frag");
+	Shader shader(PATH_TO_SRC "/../assets/shaders/FBO.vert", PATH_TO_SRC "/../assets/shaders/FBO.frag");
 	Shader plane_sh(PATH_TO_SRC "/../assets/shaders/plane.vert", PATH_TO_SRC "/../assets/shaders/tex.frag");
 
-	// First object!
+	// INIT models
+	Object cube(PATH_TO_OBJECTS "/bunny_small.obj");
+
+	// CREATE models
+	cube.makeObject(bunny);
 
 	const float planeData[30] = {
 		// vertices		  // texture coords
@@ -198,7 +222,6 @@ int main(int argc, char *argv[])
 
 	auto attribute = glGetAttribLocation(shader.ID, "position");
 	glEnableVertexAttribArray(attribute);
-	// glVertexAttribPointer(attribute, 3, GL_FLOAT, false, 0, 0);
 	glVertexAttribPointer(attribute, 3, GL_FLOAT, false, 5 * sizeof(float), (void *)0);
 
 	// desactive the buffer
@@ -233,6 +256,7 @@ int main(int argc, char *argv[])
 	float scale_x, scale_y;
 	glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
 
+	glViewport(0, 0, framebuffer_width, framebuffer_height);
 	// Create the frame buffer
 	GLuint FrameBufferEffect = 0;
 	glGenFramebuffers(1, &FrameBufferEffect);
@@ -268,12 +292,19 @@ int main(int argc, char *argv[])
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	std::cout << "start rendering loop" << std::endl;
-	// sync with the screen refresh rate
+	glm::mat4 model = glm::mat4(1.0);
+	model = glm::translate(model, glm::vec3(0.5, 0.5, -1.0));
+	model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
+
+	glm::mat4 view = camera.GetViewMatrix();
+	glm::mat4 perspective = camera.GetProjectionMatrix();
+
 	glfwSwapInterval(1);
-	// Rendering
 	while (!glfwWindowShouldClose(window))
 	{
+		processInput(window);
+		view = camera.GetViewMatrix();
+
 		glfwPollEvents();
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -308,11 +339,19 @@ int main(int argc, char *argv[])
 
 		plane_sh.use();
 		plane_sh.setInteger("renderedTexture", 0);
+		// Use the shader Class to send the uniform
+
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, renderedTexture);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
+		bunny.use();
+
+		bunny.setMatrix4("M", model);
+		bunny.setMatrix4("V", view);
+		bunny.setMatrix4("P", perspective);
+		cube.draw();
 		glfwSwapBuffers(window);
 	}
 
