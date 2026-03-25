@@ -31,11 +31,13 @@ public:
 	int numVertices;
 
 	GLuint VBO, VAO;
+	bool transparent;
 
 	glm::mat4 model = glm::mat4(1.0);
 
-	Object(const char *path)
+	Object(const char *path, bool transparent = false)
 	{
+		transparent = transparent;
 		std::ifstream infile(path);
 		std::string line;
 		if (infile.is_open())
@@ -129,6 +131,37 @@ public:
 		numVertices = vertices.size();
 	}
 
+	Object(float size, float height, bool transparent = false)
+	{
+		transparent = transparent;
+		// 4 corners of the plane
+		glm::vec3 p1(-size, height, -size);
+		glm::vec3 p2(size, height, -size);
+		glm::vec3 p3(size, height, size);
+		glm::vec3 p4(-size, height, size);
+
+		// Texture coordinates
+		glm::vec2 t1(0.0f, 1.0f);
+		glm::vec2 t2(1.0f, 1.0f);
+		glm::vec2 t3(1.0f, 0.0f);
+		glm::vec2 t4(0.0f, 0.0f);
+
+		// Normal (pointing straight up)
+		glm::vec3 n(0.0f, 1.0f, 0.0f);
+
+		// Triangle 1
+		vertices.push_back({p1, t1, n});
+		vertices.push_back({p2, t2, n});
+		vertices.push_back({p3, t3, n});
+
+		// Triangle 2
+		vertices.push_back({p1, t1, n});
+		vertices.push_back({p3, t3, n});
+		vertices.push_back({p4, t4, n});
+
+		numVertices = vertices.size();
+	}
+
 	void makeObject(Shader shader, bool texture = true)
 	{
 		float *data = new float[8 * numVertices];
@@ -178,7 +211,11 @@ public:
 
 	void draw()
 	{
-
+		if (transparent)
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
 		glBindVertexArray(this->VAO);
 		glDrawArrays(GL_TRIANGLES, 0, numVertices);
 	}

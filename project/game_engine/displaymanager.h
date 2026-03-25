@@ -1,5 +1,5 @@
-#ifndef OBJECT_H
-#define OBJECT_H
+#ifndef DISPLAYMANAGER_H
+#define DISPLAYMANAGER_H
 
 #include <iostream>
 #include <fstream>

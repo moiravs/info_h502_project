@@ -16,8 +16,11 @@
 #include "game_engine/camera.h"
 #include "game_engine/texture.h"
 #include "game_engine/displaymanager.h"
+#include "game_engine/object.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+
+int PLAN_SIZE_X = 1000;
 
 int main()
 {
@@ -41,10 +44,13 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);
 
-	// build and compile our shader program
-	// ------------------------------------
 	Shader heightMapShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vs", PATH_TO_SRC "/../assets/shaders/cpu_height.fs");
-	Texture heightMapTexture(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png");
+	Shader waterShader(PATH_TO_SRC "/../assets/shaders/water.vert", PATH_TO_SRC "/../assets/shaders/water.frag");
+
+	Texture heightMapTexture(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
+
+	Object water(PLAN_SIZE_X / 2, true);
+	water.makeObject(waterShader);
 
 	int framebuffer_width, framebuffer_height;
 	glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
@@ -63,8 +69,12 @@ int main()
 
 		heightMapShader.use();
 		heightMapShader.updatePos();
-
 		heightMapTexture.draw();
+
+		waterShader.use();
+		waterShader.updatePos();
+		water.draw();
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
