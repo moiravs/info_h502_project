@@ -19,7 +19,7 @@ class Texture
 public:
     GLuint ID;
 
-    Texture(const char *texturePath)
+    Texture(const char *texturePath, float targetWidth, float targetLength)
     {
         stbi_set_flip_vertically_on_load(true);
         int width, height, nrChannels;
@@ -39,12 +39,21 @@ public:
                 unsigned char *pixelOffset = data + (j + width * i) * bytePerPixel;
                 unsigned char y = pixelOffset[0];
 
-                // vertex
-                vertices.push_back(-height / 2.0f + height * i / (float)height); // vx
-                vertices.push_back((int)y * yScale - yShift);                    // vy
-                vertices.push_back(-width / 2.0f + width * j / (float)width);    // vz
+                // 1. Normalize the loop index to 0.0 -> 1.0
+                float xPercent = (float)i / (height - 1);
+                float zPercent = (float)j / (width - 1);
+
+                // 2. Multiply by target dimensions and center it
+                float vx = (xPercent - 0.5f) * targetLength;
+                float vy = (int)y * yScale - yShift;
+                float vz = (zPercent - 0.5f) * targetWidth;
+
+                vertices.push_back(vx);
+                vertices.push_back(vy);
+                vertices.push_back(vz);
             }
         }
+
         stbi_image_free(data);
 
         for (unsigned i = 0; i < height - 1; i += rez)
