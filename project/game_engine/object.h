@@ -37,7 +37,6 @@ public:
 	Object(const char *path)
 	{
 		std::ifstream infile(path);
-		// TODO Error management
 		std::string line;
 		if (infile.is_open())
 		{
@@ -132,11 +131,6 @@ public:
 
 	void makeObject(Shader shader, bool texture = true)
 	{
-		/* This is a working but not perfect solution, you can improve it if you need/want
-		 * What happens if you call this function twice on an Model ?
-		 * What happens when a shader doesn't have a position, tex_coord or normal attribute ?
-		 */
-
 		float *data = new float[8 * numVertices];
 		for (int i = 0; i < numVertices; i++)
 		{

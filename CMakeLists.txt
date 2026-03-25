@@ -39,8 +39,13 @@ add_compile_definitions(PATH_TO_SRC="${CMAKE_CURRENT_SOURCE_DIR}/project")
 add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
 
 # Solutions (conditional)
-set(SOURCES_EX_01_SOL "project/main.cpp" "project/camera.h" "project/shader.h")
+file(GLOB_RECURSE ALL_PROJECT_SOURCES 
+    "project/*.cpp" 
+    "project/*.h" 
+    "project/*.hpp"
+)
 
-add_executable(VRproject ${SOURCES_EX_01_SOL})
+# Use the discovered files to create your executable
+add_executable(VRproject ${ALL_PROJECT_SOURCES})
 target_link_libraries(VRproject PUBLIC OpenGL::GL glfw glad)
 

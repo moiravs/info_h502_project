@@ -8,13 +8,15 @@
 #include <sstream>
 #include <iostream>
 
+#include "camera.h"
+#include "displaymanager.h"
 class Shader
 {
 public:
-	GLuint ID;
+    GLuint ID;
 
-	Shader(const char* vertexPath, const char* fragmentPath)
-	{
+    Shader(const char *vertexPath, const char *fragmentPath)
+    {
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
         std::string fragmentCode;
@@ -39,17 +41,17 @@ public:
             vertexCode = vShaderStream.str();
             fragmentCode = fShaderStream.str();
         }
-        catch (std::ifstream::failure& e)
+        catch (std::ifstream::failure &e)
         {
             std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: " << e.what() << std::endl;
         }
-        const char* vShaderCode = vertexCode.c_str();
-        const char* fShaderCode = fragmentCode.c_str();
+        const char *vShaderCode = vertexCode.c_str();
+        const char *fShaderCode = fragmentCode.c_str();
 
         GLuint vertex = compileShader(vertexCode, GL_VERTEX_SHADER);
         GLuint fragment = compileShader(fragmentCode, GL_FRAGMENT_SHADER);
         ID = compileProgram(vertex, fragment);
-	}
+    }
 
     Shader(std::string vShaderCode, std::string fShaderCode)
     {
@@ -58,25 +60,43 @@ public:
         ID = compileProgram(vertex, fragment);
     }
 
-    void use() {
+    void use()
+    {
         glUseProgram(ID);
     }
-    void setInteger(const GLchar *name, GLint value) {
+
+    void updatePos()
+    {
+        glm::mat4 projection = camera.GetProjectionMatrix(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100000.0f);
+        glm::mat4 view = camera.GetViewMatrix();
+        glm::mat4 model = glm::mat4(1.0f);
+
+        this->setMatrix4("projection", projection);
+        this->setMatrix4("view", view);
+        this->setMatrix4("model", model);
+    }
+    void setInteger(const GLchar *name, GLint value)
+    {
         glUniform1i(glGetUniformLocation(ID, name), value);
     }
-    void setFloat(const GLchar* name, GLfloat value) {
+    void setFloat(const GLchar *name, GLfloat value)
+    {
         glUniform1f(glGetUniformLocation(ID, name), value);
     }
-    void setVector2f(const GLchar* name, GLfloat x, GLfloat y) {
+    void setVector2f(const GLchar *name, GLfloat x, GLfloat y)
+    {
         glUniform2f(glGetUniformLocation(ID, name), x, y);
     }
-    void setVector3f(const GLchar* name, GLfloat x, GLfloat y, GLfloat z) {
+    void setVector3f(const GLchar *name, GLfloat x, GLfloat y, GLfloat z)
+    {
         glUniform3f(glGetUniformLocation(ID, name), x, y, z);
     }
-    void setVector3f(const GLchar* name, const glm::vec3& value) {
+    void setVector3f(const GLchar *name, const glm::vec3 &value)
+    {
         glUniform3f(glGetUniformLocation(ID, name), value.x, value.y, value.z);
     }
-    void setMatrix4(const GLchar* name, const glm::mat4& matrix) {
+    void setMatrix4(const GLchar *name, const glm::mat4 &matrix)
+    {
         glUniformMatrix4fv(glGetUniformLocation(ID, name), 1, GL_FALSE, glm::value_ptr(matrix));
     }
 
@@ -84,7 +104,7 @@ private:
     GLuint compileShader(std::string shaderCode, GLenum shaderType)
     {
         GLuint shader = glCreateShader(shaderType);
-        const char* code = shaderCode.c_str();
+        const char *code = shaderCode.c_str();
         glShaderSource(shader, 1, &code, NULL);
         glCompileShader(shader);
 
@@ -95,10 +115,12 @@ private:
         {
             glGetShaderInfoLog(shader, 1024, NULL, infoLog);
             std::string t = "undetermined";
-            if (shaderType == GL_VERTEX_SHADER) {
+            if (shaderType == GL_VERTEX_SHADER)
+            {
                 t = "vertex shader";
             }
-            else if (shaderType == GL_FRAGMENT_SHADER) {
+            else if (shaderType == GL_FRAGMENT_SHADER)
+            {
                 t = "fragment shader";
             }
             std::cout << "ERROR::SHADER_COMPILATION_ERROR of the " << t << ": " << shaderType << infoLog << std::endl;
@@ -114,7 +136,6 @@ private:
         glAttachShader(programID, fragmentShader);
         glLinkProgram(programID);
 
-
         GLchar infoLog[1024];
         GLint success;
         glGetProgramiv(programID, GL_LINK_STATUS, &success);
@@ -125,6 +146,5 @@ private:
         }
         return programID;
     }
-
 };
 #endif
