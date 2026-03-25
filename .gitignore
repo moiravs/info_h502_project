@@ -40,7 +40,15 @@
 # debug information files
 *.dwo
 
+*.ninja
+*.cmake
+CMakeCache.txt
+VRproject
+compile_commands.json
+.ninja_deps
+.ninja_log
 
+.cmake/
 build/
 CMakeFiles/
 3rdParty/
