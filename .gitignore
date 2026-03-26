@@ -51,6 +51,5 @@ compile_commands.json
 .cmake/
 build/
 CMakeFiles/
-3rdParty/
 doc/
 .vscode/
