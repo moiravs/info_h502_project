@@ -15,26 +15,25 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 // camera - give pretty starting point
-Camera camera(glm::vec3(67.0f, 60.5f, 169.9f),
+Camera camera(glm::vec3(140.0f, 110.0f, 120.0f),
               glm::vec3(0.0f, 1.0f, 0.0f),
-              -128.1f, -42.4f);
-float deltaTime = 0.0f;
+              -0.0f, -0.0f);
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-int useWireframe = 0;
-int displayGrayscale = 0;
-
-float lastX = 800 / 2.0f;
-float lastY = 600 / 2.0f;
-bool firstMouse = true;
-
-// timing
-float lastFrame = 0.0f;
-
 class DisplayManager
 {
+    float deltaTime = 0.0f;
+    int useWireframe = 0;
+    int displayGrayscale = 0;
+
+    float lastX = 800;
+    float lastY = 600;
+    bool firstMouse = true;
+
+    // timing
+    float lastFrame = 0.0f;
 
 public:
     static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
@@ -46,14 +45,32 @@ public:
         glViewport(0, 0, framebuffer_width, framebuffer_height);
     }
 
+    void update(GLFWwindow *window)
+    {
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
+        this->processInput(window);
+
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
     void processInput(GLFWwindow *window)
     {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
-
         if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
             camera.ProcessKeyboardMovement(FORWARD, deltaTime);
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            camera.ProcessKeyboardMovement(BACKWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            camera.ProcessKeyboardMovement(FORWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
             camera.ProcessKeyboardMovement(BACKWARD, deltaTime);
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
             camera.ProcessKeyboardMovement(LEFT, deltaTime);

@@ -46,37 +46,82 @@ int main()
 
 	Shader heightMapShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vs", PATH_TO_SRC "/../assets/shaders/cpu_height.fs");
 	Shader waterShader(PATH_TO_SRC "/../assets/shaders/water.vert", PATH_TO_SRC "/../assets/shaders/water.frag");
+	Shader treeblueShader(PATH_TO_SRC "/../assets/shaders/bunny.vert", PATH_TO_SRC "/../assets/shaders/bunnyblue.frag");
+	Shader treeredShader(PATH_TO_SRC "/../assets/shaders/bunny.vert", PATH_TO_SRC "/../assets/shaders/bunnyred.frag");
+	Shader treegreenShader(PATH_TO_SRC "/../assets/shaders/bunny.vert", PATH_TO_SRC "/../assets/shaders/bunnygreen.frag");
 
 	Texture heightMapTexture(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
 
 	Object water(PLAN_SIZE_X / 2, true);
 	water.makeObject(waterShader);
 
-	int framebuffer_width, framebuffer_height;
+	Object treered(PATH_TO_SRC "/../assets/models/Tree.obj");
+	Object treeblue(PATH_TO_SRC "/../assets/models/Tree.obj");
+	Object treegreen(PATH_TO_SRC "/../assets/models/Tree.obj");
+	treeblue.makeObject(treeblueShader);
+	treered.makeObject(treeredShader);
+	treegreen.makeObject(treegreenShader);
+
+	int framebuffer_width,
+		framebuffer_height;
 	glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
 	glViewport(0, 0, framebuffer_width, framebuffer_height);
 
 	while (!glfwWindowShouldClose(window))
 	{
-		float currentFrame = glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
-
-		dm.processInput(window);
-
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		heightMapShader.use();
-		heightMapShader.updatePos();
+		heightMapShader.updatePos(camera);
 		heightMapTexture.draw();
 
 		waterShader.use();
-		waterShader.updatePos();
+		waterShader.updatePos(camera);
 		water.draw();
 
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+		treeblueShader.use();
+
+		glm::mat4 model = glm::mat4(1.0f);
+		glm::mat4 modelgreen = glm::mat4(1.0f);
+		glm::mat4 modelred = glm::mat4(1.0f);
+		glm::mat4 modelblue = glm::mat4(1.0f);
+
+		float y = heightMapTexture.getHeight(0, 0);
+		modelgreen = glm::translate(model, glm::vec3(0, y, 0)); // y is up
+		float y2 = heightMapTexture.getHeight(20, 20);
+		modelblue = glm::translate(model, glm::vec3(20, y2, 20));
+
+		float y3 = heightMapTexture.getHeight(40, 0);
+		modelred = glm::translate(model, glm::vec3(40, y3, 0));
+
+		glm::mat4 view = camera.GetViewMatrix();
+		glm::mat4 perspective = camera.GetProjectionMatrix(glm::radians(camera.Zoom), (float)800 / (float)600, 0.1f, 100000.0f);
+		// // 3. Send them to the shader
+		treeblueShader.setMatrix4("M", modelblue);
+		treeblueShader.setMatrix4("V", view);
+		treeblueShader.setMatrix4("P", perspective);
+
+		treeblueShader.updatePos(camera);
+		treeblue.draw();
+
+		treeredShader.use();
+		treeredShader.setMatrix4("M", modelred);
+		treeredShader.setMatrix4("V", view);
+		treeredShader.setMatrix4("P", perspective);
+
+		treeredShader.updatePos(camera);
+		treered.draw();
+
+		treegreenShader.use();
+
+		treegreenShader.setMatrix4("M", modelgreen);
+		treegreenShader.setMatrix4("V", view);
+		treegreenShader.setMatrix4("P", perspective);
+
+		treegreenShader.updatePos(camera);
+
+		treegreen.draw();
+
+		dm.update(window);
 	}
 
 	glfwTerminate();

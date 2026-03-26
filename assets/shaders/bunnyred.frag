@@ -4,5 +4,5 @@ precision mediump float;
 in vec4 v_col; 
 in vec2 v_t; 
 void main() { 
-FragColor = v_col*(1.0-v_t.y); 
+FragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f); 
 } 

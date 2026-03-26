@@ -15,14 +15,21 @@ class Texture
     std::vector<float> vertices;
     std::vector<unsigned> indices;
     unsigned int terrainVAO, terrainVBO, terrainIBO;
+    float targetWidth;
+    float targetLength;
+    int width;
+    int height;
 
 public:
     GLuint ID;
 
     Texture(const char *texturePath, float targetWidth, float targetLength)
     {
+
+        this->targetWidth = targetWidth;
+        this->targetLength = targetLength;
         stbi_set_flip_vertically_on_load(true);
-        int width, height, nrChannels;
+        int nrChannels;
         unsigned char *data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
         if (!data)
         {
@@ -97,6 +104,27 @@ public:
                            GL_UNSIGNED_INT,                                             // index data type
                            (void *)(sizeof(unsigned) * (numTrisPerStrip + 2) * strip)); // offset to starting index
         }
+    }
+
+    float getHeight(float worldX, float worldZ)
+    {
+        float xPercent = (worldX / targetLength) + 0.5f;
+        float zPercent = (worldZ / targetWidth) + 0.5f;
+
+        int col = (int)(xPercent * (height - 1));
+        int row = (int)(zPercent * (width - 1));
+
+        if (col < 0)
+            col = 0;
+        if (col >= height)
+            col = height - 1;
+        if (row < 0)
+            row = 0;
+        if (row >= width)
+            row = width - 1;
+
+        int vertexIndex = (col * width + row) * 3;
+        return vertices[vertexIndex + 1];
     }
 
     ~Texture()

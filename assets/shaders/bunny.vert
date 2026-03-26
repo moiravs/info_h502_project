@@ -8,7 +8,7 @@ uniform mat4 M;
 uniform mat4 V; 
 uniform mat4 P; 
     void main(){ 
-gl_Position = P*M*V*vec4(position, 1);
+gl_Position = P*V*M*vec4(position, 1);
 v_col = vec4(normal*0.5 + 0.5, 1.0);
 v_t = tex_coord; 
 }

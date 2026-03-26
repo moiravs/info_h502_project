@@ -65,15 +65,19 @@ public:
         glUseProgram(ID);
     }
 
-    void updatePos()
+    void setPosition(glm::mat4 model)
     {
-        glm::mat4 projection = camera.GetProjectionMatrix(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100000.0f);
-        glm::mat4 view = camera.GetViewMatrix();
-        glm::mat4 model = glm::mat4(1.0f);
+        setMatrix4("model", model);
+    }
 
-        this->setMatrix4("projection", projection);
-        this->setMatrix4("view", view);
-        this->setMatrix4("model", model);
+    void updatePos(Camera currentCamera, glm::mat4 model = glm::mat4(1.0f))
+    {
+        glm::mat4 projection = currentCamera.GetProjectionMatrix(glm::radians(currentCamera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100000.0f);
+        glm::mat4 view = currentCamera.GetViewMatrix();
+
+        setMatrix4("projection", projection);
+        setMatrix4("view", view);
+        setMatrix4("model", model);
     }
     void setInteger(const GLchar *name, GLint value)
     {
