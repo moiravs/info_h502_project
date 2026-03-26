@@ -61,6 +61,7 @@ int main()
 	treered.makeObject(treeredShader);
 	treegreen.makeObject(treegreenShader);
 
+	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 	while (!dm.shouldClose())
 	{
 

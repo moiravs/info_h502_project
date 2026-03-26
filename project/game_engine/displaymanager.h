@@ -15,15 +15,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 // camera - give pretty starting point
 Camera camera = Camera(glm::vec3(140.0f, 110.0f, 120.0f),
-                      glm::vec3(0.0f, 1.0f, 0.0f),
-                      -0.0f, -0.0f);
+                       glm::vec3(0.0f, 1.0f, 0.0f),
+                       -0.0f, -0.0f);
 
 constexpr unsigned int SCR_WIDTH = 800;
 constexpr unsigned int SCR_HEIGHT = 600;
 
 class DisplayManager
 {
-    GLFWwindow* window;
+    GLFWwindow *window;
 
     float deltaTime = 0.0f;
     int useWireframe = 0;
@@ -36,14 +36,14 @@ class DisplayManager
     // timing
     float lastFrame = 0.0f;
 
-    GLFWwindow* createWindow()
+    GLFWwindow *createWindow()
     {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        GLFWwindow* w = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL: Terrain CPU",
-            nullptr, nullptr);
+        GLFWwindow *w = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL: Terrain CPU",
+                                         nullptr, nullptr);
 
         if (w == nullptr)
         {
@@ -66,11 +66,10 @@ class DisplayManager
         return w;
     }
 
-
 public:
-    DisplayManager(): window(DisplayManager::createWindow()) {}
+    DisplayManager() : window(DisplayManager::createWindow()) {}
 
-    void resizeWindow(const int width, const int height) const
+    void resizeViewport(const int width, const int height) const
     {
         // make sure the viewport matches the new window dimensions; note that width and
         // height will be significantly larger than specified on retina displays.
@@ -103,13 +102,13 @@ public:
 
     static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
     {
-        const auto dm = static_cast<DisplayManager*>(glfwGetWindowUserPointer(window));
-        dm->resizeWindow(width, height);
+        const auto dm = static_cast<DisplayManager *>(glfwGetWindowUserPointer(window));
+        dm->resizeViewport(width, height);
     }
 
     static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos)
     {
-        const auto dm = static_cast<DisplayManager*>(glfwGetWindowUserPointer(window));
+        const auto dm = static_cast<DisplayManager *>(glfwGetWindowUserPointer(window));
         dm->moveMouse(xpos, ypos);
     }
 
