@@ -75,9 +75,9 @@ public:
         glm::mat4 projection = currentCamera.GetProjectionMatrix(glm::radians(currentCamera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100000.0f);
         glm::mat4 view = currentCamera.GetViewMatrix();
 
-        setMatrix4("projection", projection);
-        setMatrix4("view", view);
-        setMatrix4("model", model);
+        this->setMatrix4("projection", projection);
+        this->setMatrix4("view", view);
+        this->setMatrix4("model", model);
     }
     void setInteger(const GLchar *name, GLint value)
     {
