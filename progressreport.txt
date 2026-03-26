@@ -1,0 +1,11 @@
+DONE:
+
+- Water object
+- Terrain texture from an height map
+- Loaded an object
+
+TODO:
+- water moving (physics simulation)
+- Add an object light
+    - Handle light
+- Instance a lot of trees 
