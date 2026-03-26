@@ -34,10 +34,9 @@ int main()
 		throw std::runtime_error("Failed to initialise GLFW \n");
 	}
 
-	DisplayManager dm = DisplayManager();
-	GLFWwindow *window = dm.createWindow();
+	auto dm = DisplayManager();
 
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
 	{
 		throw std::runtime_error("Failed to initialize GLAD");
 	}
@@ -62,12 +61,7 @@ int main()
 	treered.makeObject(treeredShader);
 	treegreen.makeObject(treegreenShader);
 
-	int framebuffer_width,
-		framebuffer_height;
-	glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
-	glViewport(0, 0, framebuffer_width, framebuffer_height);
-
-	while (!glfwWindowShouldClose(window))
+	while (!dm.shouldClose())
 	{
 
 		heightMapShader.use();
@@ -103,7 +97,7 @@ int main()
 		treegreenShader.updatePos(camera, modelgreen);
 		treegreen.draw();
 
-		dm.update(window);
+		dm.update();
 	}
 
 	glfwTerminate();

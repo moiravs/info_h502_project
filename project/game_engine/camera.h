@@ -8,21 +8,24 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
-enum Camera_Movement
+enum PlayerMovement
 {
     FORWARD,
     BACKWARD,
     LEFT,
-    RIGHT
+    RIGHT,
+    CROUCH,
+    JUMP
 };
 
 // Default camera values
-const float YAW = -90.0f;
-const float PITCH = 0.0f;
-const float MOV_SPEED = 100.0f;
-const float ROT_SPEED = 1.0f;
-const float SENSITIVITY = 0.1f;
-const float ZOOM = 45.0f;
+constexpr float YAW = -90.0f;
+constexpr float PITCH = 0.0f;
+constexpr float MOV_SPEED = 100.0f;
+constexpr float ROT_SPEED = 100.0f;
+constexpr float SENSITIVITY = 0.2f;
+constexpr float ZOOM = 45.0f;
+constexpr auto WORLD_UP = glm::vec3(0.0f, 1.0f, 0.0f);
 
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
 class Camera
@@ -31,6 +34,7 @@ public:
     // camera Attributes
     glm::vec3 Position;
     glm::vec3 Front;
+    glm::vec3 FlatFront;
     glm::vec3 Up;
     glm::vec3 Right;
     glm::vec3 WorldUp;
@@ -44,7 +48,9 @@ public:
     float Zoom;
 
     // constructor with vectors
-    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(MOV_SPEED), RotationSpeed(ROT_SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = WORLD_UP,
+        float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), FlatFront(Front),
+    MovementSpeed(MOV_SPEED), RotationSpeed(ROT_SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
     {
         this->Position = position;
         this->WorldUp = up;
@@ -53,7 +59,9 @@ public:
         this->updateCameraVectors();
     }
     // constructor with scalar values
-    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(MOV_SPEED), RotationSpeed(ROT_SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch)
+    : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(MOV_SPEED), RotationSpeed(ROT_SPEED),
+    MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
     {
         this->Position = glm::vec3(posX, posY, posZ);
         this->WorldUp = glm::vec3(upX, upY, upZ);
@@ -63,48 +71,54 @@ public:
     }
 
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
-    glm::mat4 GetViewMatrix()
+    glm::mat4 GetViewMatrix() const
     {
         return glm::lookAt(this->Position, this->Position + this->Front, this->Up);
     }
 
-    glm::mat4 GetProjectionMatrix(float fov = 45.0, float ratio = 1.0, float near = 0.01, float far = 100.0)
+    static glm::mat4 GetProjectionMatrix(
+        const float fov = 45.0, const float ratio = 1.0,
+        const float near = 0.01, const float far = 100.0)
     {
         return glm::perspective(fov, ratio, near, far);
     }
 
-    glm::vec3 GetCameraUp()
+    glm::vec3 GetCameraUp() const
     {
         return this->Up;
     }
 
-    glm::vec3 GetCameraRight()
+    glm::vec3 GetCameraRight() const
     {
         return this->Right;
     }
 
-    glm::vec3 GetCameraPosition()
+    glm::vec3 GetCameraPosition() const
     {
         return this->Position;
     }
 
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-    void ProcessKeyboardMovement(Camera_Movement direction, float deltaTime)
+    void ProcessKeyboardMovement(const PlayerMovement direction, const float deltaTime)
     {
-        float velocity = this->MovementSpeed * deltaTime;
+        const float velocity = this->MovementSpeed * deltaTime;
         if (direction == FORWARD)
-            this->Position += this->Front * velocity;
+            this->Position += this->FlatFront * velocity;
         if (direction == BACKWARD)
-            this->Position -= this->Front * velocity;
+            this->Position -= this->FlatFront * velocity;
         if (direction == LEFT)
             this->Position -= this->Right * velocity;
         if (direction == RIGHT)
             this->Position += this->Right * velocity;
+        if (direction == CROUCH)
+            this->Position -= WORLD_UP * velocity;
+        if (direction == JUMP)
+            this->Position += WORLD_UP * velocity;
     }
 
-    void ProcessKeyboardRotation(float YawRot, float PitchRot, float deltaTime, GLboolean constrainPitch = true)
+    void ProcessKeyboardRotation(float YawRot, float PitchRot, const float deltaTime, const GLboolean constrainPitch = true)
     {
-        float velocity = this->RotationSpeed * deltaTime;
+        const float velocity = this->RotationSpeed * deltaTime;
         YawRot *= velocity;
         PitchRot *= velocity;
 
@@ -123,17 +137,21 @@ public:
     }
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-    void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true)
+    void ProcessMouseMovement(const float xoffset, const float yoffset,
+        const float deltaTime, const GLboolean constrainPitch = true)
     {
         /* The motivated students can implement rotation using the mouse rather than the keyboard
          * You can draw inspiration from the ProcessKeyboardMovement function
          */
+
+        this->ProcessKeyboardRotation(xoffset * MouseSensitivity, -yoffset * MouseSensitivity,
+            deltaTime, constrainPitch);
     }
 
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-    void ProcessMouseScroll(float yoffset)
+    void ProcessMouseScroll(const float yoffset)
     {
-        Zoom -= (float)yoffset;
+        Zoom -= static_cast<float>(yoffset);
         if (Zoom < 1.0f)
             Zoom = 1.0f;
         if (Zoom > 45.0f)
@@ -150,6 +168,8 @@ private:
         front.y = sin(glm::radians(Pitch));
         front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
         Front = glm::normalize(front);
+        FlatFront = Front;
+        FlatFront.y = 0;
         // also re-calculate the Right and Up vector
         Right = glm::normalize(glm::cross(Front, WorldUp)); // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
         Up = glm::normalize(glm::cross(Right, Front));
