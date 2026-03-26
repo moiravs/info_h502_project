@@ -78,8 +78,6 @@ int main()
 		waterShader.updatePos(camera);
 		water.draw();
 
-		treeblueShader.use();
-
 		glm::mat4 model = glm::mat4(1.0f);
 		glm::mat4 modelgreen = glm::mat4(1.0f);
 		glm::mat4 modelred = glm::mat4(1.0f);
@@ -93,32 +91,16 @@ int main()
 		float y3 = heightMapTexture.getHeight(40, 0);
 		modelred = glm::translate(model, glm::vec3(40, y3, 0));
 
-		glm::mat4 view = camera.GetViewMatrix();
-		glm::mat4 perspective = camera.GetProjectionMatrix(glm::radians(camera.Zoom), (float)800 / (float)600, 0.1f, 100000.0f);
-		// // 3. Send them to the shader
-		treeblueShader.setMatrix4("M", modelblue);
-		treeblueShader.setMatrix4("V", view);
-		treeblueShader.setMatrix4("P", perspective);
-
-		treeblueShader.updatePos(camera);
+		treeblueShader.use();
+		treeblueShader.updatePos(camera, modelblue);
 		treeblue.draw();
 
 		treeredShader.use();
-		treeredShader.setMatrix4("M", modelred);
-		treeredShader.setMatrix4("V", view);
-		treeredShader.setMatrix4("P", perspective);
-
-		treeredShader.updatePos(camera);
+		treeredShader.updatePos(camera, modelred);
 		treered.draw();
 
 		treegreenShader.use();
-
-		treegreenShader.setMatrix4("M", modelgreen);
-		treegreenShader.setMatrix4("V", view);
-		treegreenShader.setMatrix4("P", perspective);
-
-		treegreenShader.updatePos(camera);
-
+		treegreenShader.updatePos(camera, modelgreen);
 		treegreen.draw();
 
 		dm.update(window);
