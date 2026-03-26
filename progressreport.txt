@@ -3,6 +3,7 @@ DONE:
 - Water object
 - Terrain texture from an height map
 - Loaded an object (Tree)
+- Change to gitsubmodules (!!! we cannot put glad as a submodule as the github repo is only a loader library, so it loses all sense to put it as a submodule)
 
 TODO:
 - Texture class mixes with object ?? this class is weird
