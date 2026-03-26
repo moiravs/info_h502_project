@@ -49,8 +49,8 @@ public:
 
     // constructor with vectors
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = WORLD_UP,
-        float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), FlatFront(Front),
-    MovementSpeed(MOV_SPEED), RotationSpeed(ROT_SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+           float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), FlatFront(Front),
+                                                   MovementSpeed(MOV_SPEED), RotationSpeed(ROT_SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
     {
         this->Position = position;
         this->WorldUp = up;
@@ -60,8 +60,8 @@ public:
     }
     // constructor with scalar values
     Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch)
-    : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(MOV_SPEED), RotationSpeed(ROT_SPEED),
-    MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+        : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(MOV_SPEED), RotationSpeed(ROT_SPEED),
+          MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
     {
         this->Position = glm::vec3(posX, posY, posZ);
         this->WorldUp = glm::vec3(upX, upY, upZ);
@@ -138,14 +138,14 @@ public:
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
     void ProcessMouseMovement(const float xoffset, const float yoffset,
-        const float deltaTime, const GLboolean constrainPitch = true)
+                              const float deltaTime, const GLboolean constrainPitch = true)
     {
         /* The motivated students can implement rotation using the mouse rather than the keyboard
          * You can draw inspiration from the ProcessKeyboardMovement function
          */
 
         this->ProcessKeyboardRotation(xoffset * MouseSensitivity, -yoffset * MouseSensitivity,
-            deltaTime, constrainPitch);
+                                      deltaTime, constrainPitch);
     }
 
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
@@ -162,14 +162,15 @@ private:
     // calculates the front vector from the Camera's (updated) Euler Angles
     void updateCameraVectors()
     {
+
         // calculate the new Front vector
         glm::vec3 front;
         front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
         front.y = sin(glm::radians(Pitch));
         front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
         Front = glm::normalize(front);
-        FlatFront = Front;
-        FlatFront.y = 0;
+        front.y = 0;
+        FlatFront = glm::normalize(front);
         // also re-calculate the Right and Up vector
         Right = glm::normalize(glm::cross(Front, WorldUp)); // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
         Up = glm::normalize(glm::cross(Right, Front));
