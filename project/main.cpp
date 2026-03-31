@@ -46,25 +46,33 @@ int main()
 
 	Shader heightMapShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vs", PATH_TO_SRC "/../assets/shaders/cpu_height.fs");
 	Shader waterShader(PATH_TO_SRC "/../assets/shaders/water.vert", PATH_TO_SRC "/../assets/shaders/water.frag");
-	Shader treeblueShader(PATH_TO_SRC "/../assets/shaders/bunny.vert", PATH_TO_SRC "/../assets/shaders/bunnyblue.frag");
-	Shader treeredShader(PATH_TO_SRC "/../assets/shaders/bunny.vert", PATH_TO_SRC "/../assets/shaders/bunnyred.frag");
-	Shader treegreenShader(PATH_TO_SRC "/../assets/shaders/bunny.vert", PATH_TO_SRC "/../assets/shaders/bunnygreen.frag");
+	Shader treeShader(PATH_TO_SRC "/../assets/shaders/bunny.vert", PATH_TO_SRC "/../assets/shaders/bunnyblue.frag");
 
 	TerrainGeneration heightMapTexture(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
 	TerrainRenderer island(heightMapTexture);
 
 	Object water(PLAN_SIZE_X / 2, 0, true);
-	ObjectRenderer waterRenderer(waterShader, water);
+	glm::mat4 model = glm::mat4(1.0f);
+	std::vector<glm::mat4> modelwater = {model};
 
-	Object treered(PATH_TO_SRC "/../assets/models/Tree.obj");
-	Object treeblue(PATH_TO_SRC "/../assets/models/Tree.obj");
-	Object treegreen(PATH_TO_SRC "/../assets/models/Tree.obj");
+	ObjectRenderer waterRenderer(waterShader, water, modelwater);
 
-	ObjectRenderer treeblueRenderer(treeblueShader, treeblue);
-	ObjectRenderer treeredRenderer(treeredShader, treered);
-	ObjectRenderer treegreenRenderer(treegreenShader, treegreen);
+	Object tree(PATH_TO_SRC "/../assets/models/Tree.obj");
+
+	float y = heightMapTexture.getHeight(0, 0);
+	glm::mat4 modelgreen = glm::translate(model, glm::vec3(0, y, 0)); // y is up
+	float y2 = heightMapTexture.getHeight(20, 20);
+	glm::mat4 modelblue = glm::translate(model, glm::vec3(20, y2, 20));
+
+	float y3 = heightMapTexture.getHeight(40, 0);
+	glm::mat4 modelred = glm::translate(model, glm::vec3(40, y3, 0));
+
+	std::vector<glm::mat4> models = {modelblue, modelgreen, modelred};
+
+	ObjectRenderer treeRenderer(treeShader, tree, models);
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
+
 	while (!dm.shouldClose())
 	{
 
@@ -72,34 +80,9 @@ int main()
 		heightMapShader.updatePos(camera);
 		island.draw();
 
-		waterShader.use();
-		waterShader.updatePos(camera);
-		waterRenderer.draw();
+		waterRenderer.render();
 
-		glm::mat4 model = glm::mat4(1.0f);
-		glm::mat4 modelgreen = glm::mat4(1.0f);
-		glm::mat4 modelred = glm::mat4(1.0f);
-		glm::mat4 modelblue = glm::mat4(1.0f);
-
-		float y = heightMapTexture.getHeight(0, 0);
-		modelgreen = glm::translate(model, glm::vec3(0, y, 0)); // y is up
-		float y2 = heightMapTexture.getHeight(20, 20);
-		modelblue = glm::translate(model, glm::vec3(20, y2, 20));
-
-		float y3 = heightMapTexture.getHeight(40, 0);
-		modelred = glm::translate(model, glm::vec3(40, y3, 0));
-
-		treeblueShader.use();
-		treeblueShader.updatePos(camera, modelblue);
-		treeblueRenderer.draw();
-
-		treeredShader.use();
-		treeredShader.updatePos(camera, modelred);
-		treeredRenderer.draw();
-
-		treegreenShader.use();
-		treegreenShader.updatePos(camera, modelgreen);
-		treegreenRenderer.draw();
+		treeRenderer.render();
 
 		dm.update();
 	}

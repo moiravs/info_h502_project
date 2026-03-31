@@ -23,9 +23,14 @@ public:
 
     GLuint VBO, VAO;
     bool transparent;
+    std::vector<glm::mat4> models;
+    Shader shader;
+    Object object;
 
-    ObjectRenderer(const Shader shader, Object object, const bool texture = true)
+    ObjectRenderer(Shader shader, Object object, std::vector<glm::mat4> models, const bool texture = true) : shader(shader), object(object)
     {
+
+        this->models = models;
         this->vertices = object.getVertices();
         numVertices = vertices.size();
 
@@ -85,6 +90,16 @@ public:
         }
         glBindVertexArray(this->VAO);
         glDrawArrays(GL_TRIANGLES, 0, static_cast<int>(numVertices));
+    }
+
+    void render()
+    {
+        for (auto i : models)
+        {
+            this->shader.use();
+            this->shader.updatePos(camera, i);
+            this->draw();
+        }
     }
 };
 #endif
