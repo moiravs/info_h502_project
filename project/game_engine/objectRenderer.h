@@ -197,13 +197,13 @@ public:
 			auto att_tex = glGetAttribLocation(shader.ID, "tex_coord");
 			glEnableVertexAttribArray(att_tex);
 			glVertexAttribPointer(att_tex, 2, GL_FLOAT, false, 8 * sizeof(float),
-				reinterpret_cast<void*>(3 * sizeof(float)));
+								  reinterpret_cast<void *>(3 * sizeof(float)));
 		}
 
 		auto att_col = glGetAttribLocation(shader.ID, "normal");
 		glEnableVertexAttribArray(att_col);
 		glVertexAttribPointer(att_col, 3, GL_FLOAT, false, 8 * sizeof(float),
-			reinterpret_cast<void*>(5 * sizeof(float)));
+							  reinterpret_cast<void *>(5 * sizeof(float)));
 
 		// desactive the buffer
 		glBindBuffer(GL_ARRAY_BUFFER, 0);

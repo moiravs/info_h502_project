@@ -14,9 +14,10 @@
 
 #include "game_engine/shader.h"
 #include "game_engine/camera.h"
-#include "game_engine/texture.h"
+#include "game_engine/terrainGeneration.h"
 #include "game_engine/displaymanager.h"
-#include "game_engine/object.h"
+#include "game_engine/objectRenderer.h"
+#include "game_engine/terrainRenderer.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
@@ -49,9 +50,10 @@ int main()
 	Shader treeredShader(PATH_TO_SRC "/../assets/shaders/bunny.vert", PATH_TO_SRC "/../assets/shaders/bunnyred.frag");
 	Shader treegreenShader(PATH_TO_SRC "/../assets/shaders/bunny.vert", PATH_TO_SRC "/../assets/shaders/bunnygreen.frag");
 
-	Texture heightMapTexture(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
+	TerrainGeneration heightMapTexture(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
+	TerrainRenderer island(heightMapTexture);
 
-	Object water(PLAN_SIZE_X / 2, true);
+	Object water(PLAN_SIZE_X / 2, 0, true);
 	water.makeObject(waterShader);
 
 	Object treered(PATH_TO_SRC "/../assets/models/Tree.obj");
@@ -67,7 +69,7 @@ int main()
 
 		heightMapShader.use();
 		heightMapShader.updatePos(camera);
-		heightMapTexture.draw();
+		island.draw();
 
 		waterShader.use();
 		waterShader.updatePos(camera);
