@@ -72,7 +72,9 @@ int main()
 
 	Shader texshader(PATH_TO_SRC "/../assets/shaders/tex.frag", PATH_TO_SRC "/../assets/shaders/tex.vert");
 
-	ObjectRenderer treeRenderer(treeShader, tree, models, texture_random);
+	Texture wall(PATH_TO_SRC "/../assets/textures/wall.jpg");
+
+	ObjectRenderer treeRenderer(treeShader, tree, models, wall);
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 

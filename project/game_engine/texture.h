@@ -22,6 +22,13 @@ public:
     int m_Channels;
     unsigned int texture0;
 
+    Texture() = default;
+
+    int getWidth()
+    {
+        return m_Width;
+    }
+
     Texture(const std::string &filePath)
     {
         glGenTextures(1, &texture0);

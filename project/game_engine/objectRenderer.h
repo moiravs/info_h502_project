@@ -30,8 +30,12 @@ public:
 
     ObjectRenderer(Shader shader, Object object, std::vector<glm::mat4> models, Texture tex) : shader(shader), vertices(object.getVertices()), tex(tex), models(models)
     {
+
+        // BUG
         Texture wall(PATH_TO_SRC "/../assets/textures/wall.jpg");
         tex = wall;
+        // Normally should work because wall is passed in parameter with tex but does not work :((
+        //
         this->models = models;
         numVertices = vertices.size();
 
