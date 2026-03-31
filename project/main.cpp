@@ -8,7 +8,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
 #include <vector>
 
@@ -44,6 +43,8 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);
 
+	Texture texture_random(PATH_TO_SRC "/../assets/textures/wall.jpg");
+
 	Shader heightMapShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vs", PATH_TO_SRC "/../assets/shaders/cpu_height.fs");
 	Shader waterShader(PATH_TO_SRC "/../assets/shaders/water.vert", PATH_TO_SRC "/../assets/shaders/water.frag");
 	Shader treeShader(PATH_TO_SRC "/../assets/shaders/bunny.vert", PATH_TO_SRC "/../assets/shaders/bunnyblue.frag");
@@ -55,7 +56,7 @@ int main()
 	glm::mat4 model = glm::mat4(1.0f);
 	std::vector<glm::mat4> modelwater = {model};
 
-	ObjectRenderer waterRenderer(waterShader, water, modelwater);
+	ObjectRenderer waterRenderer(waterShader, water, modelwater, texture_random);
 
 	Object tree(PATH_TO_SRC "/../assets/models/Tree.obj");
 
@@ -69,12 +70,16 @@ int main()
 
 	std::vector<glm::mat4> models = {modelblue, modelgreen, modelred};
 
-	ObjectRenderer treeRenderer(treeShader, tree, models);
+	Shader texshader(PATH_TO_SRC "/../assets/shaders/tex.frag", PATH_TO_SRC "/../assets/shaders/tex.vert");
+
+	ObjectRenderer treeRenderer(treeShader, tree, models, texture_random);
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
 	while (!dm.shouldClose())
 	{
+
+		texshader.use();
 
 		heightMapShader.use();
 		heightMapShader.updatePos(camera);

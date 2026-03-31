@@ -19,13 +19,13 @@ public:
     int numStrips;
     int numTrisPerStrip;
 
-    TerrainRenderer(TerrainGeneration &texture) : m_texture(texture)
+    TerrainRenderer(TerrainGeneration &terrain_gen) : m_texture(terrain_gen)
     {
-        std::vector<float> vertices = texture.getVertices();
-        std::vector<unsigned> indices = texture.getIndices();
+        std::vector<float> vertices = terrain_gen.getVertices();
+        std::vector<unsigned> indices = terrain_gen.getIndices();
 
-        numStrips = (texture.getHeight() - 1);
-        numTrisPerStrip = (texture.getWidth()) * 2 - 2;
+        numStrips = (terrain_gen.getHeight() - 1);
+        numTrisPerStrip = (terrain_gen.getWidth()) * 2 - 2;
 
         glGenVertexArrays(1, &terrainVAO);
         glBindVertexArray(terrainVAO);

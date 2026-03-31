@@ -8,6 +8,8 @@
 #include <sstream>
 #include <iostream>
 
+#include "texture.h"
+
 class TerrainGeneration
 {
     int numStrips;
