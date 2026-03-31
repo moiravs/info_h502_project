@@ -1,5 +1,5 @@
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#ifndef TerrainGeneration_H
+#define TerrainGeneration_H
 
 #include <glad/glad.h>
 
@@ -8,13 +8,12 @@
 #include <sstream>
 #include <iostream>
 
-class Texture
+class TerrainGeneration
 {
     int numStrips;
     int numTrisPerStrip;
     std::vector<float> vertices;
     std::vector<unsigned> indices;
-    unsigned int terrainVAO, terrainVBO, terrainIBO;
     float targetWidth;
     float targetLength;
     int width;
@@ -23,7 +22,7 @@ class Texture
 public:
     GLuint ID;
 
-    Texture(const char *texturePath, float targetWidth, float targetLength)
+    TerrainGeneration(const char *texturePath, float targetWidth, float targetLength)
     {
 
         this->targetWidth = targetWidth;
@@ -73,37 +72,16 @@ public:
                 }
             }
         }
-
-        numStrips = (height - 1) / rez;
-        numTrisPerStrip = (width / rez) * 2 - 2;
-        // first, configure the cube's VAO (and terrainVBO + terrainIBO)
-        glGenVertexArrays(1, &terrainVAO);
-        glBindVertexArray(terrainVAO);
-
-        glGenBuffers(1, &terrainVBO);
-        glBindBuffer(GL_ARRAY_BUFFER, terrainVBO);
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
-
-        // position attribute
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-        glEnableVertexAttribArray(0);
-
-        glGenBuffers(1, &terrainIBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainIBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STATIC_DRAW);
     }
 
-    void draw()
+    float getHeight()
     {
-        glBindVertexArray(terrainVAO);
+        return this->height;
+    }
 
-        for (unsigned strip = 0; strip < numStrips; strip++)
-        {
-            glDrawElements(GL_TRIANGLE_STRIP,                                           // primitive type
-                           numTrisPerStrip + 2,                                         // number of indices to render
-                           GL_UNSIGNED_INT,                                             // index data type
-                           (void *)(sizeof(unsigned) * (numTrisPerStrip + 2) * strip)); // offset to starting index
-        }
+    float getWidth()
+    {
+        return this->width;
     }
 
     float getHeight(float worldX, float worldZ)
@@ -127,11 +105,13 @@ public:
         return vertices[vertexIndex + 1];
     }
 
-    ~Texture()
+    std::vector<float> &getVertices()
     {
-        glDeleteVertexArrays(1, &terrainVAO);
-        glDeleteBuffers(1, &terrainVBO);
-        glDeleteBuffers(1, &terrainIBO);
-    }
+        return vertices;
+    };
+    std::vector<unsigned> &getIndices()
+    {
+        return indices;
+    };
 };
 #endif
