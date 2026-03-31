@@ -54,14 +54,15 @@ int main()
 	TerrainRenderer island(heightMapTexture);
 
 	Object water(PLAN_SIZE_X / 2, 0, true);
-	water.makeObject(waterShader);
+	ObjectRenderer waterRenderer(waterShader, water);
 
 	Object treered(PATH_TO_SRC "/../assets/models/Tree.obj");
 	Object treeblue(PATH_TO_SRC "/../assets/models/Tree.obj");
 	Object treegreen(PATH_TO_SRC "/../assets/models/Tree.obj");
-	treeblue.makeObject(treeblueShader);
-	treered.makeObject(treeredShader);
-	treegreen.makeObject(treegreenShader);
+
+	ObjectRenderer treeblueRenderer(treeblueShader, treeblue);
+	ObjectRenderer treeredRenderer(treeredShader, treered);
+	ObjectRenderer treegreenRenderer(treegreenShader, treegreen);
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 	while (!dm.shouldClose())
@@ -73,7 +74,7 @@ int main()
 
 		waterShader.use();
 		waterShader.updatePos(camera);
-		water.draw();
+		waterRenderer.draw();
 
 		glm::mat4 model = glm::mat4(1.0f);
 		glm::mat4 modelgreen = glm::mat4(1.0f);
@@ -90,15 +91,15 @@ int main()
 
 		treeblueShader.use();
 		treeblueShader.updatePos(camera, modelblue);
-		treeblue.draw();
+		treeblueRenderer.draw();
 
 		treeredShader.use();
 		treeredShader.updatePos(camera, modelred);
-		treered.draw();
+		treeredRenderer.draw();
 
 		treegreenShader.use();
 		treegreenShader.updatePos(camera, modelgreen);
-		treegreen.draw();
+		treegreenRenderer.draw();
 
 		dm.update();
 	}
