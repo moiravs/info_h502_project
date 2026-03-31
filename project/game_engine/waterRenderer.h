@@ -1,5 +1,5 @@
-#ifndef ObjectRenderer_H
-#define ObjectRenderer_H
+#ifndef WaterRenderer_H
+#define WaterRenderer_H
 
 #include <iostream>
 #include <fstream>
@@ -13,9 +13,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "object.h"
-#include "texture.h"
+#include "shader.h"
 
-class ObjectRenderer
+class WaterRenderer
 {
 public:
     std::vector<Vertex> vertices;
@@ -26,12 +26,11 @@ public:
     bool transparent;
     std::vector<glm::mat4> models;
     Shader shader;
-    Texture tex;
+    Object object;
 
-    ObjectRenderer(Shader shader, Object object, std::vector<glm::mat4> models, Texture tex) : shader(shader), vertices(object.getVertices()), tex(tex), models(models)
+    WaterRenderer(Shader shader, Object object, std::vector<glm::mat4> models) : shader(shader), object(object), models(models)
     {
-        Texture wall(PATH_TO_SRC "/../assets/textures/wall.jpg");
-        tex = wall;
+        vertices = object.getVertices();
         this->models = models;
         numVertices = vertices.size();
 
@@ -81,11 +80,9 @@ public:
 
     void draw() const
     {
-        if (transparent)
-        {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        }
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glBindVertexArray(this->VAO);
         glDrawArrays(GL_TRIANGLES, 0, static_cast<int>(numVertices));
     }
@@ -93,13 +90,9 @@ public:
     void render()
     {
 
-        tex.bind();
-        for (auto i : models)
-        {
-            this->shader.use();
-            this->shader.updatePos(camera, i);
-            this->draw();
-        }
+        this->shader.use();
+        this->shader.updatePos(camera);
+        this->draw();
     }
 };
 #endif

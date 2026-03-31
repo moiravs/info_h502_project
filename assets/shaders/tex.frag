@@ -1,15 +1,14 @@
 #version 330 core
-precision mediump float;
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
+layout (location = 2) in vec2 aTexCoord;
 
-in vec2 v_tex;
-out vec4 FragColor;
+out vec3 ourColor;
+out vec2 TexCoord;
 
-uniform sampler2D renderedTexture;
-uniform float iTime;
-
-void main(){
-	//vec4 col = texture(renderedTexture, v_tex+vec2(0.8,0.0));
-	vec4 col = texture(renderedTexture, v_tex);
-	//col.w = 0.5;
-	FragColor = col;
+void main()
+{
+    gl_Position = vec4(aPos, 1.0);
+    ourColor = aColor;
+    TexCoord = aTexCoord;
 }
