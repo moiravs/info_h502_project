@@ -23,6 +23,25 @@
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
 int PLAN_SIZE_X = 1000;
+int waterHeight = 0;
+
+// Shaders
+Shader heightMapShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vert", PATH_TO_SRC "/../assets/shaders/cpu_height.frag");
+Shader heightMapReflectionShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vert", PATH_TO_SRC "/../assets/shaders/cpu_height.frag");
+Shader heightMapRefractionShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vert", PATH_TO_SRC "/../assets/shaders/cpu_height.frag");
+Shader waterShader(PATH_TO_SRC "/../assets/shaders/water.vert", PATH_TO_SRC "/../assets/shaders/water.frag");
+Shader treeShader(PATH_TO_SRC "/../assets/shaders/bunny.vert", PATH_TO_SRC "/../assets/shaders/bunnyblue.frag");
+
+// Texture
+Texture wall(PATH_TO_SRC "/../assets/textures/wall.jpg");
+Texture dudvMap = Texture(PATH_TO_SRC "/../assets/textures/waterdudv.png");
+
+// Objects
+Object tree(PATH_TO_SRC "/../assets/models/Tree.obj");
+Object water(PLAN_SIZE_X / 2, waterHeight, true);
+
+TerrainGeneration heightMap(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
+TerrainRenderer island(heightMap);
 
 int main()
 {
@@ -45,66 +64,43 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);
 
-	Shader heightMapShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vert", PATH_TO_SRC "/../assets/shaders/cpu_height.frag");
-
-	int waterHeight = 0;
-	Object water(PLAN_SIZE_X / 2, waterHeight, true);
-
 	heightMapShader.use(); // Ensure glUseProgram is called first
 	heightMapShader.setVector4f("plane", glm::vec4(0, 1, 0, waterHeight));
-
-	Shader heightMapReflectionShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vert", PATH_TO_SRC "/../assets/shaders/cpu_height.frag");
 
 	heightMapReflectionShader.use(); // Ensure glUseProgram is called first
 	heightMapReflectionShader.setVector4f("plane", glm::vec4(0, 1, 0, waterHeight));
 
-	Shader heightMapRefractionShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vert", PATH_TO_SRC "/../assets/shaders/cpu_height.frag");
-
 	heightMapRefractionShader.use(); // Ensure glUseProgram is called first
 	heightMapRefractionShader.setVector4f("plane", glm::vec4(0, -1, 0, waterHeight));
 
-	Shader waterShader(PATH_TO_SRC "/../assets/shaders/water.vert", PATH_TO_SRC "/../assets/shaders/water.frag");
 	waterShader.use();
 	waterShader.setInteger("reflectionTexture", 0);
 	waterShader.setInteger("refractionTexture", 1);
 	waterShader.setInteger("dudvMap", 2);
 
 	WaterFrameBuffers fbos = WaterFrameBuffers();
+
 	glm::mat4 model = glm::mat4(1.0f);
 
-	std::vector<glm::mat4> modelwater = {model};
-
-	Shader treeShader(PATH_TO_SRC "/../assets/shaders/bunny.vert", PATH_TO_SRC "/../assets/shaders/bunnyblue.frag");
-
-	TerrainGeneration heightMapTexture(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
-	TerrainRenderer island(heightMapTexture);
-
-	Object tree(PATH_TO_SRC "/../assets/models/Tree.obj");
-
-	float y = heightMapTexture.getHeight(0, 0);
+	float y = heightMap.getHeight(0, 0);
 	glm::mat4 modelgreen = glm::translate(model, glm::vec3(0, y, 0)); // y is up
-	float y2 = heightMapTexture.getHeight(20, 20);
+	float y2 = heightMap.getHeight(20, 20);
 	glm::mat4 modelblue = glm::translate(model, glm::vec3(20, y2, 20));
 
-	float y3 = heightMapTexture.getHeight(40, 0);
+	float y3 = heightMap.getHeight(40, 0);
 	glm::mat4 modelred = glm::translate(model, glm::vec3(40, y3, 0));
 
-	std::vector<glm::mat4> models = {modelblue, modelgreen, modelred};
+	ObjectRenderer treeRenderer(treeShader, tree, {modelblue, modelgreen, modelred}, wall);
 
-	Texture wall(PATH_TO_SRC "/../assets/textures/wall.jpg");
-
-	ObjectRenderer treeRenderer(treeShader, tree, models, wall);
-
-	WaterRenderer waterRenderer(waterShader, water, modelwater, fbos);
+	WaterRenderer waterRenderer(waterShader, water, fbos);
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
-	Texture dudvMap = Texture(PATH_TO_SRC "/../assets/textures/waterdudv.png");
+
 	while (!dm.shouldClose())
 	{
 
 		// Reflection
 		glEnable(GL_CLIP_DISTANCE0);
-		// fbos->bindReflectionFrameBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Essential!
 
 		fbos.bindReflectionFrameBuffer();
@@ -134,7 +130,6 @@ int main()
 
 		// Normal
 		glDisable(GL_CLIP_DISTANCE0);
-		// texshader.use();
 
 		heightMapShader.use();
 		heightMapShader.updatePos(camera);
