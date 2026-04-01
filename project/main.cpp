@@ -91,8 +91,6 @@ int main()
 
 	std::vector<glm::mat4> models = {modelblue, modelgreen, modelred};
 
-	Shader texshader(PATH_TO_SRC "/../assets/shaders/tex.frag", PATH_TO_SRC "/../assets/shaders/tex.vert");
-
 	Texture wall(PATH_TO_SRC "/../assets/textures/wall.jpg");
 
 	ObjectRenderer treeRenderer(treeShader, tree, models, wall);
@@ -100,7 +98,7 @@ int main()
 	WaterRenderer waterRenderer(waterShader, water, modelwater, fbos);
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
-
+	Texture dudvMap = Texture(PATH_TO_SRC "/../assets/textures/waterdudv.png");
 	while (!dm.shouldClose())
 	{
 
@@ -136,7 +134,7 @@ int main()
 
 		// Normal
 		glDisable(GL_CLIP_DISTANCE0);
-		texshader.use();
+		// texshader.use();
 
 		heightMapShader.use();
 		heightMapShader.updatePos(camera);

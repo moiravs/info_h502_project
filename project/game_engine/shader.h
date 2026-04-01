@@ -25,11 +25,15 @@ public:
         // ensure ifstream objects can throw exceptions:
         vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
         fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
         try
         {
+
             // open files
             vShaderFile.open(vertexPath);
             fShaderFile.open(fragmentPath);
+            // In your shader loading code, add debug output:
+
             std::stringstream vShaderStream, fShaderStream;
             // read file's buffer contents into streams
             vShaderStream << vShaderFile.rdbuf();

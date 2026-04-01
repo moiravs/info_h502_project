@@ -32,10 +32,10 @@ public:
     {
 
         // BUG
-        Texture wall(PATH_TO_SRC "/../assets/textures/wall.jpg");
-        tex = wall;
+
         // Normally should work because wall is passed in parameter with tex but does not work :((
         //
+        tex = Texture(PATH_TO_SRC "/../assets/textures/wall.jpg");
         this->models = models;
         numVertices = vertices.size();
 
