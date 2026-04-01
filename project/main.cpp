@@ -45,7 +45,7 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);
 
-	Shader heightMapShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vs", PATH_TO_SRC "/../assets/shaders/cpu_height.fs");
+	Shader heightMapShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vert", PATH_TO_SRC "/../assets/shaders/cpu_height.frag");
 
 	int waterHeight = 0;
 	Object water(PLAN_SIZE_X / 2, waterHeight, true);
@@ -53,12 +53,12 @@ int main()
 	heightMapShader.use(); // Ensure glUseProgram is called first
 	heightMapShader.setVector4f("plane", glm::vec4(0, 1, 0, waterHeight));
 
-	Shader heightMapReflectionShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vs", PATH_TO_SRC "/../assets/shaders/cpu_height.fs");
+	Shader heightMapReflectionShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vert", PATH_TO_SRC "/../assets/shaders/cpu_height.frag");
 
 	heightMapReflectionShader.use(); // Ensure glUseProgram is called first
 	heightMapReflectionShader.setVector4f("plane", glm::vec4(0, 1, 0, waterHeight));
 
-	Shader heightMapRefractionShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vs", PATH_TO_SRC "/../assets/shaders/cpu_height.fs");
+	Shader heightMapRefractionShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vert", PATH_TO_SRC "/../assets/shaders/cpu_height.frag");
 
 	heightMapRefractionShader.use(); // Ensure glUseProgram is called first
 	heightMapRefractionShader.setVector4f("plane", glm::vec4(0, -1, 0, waterHeight));
@@ -69,12 +69,10 @@ int main()
 	waterShader.setInteger("refractionTexture", 1);
 	waterShader.setInteger("dudvMap", 2);
 
-	WaterFrameBuffers *fbos = new WaterFrameBuffers();
+	WaterFrameBuffers fbos = WaterFrameBuffers();
 	glm::mat4 model = glm::mat4(1.0f);
 
 	std::vector<glm::mat4> modelwater = {model};
-
-	WaterRenderer waterRenderer(waterShader, water, modelwater, *fbos);
 
 	Shader treeShader(PATH_TO_SRC "/../assets/shaders/bunny.vert", PATH_TO_SRC "/../assets/shaders/bunnyblue.frag");
 
@@ -99,6 +97,8 @@ int main()
 
 	ObjectRenderer treeRenderer(treeShader, tree, models, wall);
 
+	WaterRenderer waterRenderer(waterShader, water, modelwater, fbos);
+
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
 	while (!dm.shouldClose())
@@ -109,7 +109,7 @@ int main()
 		// fbos->bindReflectionFrameBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Essential!
 
-		fbos->bindReflectionFrameBuffer();
+		fbos.bindReflectionFrameBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Essential!
 		float distance = 2 * (camera.GetCameraPosition().y - waterHeight);
 
@@ -124,13 +124,13 @@ int main()
 		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y + distance, camera.GetCameraPosition().z));
 
 		// Refraction
-		fbos->bindRefractionFrameBuffer();
+		fbos.bindRefractionFrameBuffer();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Essential!
 		heightMapRefractionShader.use();
 		heightMapRefractionShader.updatePos(camera);
 		island.draw();
-		fbos->unbindCurrentFrameBuffer();
+		fbos.unbindCurrentFrameBuffer();
 
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
@@ -148,7 +148,7 @@ int main()
 
 		dm.update();
 	}
-	fbos->cleanUp();
+	fbos.cleanUp();
 	glfwTerminate();
 	return 0;
 }

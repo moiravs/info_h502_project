@@ -21,7 +21,7 @@ class WaterRenderer
 public:
     std::vector<Vertex> vertices;
 
-    // char *dudvmap = PATH_TO_SRC "/../assets/textures/waterdudv.png";
+    Texture dudvMap = Texture(PATH_TO_SRC "/../assets/textures/waterdudv.png");
 
     size_t numVertices;
 
@@ -97,12 +97,13 @@ public:
         this->shader.use();
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, _fbos.getReflectionTexture());
-        this->shader.setInteger("reflectionTexture", 0); // Must match uniform name in shader
 
         // 2. Bind Refraction Texture to Unit 1
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, _fbos.getRefractionTexture());
-        this->shader.setInteger("refractionTexture", 1); // Must match uniform name in shader
+
+        // dudvMap.bind();
+        // this->shader.setInteger("dudvMap", 2); // Must match uniform name in shader
 
         this->shader.updatePos(camera);
         this->draw();
