@@ -27,15 +27,13 @@ public:
 
     GLuint VBO, VAO;
     bool transparent;
-    std::vector<glm::mat4> models;
     Shader shader;
     Object object;
     WaterFrameBuffers _fbos;
 
-    WaterRenderer(Shader shader, Object object, std::vector<glm::mat4> models, WaterFrameBuffers fbos) : shader(shader), object(object), models(models), _fbos(fbos)
+    WaterRenderer(Shader shader, Object object, WaterFrameBuffers fbos) : shader(shader), object(object), _fbos(fbos)
     {
         vertices = object.getVertices();
-        this->models = models;
         numVertices = vertices.size();
 
         auto *data = new float[8 * numVertices];
