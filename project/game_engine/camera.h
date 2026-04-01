@@ -88,6 +88,11 @@ public:
         return this->Up;
     }
 
+    void invertPitch()
+    {
+        this->Pitch = -this->Pitch;
+    }
+
     glm::vec3 GetCameraRight() const
     {
         return this->Right;
@@ -98,6 +103,10 @@ public:
         return this->Position;
     }
 
+    void SetCameraPosition(glm::vec3 position)
+    {
+        this->Position = position;
+    }
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
     void ProcessKeyboardMovement(const PlayerMovement direction, const float deltaTime)
     {

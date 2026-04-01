@@ -139,13 +139,13 @@ public:
 		glm::vec3 p4(-size, height, size);
 
 		// Texture coordinates
-		glm::vec2 t1(0.0f, 1.0f);
-		glm::vec2 t2(1.0f, 1.0f);
-		glm::vec2 t3(1.0f, 0.0f);
+		glm::vec2 t1(0.0f, size);
+		glm::vec2 t2(size, size);
+		glm::vec2 t3(size, 0.0f);
 		glm::vec2 t4(0.0f, 0.0f);
 
 		// Normal (pointing straight up)
-		glm::vec3 n(0.0f, 1.0f, 0.0f);
+		glm::vec3 n(0.0f, size, 0.0f);
 
 		// Triangle 1
 		vertices.push_back({p1, t1, n});

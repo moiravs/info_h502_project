@@ -9,9 +9,11 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform float time;
 
+out vec4 clipSpace;
+
 void main() {
-    // Optional: Make the water physically bob
-    float wave = sin(position.x * 0.5 + time) * 0.1;
-    gl_Position = projection * view * model * vec4(position.x, position.y + wave, position.z, 1.0);
-    TexCoord = tex_coord;
+
+    clipSpace = projection * view * model * vec4(position.x, position.y, position.z, 1.0);
+    gl_Position = clipSpace;
+    TexCoord = vec2(position.x/2.0 + 0.5, position.y/2.0 + 0.5);
 }

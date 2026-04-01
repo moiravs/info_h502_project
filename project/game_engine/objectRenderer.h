@@ -28,7 +28,7 @@ public:
     Shader shader;
     Texture tex;
 
-    ObjectRenderer(Shader shader, Object object, std::vector<glm::mat4> models, Texture tex) : shader(shader), vertices(object.getVertices()), tex(tex), models(models)
+    ObjectRenderer(Shader shader, Object object, std::vector<glm::mat4> models, Texture tex) : shader(shader), vertices(object.getVertices()), models(models), tex(tex)
     {
 
         // BUG
@@ -104,6 +104,7 @@ public:
             this->shader.updatePos(camera, i);
             this->draw();
         }
+        tex.unbind();
     }
 };
 #endif
