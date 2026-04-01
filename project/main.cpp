@@ -17,6 +17,8 @@
 #include "game_engine/displaymanager.h"
 #include "game_engine/objectRenderer.h"
 #include "game_engine/terrainRenderer.h"
+#include "game_engine/waterFrameBuffers.h"
+#include "game_engine/waterRenderer.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
@@ -43,20 +45,40 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);
 
-	Texture texture_random(PATH_TO_SRC "/../assets/textures/wall.jpg");
-
 	Shader heightMapShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vs", PATH_TO_SRC "/../assets/shaders/cpu_height.fs");
+
+	int waterHeight = 0;
+	Object water(PLAN_SIZE_X / 2, waterHeight, true);
+
+	heightMapShader.use(); // Ensure glUseProgram is called first
+	heightMapShader.setVector4f("plane", glm::vec4(0, 1, 0, waterHeight));
+
+	Shader heightMapReflectionShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vs", PATH_TO_SRC "/../assets/shaders/cpu_height.fs");
+
+	heightMapReflectionShader.use(); // Ensure glUseProgram is called first
+	heightMapReflectionShader.setVector4f("plane", glm::vec4(0, -1, 0, 15));
+
+	Shader heightMapRefractionShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vs", PATH_TO_SRC "/../assets/shaders/cpu_height.fs");
+
+	heightMapRefractionShader.use(); // Ensure glUseProgram is called first
+	heightMapRefractionShader.setVector4f("plane", glm::vec4(0, -1, 0, 40));
+
 	Shader waterShader(PATH_TO_SRC "/../assets/shaders/water.vert", PATH_TO_SRC "/../assets/shaders/water.frag");
+	waterShader.use();
+	waterShader.setInteger("reflectionTexture", 0);
+	waterShader.setInteger("refractionTexture", 1);
+
+	WaterFrameBuffers *fbos = new WaterFrameBuffers();
+	glm::mat4 model = glm::mat4(1.0f);
+
+	std::vector<glm::mat4> modelwater = {model};
+
+	WaterRenderer waterRenderer(waterShader, water, modelwater, *fbos);
+
 	Shader treeShader(PATH_TO_SRC "/../assets/shaders/bunny.vert", PATH_TO_SRC "/../assets/shaders/bunnyblue.frag");
 
 	TerrainGeneration heightMapTexture(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
 	TerrainRenderer island(heightMapTexture);
-
-	Object water(PLAN_SIZE_X / 2, 0, true);
-	glm::mat4 model = glm::mat4(1.0f);
-	std::vector<glm::mat4> modelwater = {model};
-
-	ObjectRenderer waterRenderer(waterShader, water, modelwater, texture_random);
 
 	Object tree(PATH_TO_SRC "/../assets/models/Tree.obj");
 
@@ -81,19 +103,53 @@ int main()
 	while (!dm.shouldClose())
 	{
 
+		// Reflection
+		glEnable(GL_CLIP_DISTANCE0);
+		fbos->bindReflectionFrameBuffer();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Essential!
+		float distance = 2 * (camera.GetCameraPosition().y - waterHeight);
+		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y - distance, camera.GetCameraPosition().z));
+		camera.invertPitch();
+
+		texshader.use();
+		heightMapReflectionShader.use();
+		heightMapReflectionShader.updatePos(camera);
+		island.draw();
+		treeRenderer.render();
+
+		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y + distance, camera.GetCameraPosition().z));
+		camera.invertPitch();
+
+		fbos->unbindCurrentFrameBuffer();
+
+		// // Refraction
+		fbos->bindRefractionFrameBuffer();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Essential!
+		texshader.use();
+		heightMapRefractionShader.use();
+		heightMapRefractionShader.updatePos(camera);
+		island.draw();
+		treeRenderer.render();
+
+		fbos->unbindCurrentFrameBuffer();
+
+		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
+
+		// Normal
+		glDisable(GL_CLIP_DISTANCE0);
 		texshader.use();
 
 		heightMapShader.use();
 		heightMapShader.updatePos(camera);
+
 		island.draw();
+		treeRenderer.render();
 
 		waterRenderer.render();
 
-		treeRenderer.render();
-
 		dm.update();
 	}
-
+	fbos->cleanUp();
 	glfwTerminate();
 	return 0;
 }

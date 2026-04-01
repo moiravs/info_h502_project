@@ -3,9 +3,17 @@
 out vec4 FragColor;
 
 in float Height;
+in vec4 WorldPos; // Must be passed from Vertex Shader
+
+
 
 void main()
 {
+
+
+
+
+
     float h = (Height + 16.0) / 32.0; // Your existing scale
     h = clamp(h, 0.0, 1.0);           // Safety check to keep h between 0 and 1
 

@@ -14,6 +14,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "object.h"
 #include "shader.h"
+#include "waterFrameBuffers.h"
 
 class WaterRenderer
 {
@@ -27,8 +28,9 @@ public:
     std::vector<glm::mat4> models;
     Shader shader;
     Object object;
+    WaterFrameBuffers _fbos;
 
-    WaterRenderer(Shader shader, Object object, std::vector<glm::mat4> models) : shader(shader), object(object), models(models)
+    WaterRenderer(Shader shader, Object object, std::vector<glm::mat4> models, WaterFrameBuffers fbos) : shader(shader), object(object), models(models), _fbos(fbos)
     {
         vertices = object.getVertices();
         this->models = models;
@@ -78,7 +80,7 @@ public:
         delete[] data;
     }
 
-    void draw() const
+    void draw()
     {
 
         glEnable(GL_BLEND);
@@ -91,6 +93,15 @@ public:
     {
 
         this->shader.use();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, _fbos.getReflectionTexture());
+        this->shader.setInteger("reflectionTexture", 0); // Must match uniform name in shader
+
+        // 2. Bind Refraction Texture to Unit 1
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, _fbos.getRefractionTexture());
+        this->shader.setInteger("refractionTexture", 1); // Must match uniform name in shader
+
         this->shader.updatePos(camera);
         this->draw();
     }
