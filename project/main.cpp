@@ -56,12 +56,12 @@ int main()
 	Shader heightMapReflectionShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vs", PATH_TO_SRC "/../assets/shaders/cpu_height.fs");
 
 	heightMapReflectionShader.use(); // Ensure glUseProgram is called first
-	heightMapReflectionShader.setVector4f("plane", glm::vec4(0, -1, 0, 15));
+	heightMapReflectionShader.setVector4f("plane", glm::vec4(0, 1, 0, waterHeight));
 
 	Shader heightMapRefractionShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vs", PATH_TO_SRC "/../assets/shaders/cpu_height.fs");
 
 	heightMapRefractionShader.use(); // Ensure glUseProgram is called first
-	heightMapRefractionShader.setVector4f("plane", glm::vec4(0, -1, 0, 40));
+	heightMapRefractionShader.setVector4f("plane", glm::vec4(0, -1, 0, waterHeight));
 
 	Shader waterShader(PATH_TO_SRC "/../assets/shaders/water.vert", PATH_TO_SRC "/../assets/shaders/water.frag");
 	waterShader.use();
@@ -105,34 +105,42 @@ int main()
 
 		// Reflection
 		glEnable(GL_CLIP_DISTANCE0);
-		fbos->bindReflectionFrameBuffer();
+		// fbos->bindReflectionFrameBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Essential!
 		float distance = 2 * (camera.GetCameraPosition().y - waterHeight);
-		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y - distance, camera.GetCameraPosition().z));
-		camera.invertPitch();
 
-		texshader.use();
+		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y - distance, camera.GetCameraPosition().z));
 		heightMapReflectionShader.use();
+		camera.invertPitch();
 		heightMapReflectionShader.updatePos(camera);
 		island.draw();
-		treeRenderer.render();
 
 		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y + distance, camera.GetCameraPosition().z));
 		camera.invertPitch();
+		// fbos->unbindCurrentFrameBuffer();
 
+		fbos->bindReflectionFrameBuffer();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Essential!
+		distance = 2 * (camera.GetCameraPosition().y - waterHeight);
+
+		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y - distance, camera.GetCameraPosition().z));
+		heightMapReflectionShader.use();
+		camera.invertPitch();
+		heightMapReflectionShader.updatePos(camera);
+		island.draw();
+
+		camera.invertPitch();
+
+		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y + distance, camera.GetCameraPosition().z));
 		fbos->unbindCurrentFrameBuffer();
 
 		// // Refraction
-		fbos->bindRefractionFrameBuffer();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Essential!
-		texshader.use();
-		heightMapRefractionShader.use();
-		heightMapRefractionShader.updatePos(camera);
-		island.draw();
-		treeRenderer.render();
-
-		fbos->unbindCurrentFrameBuffer();
-
+		// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Essential!
+		// texshader.use();
+		// heightMapRefractionShader.use();
+		// heightMapRefractionShader.updatePos(camera);
+		// island.draw();
+		// treeRenderer.render();
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
 		// Normal
