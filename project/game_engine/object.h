@@ -176,5 +176,24 @@ public:
 	{
 		return vertices;
 	};
+
+	float getHeight()
+	{
+		if (vertices.empty())
+			return 0.0f;
+
+		float minY = vertices[0].Position.y;
+		float maxY = vertices[0].Position.y;
+
+		for (const auto &vertex : vertices)
+		{
+			if (vertex.Position.y < minY)
+				minY = vertex.Position.y;
+			if (vertex.Position.y > maxY)
+				maxY = vertex.Position.y;
+		}
+
+		return maxY - minY;
+	}
 };
 #endif

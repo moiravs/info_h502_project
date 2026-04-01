@@ -90,7 +90,8 @@ public:
 
     void invertPitch()
     {
-        this->Pitch = -this->Pitch;
+        float tmp = this->Pitch;
+        this->Pitch = -tmp;
     }
 
     glm::vec3 GetCameraRight() const
