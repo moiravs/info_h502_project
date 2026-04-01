@@ -95,6 +95,10 @@ public:
     {
 
         this->shader.use();
+
+        this->shader.setInteger("reflectionTexture", 0);
+        this->shader.setInteger("refractionTexture", 1);
+        this->shader.setInteger("dudvMap", 2); // Must match uniform name in shader
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, _fbos.getReflectionTexture());
 
@@ -102,8 +106,8 @@ public:
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, _fbos.getRefractionTexture());
 
-        // dudvMap.bind();
-        // this->shader.setInteger("dudvMap", 2); // Must match uniform name in shader
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, dudvMap.getTexture());
 
         this->shader.updatePos(camera);
         this->draw();

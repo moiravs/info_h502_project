@@ -7,6 +7,7 @@ uniform sampler2D reflectionTexture;
 uniform sampler2D refractionTexture;
 uniform sampler2D dudvMap;
 
+const float waveStrength = 0.02f;
 in vec2 TexCoord;
 
 
@@ -19,7 +20,7 @@ void main() {
     vec2 reflectTexCoords = vec2(ndc.x, 1.0-ndc.y);
 
 
-    vec2 distortion1 = texture(dudvMap, vec2(TexCoord.x, TexCoord.y)).rg * 2.0 - 1.0;
+    vec2 distortion1 = (texture(dudvMap, vec2(TexCoord.x, TexCoord.y)).rg * 2.0 - 1.0) * waveStrength;
 
     reflectTexCoords += distortion1;
     refractTexCoords += distortion1;

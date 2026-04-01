@@ -40,7 +40,9 @@ public:
         int width, height, nrChannels;
         stbi_set_flip_vertically_on_load(true);
 
-        unsigned char *data = stbi_load(PATH_TO_SRC "/../assets/textures/wall.jpg", &width, &height, &nrChannels, 0);
+        // std::cout << filePath.c_str() << std::endl;
+        // unsigned char *data = stbi_load(PATH_TO_SRC "/../assets/textures/wall.jpg", &width, &height, &nrChannels, 0);
+        unsigned char *data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
         if (data)
         {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -59,6 +61,11 @@ public:
     {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture0);
+    }
+
+    int getTexture()
+    {
+        return texture0;
     }
 
     void unbind() const
