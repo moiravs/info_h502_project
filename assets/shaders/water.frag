@@ -5,6 +5,7 @@ in vec4 clipSpace;
 
 uniform sampler2D reflectionTexture;
 uniform sampler2D refractionTexture;
+uniform sampler2D dudvMap;
 
 uniform float time;
 

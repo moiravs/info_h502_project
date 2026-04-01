@@ -23,6 +23,9 @@ void main()
     vec3 finalColor = mix(darkGreen, lightGreen, h);
     if (h > 0.8)
         finalColor = vec3(1.0, 1.0, 1.0);
+
+    // if (h < 0.2)
+    //     finalColor = vec3(0.0,0.0,0.8);
     
     FragColor = vec4(finalColor, 1.0);
 }

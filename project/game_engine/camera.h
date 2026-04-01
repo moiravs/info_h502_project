@@ -92,6 +92,7 @@ public:
     {
         float tmp = this->Pitch;
         this->Pitch = -tmp;
+        updateCameraVectors();
     }
 
     glm::vec3 GetCameraRight() const

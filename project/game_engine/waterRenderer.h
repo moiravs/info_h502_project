@@ -21,6 +21,8 @@ class WaterRenderer
 public:
     std::vector<Vertex> vertices;
 
+    // char *dudvmap = PATH_TO_SRC "/../assets/textures/waterdudv.png";
+
     size_t numVertices;
 
     GLuint VBO, VAO;

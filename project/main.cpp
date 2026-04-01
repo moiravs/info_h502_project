@@ -67,6 +67,7 @@ int main()
 	waterShader.use();
 	waterShader.setInteger("reflectionTexture", 0);
 	waterShader.setInteger("refractionTexture", 1);
+	waterShader.setInteger("dudvMap", 2);
 
 	WaterFrameBuffers *fbos = new WaterFrameBuffers();
 	glm::mat4 model = glm::mat4(1.0f);
@@ -107,6 +108,9 @@ int main()
 		glEnable(GL_CLIP_DISTANCE0);
 		// fbos->bindReflectionFrameBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Essential!
+
+		fbos->bindReflectionFrameBuffer();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Essential!
 		float distance = 2 * (camera.GetCameraPosition().y - waterHeight);
 
 		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y - distance, camera.GetCameraPosition().z));
@@ -115,32 +119,19 @@ int main()
 		heightMapReflectionShader.updatePos(camera);
 		island.draw();
 
-		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y + distance, camera.GetCameraPosition().z));
 		camera.invertPitch();
-		// fbos->unbindCurrentFrameBuffer();
 
-		fbos->bindReflectionFrameBuffer();
+		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y + distance, camera.GetCameraPosition().z));
+
+		// Refraction
+		fbos->bindRefractionFrameBuffer();
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Essential!
-		distance = 2 * (camera.GetCameraPosition().y - waterHeight);
-
-		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y - distance, camera.GetCameraPosition().z));
-		heightMapReflectionShader.use();
-		camera.invertPitch();
-		heightMapReflectionShader.updatePos(camera);
+		heightMapRefractionShader.use();
+		heightMapRefractionShader.updatePos(camera);
 		island.draw();
-
-		camera.invertPitch();
-
-		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y + distance, camera.GetCameraPosition().z));
 		fbos->unbindCurrentFrameBuffer();
 
-		// // Refraction
-		// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Essential!
-		// texshader.use();
-		// heightMapRefractionShader.use();
-		// heightMapRefractionShader.updatePos(camera);
-		// island.draw();
-		// treeRenderer.render();
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
 		// Normal
