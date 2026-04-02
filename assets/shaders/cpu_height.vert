@@ -1,5 +1,8 @@
-#version 330 core
+#version 420 core
 layout (location = 0) in vec3 aPos;
+layout (std140, binding = 3) uniform WaterData {
+    vec4 plane;
+};
 
 out float Height;
 out vec3 Position;
@@ -9,7 +12,6 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-uniform vec4 plane;
 
 void main()
 {
