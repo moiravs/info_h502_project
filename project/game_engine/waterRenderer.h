@@ -78,6 +78,11 @@ public:
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
         delete[] data;
+
+        this->shader.use();
+        this->shader.setInteger("reflectionTexture", 0);
+        this->shader.setInteger("refractionTexture", 1);
+        this->shader.setInteger("dudvMap", 2); // Must match uniform name in shader
     }
 
     void draw()
@@ -94,13 +99,9 @@ public:
 
         this->shader.use();
 
-        this->shader.setInteger("reflectionTexture", 0);
-        this->shader.setInteger("refractionTexture", 1);
-        this->shader.setInteger("dudvMap", 2); // Must match uniform name in shader
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, _fbos.getReflectionTexture());
 
-        // 2. Bind Refraction Texture to Unit 1
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, _fbos.getRefractionTexture());
 
