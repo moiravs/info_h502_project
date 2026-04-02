@@ -72,17 +72,21 @@ int main()
 
 	WaterFrameBuffers fbos = WaterFrameBuffers();
 
-	glm::mat4 model = glm::mat4(1.0f);
+	std::vector<Object> trees;
 
-	float y = heightMap.getHeight(0, 0);
-	glm::mat4 modelgreen = glm::translate(model, glm::vec3(0, y, 0)); // y is up
-	float y2 = heightMap.getHeight(20, 20);
-	glm::mat4 modelblue = glm::translate(model, glm::vec3(20, y2, 20));
+	// Create 3 trees
+	for (int i = 0; i < 3; i++)
+	{
+		Object tree(PATH_TO_SRC "/../assets/models/Tree.obj");
+		trees.emplace_back(tree);
+	}
 
-	float y3 = heightMap.getHeight(40, 0);
-	glm::mat4 modelred = glm::translate(model, glm::vec3(40, y3, 0));
+	// Position them (this can be done once or in the update loop)
+	trees[0].setWorldPosition(0.0f, 0.0f, heightMap);
+	trees[1].setWorldPosition(20.0f, 20.0f, heightMap);
+	trees[2].setWorldPosition(40.0f, 0.0f, heightMap);
 
-	ObjectRenderer treeRenderer(treeShader, tree, {modelblue, modelgreen, modelred}, wall);
+	ObjectRenderer treeRenderer(treeShader, trees, wall);
 
 	WaterRenderer waterRenderer(waterShader, water, fbos);
 

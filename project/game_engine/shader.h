@@ -14,6 +14,7 @@ class Shader
 {
 public:
     GLuint ID;
+    glm::mat4 model = glm::mat4(1.0);
 
     Shader(const char *vertexPath, const char *fragmentPath)
     {
@@ -55,6 +56,8 @@ public:
         GLuint vertex = compileShader(vertexCode, GL_VERTEX_SHADER);
         GLuint fragment = compileShader(fragmentCode, GL_FRAGMENT_SHADER);
         ID = compileProgram(vertex, fragment);
+
+        this->setMatrix4("model", model);
     }
 
     Shader(std::string vShaderCode, std::string fShaderCode)
@@ -69,19 +72,13 @@ public:
         glUseProgram(ID);
     }
 
-    void setPosition(glm::mat4 model)
-    {
-        setMatrix4("model", model);
-    }
-
-    void updatePos(Camera currentCamera, glm::mat4 model = glm::mat4(1.0f))
+    void updatePos(Camera currentCamera)
     {
         glm::mat4 projection = currentCamera.GetProjectionMatrix(glm::radians(currentCamera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100000.0f);
         glm::mat4 view = currentCamera.GetViewMatrix();
 
         this->setMatrix4("projection", projection);
         this->setMatrix4("view", view);
-        this->setMatrix4("model", model);
     }
     void setInteger(const GLchar *name, GLint value)
     {

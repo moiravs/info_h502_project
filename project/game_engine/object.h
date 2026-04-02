@@ -34,6 +34,7 @@ public:
 	bool transparent;
 
 	glm::mat4 model = glm::mat4(1.0);
+	glm::vec3 worldPos;
 
 	Object(const char *path, bool transparent = false)
 	{
@@ -127,6 +128,7 @@ public:
 		{
 			std::cout << "Error opening file: " << path << std::endl;
 		}
+		numVertices = vertices.size();
 	}
 
 	Object(float size, float height, bool transparent = false)
@@ -176,6 +178,17 @@ public:
 	{
 		return vertices;
 	};
+
+	void setWorldPosition(float x, float z, TerrainGeneration &terrain)
+	{
+		float y = terrain.getHeight(x, z);
+		this->worldPos = glm::vec3(x, y, z);
+		std::cout << "x" << x << "y" << y << "z" << z << std::endl;
+		this->model = glm::translate(glm::mat4(1.0f), worldPos);
+
+		// Optional: Add rotation if needed
+		// this->model = glm::rotate(this->model, ...);
+	}
 
 	float getHeight()
 	{
