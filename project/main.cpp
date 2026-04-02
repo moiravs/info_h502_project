@@ -49,7 +49,7 @@ int main()
 	// Shaders
 	Shader heightMapShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vert", PATH_TO_SRC "/../assets/shaders/cpu_height.frag");
 	Shader waterShader(PATH_TO_SRC "/../assets/shaders/water.vert", PATH_TO_SRC "/../assets/shaders/water.frag");
-	Shader treeShader(PATH_TO_SRC "/../assets/shaders/bunny.vert", PATH_TO_SRC "/../assets/shaders/bunnyblue.frag");
+	Shader treeShader(PATH_TO_SRC "/../assets/shaders/tree.vert", PATH_TO_SRC "/../assets/shaders/tree.frag");
 
 	// Texture
 	Texture wall(PATH_TO_SRC "/../assets/textures/wall.jpg");
@@ -75,7 +75,7 @@ int main()
 	std::vector<Object> trees;
 
 	// Create 3 trees
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		Object tree(PATH_TO_SRC "/../assets/models/Tree.obj");
 		trees.emplace_back(tree);
@@ -85,15 +85,15 @@ int main()
 	trees[0].setWorldPosition(0.0f, 0.0f, heightMap);
 	trees[1].setWorldPosition(20.0f, 20.0f, heightMap);
 	trees[2].setWorldPosition(40.0f, 0.0f, heightMap);
+	trees[3].setWorldPosition(160.0f, 9.0f, 130.0f);
 
 	ObjectRenderer treeRenderer(treeShader, trees, wall);
-
 	WaterRenderer waterRenderer(waterShader, water, fbos);
-
-	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
 	glm::vec4 reflectionPlane = glm::vec4(0, 1, 0, waterHeight);
 	glm::vec4 refractionPlane = glm::vec4(0, -1, 0, waterHeight);
+
+	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
 	while (!dm.shouldClose())
 	{
@@ -106,14 +106,15 @@ int main()
 		float distance = 2 * (camera.GetCameraPosition().y - waterHeight);
 
 		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y - distance, camera.GetCameraPosition().z));
-		heightMapShader.use();
 		camera.invertPitch();
 
 		glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(reflectionPlane));
 
+		heightMapShader.use();
 		heightMapShader.updatePos(camera);
 		terrainRenderer.draw();
+		treeRenderer.render();
 
 		camera.invertPitch();
 
@@ -123,13 +124,13 @@ int main()
 		fbos.bindRefractionFrameBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		heightMapShader.use();
-
 		glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(refractionPlane));
 
+		heightMapShader.use();
 		heightMapShader.updatePos(camera);
 		terrainRenderer.draw();
+		treeRenderer.render();
 
 		fbos.unbindCurrentFrameBuffer();
 
