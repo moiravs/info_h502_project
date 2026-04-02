@@ -60,16 +60,14 @@ int main()
 	Object tree(PATH_TO_SRC "/../assets/models/Tree.obj");
 	Object water(PLAN_SIZE_X / 2, waterHeight, true);
 
+	// Terrain
 	TerrainGeneration heightMap(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
-	TerrainRenderer island(heightMap);
+	TerrainRenderer terrainRenderer(heightMap);
 
-	heightMapShader.use(); // Ensure glUseProgram is called first
 	heightMapShader.setVector4f("plane", glm::vec4(0, 1, 0, waterHeight));
 
-	heightMapReflectionShader.use(); // Ensure glUseProgram is called first
 	heightMapReflectionShader.setVector4f("plane", glm::vec4(0, 1, 0, waterHeight));
 
-	heightMapRefractionShader.use(); // Ensure glUseProgram is called first
 	heightMapRefractionShader.setVector4f("plane", glm::vec4(0, -1, 0, waterHeight));
 
 	WaterFrameBuffers fbos = WaterFrameBuffers();
@@ -106,7 +104,7 @@ int main()
 		heightMapReflectionShader.use();
 		camera.invertPitch();
 		heightMapReflectionShader.updatePos(camera);
-		island.draw();
+		terrainRenderer.draw();
 
 		camera.invertPitch();
 
@@ -118,7 +116,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Essential!
 		heightMapRefractionShader.use();
 		heightMapRefractionShader.updatePos(camera);
-		island.draw();
+		terrainRenderer.draw();
 		fbos.unbindCurrentFrameBuffer();
 
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
@@ -129,9 +127,8 @@ int main()
 		heightMapShader.use();
 		heightMapShader.updatePos(camera);
 
-		island.draw();
+		terrainRenderer.draw();
 		treeRenderer.render();
-
 		waterRenderer.render();
 
 		dm.update();

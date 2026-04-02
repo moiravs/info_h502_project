@@ -1,17 +1,26 @@
 DONE:
+- Loading models
+    - Tree model
+- Textures
+    - Added texture to the tree
+- Reflection/refraction
+    - Water
 
-- Water object
-- Terrain texture from an height map
-- Loaded an object (Tree)
-- Change to gitsubmodules (!!! we cannot put glad as a submodule as the github repo is only a loader library, so it loses all sense to put it as a submodule)
+EN COURS:
+- Refactor :((
 
 TODO:
-- Texture class mixes with object ?? this class is weird
-- Refactor the calls to the shader 
-- How can we refactor to have something easy to put for example a tree on a texture or on another object (in each direction)
-- Add texture to the tree
-- water moving (physics simulation)
-- Add an object light
-    - Handle light
-- Instance a lot of trees 
+- Object moving in the scene
+    - Water (physics simulation)
+
+- Lights
+    - Add a lamp
+
+- Tessalation for the height terrain https://learnopengl.com/Guest-Articles/2021/Tessellation/Tessellation
+
+- Add object
+    - Fire camp 
+
+- Instancing 
+    - Instancing trees
 

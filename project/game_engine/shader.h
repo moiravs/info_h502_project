@@ -85,30 +85,41 @@ public:
     }
     void setInteger(const GLchar *name, GLint value)
     {
+        this->use();
         glUniform1i(glGetUniformLocation(ID, name), value);
     }
     void setFloat(const GLchar *name, GLfloat value)
     {
+        this->use();
+
         glUniform1f(glGetUniformLocation(ID, name), value);
     }
     void setVector2f(const GLchar *name, GLfloat x, GLfloat y)
     {
+        this->use();
+
         glUniform2f(glGetUniformLocation(ID, name), x, y);
     }
     void setVector3f(const GLchar *name, GLfloat x, GLfloat y, GLfloat z)
     {
+        this->use();
+
         glUniform3f(glGetUniformLocation(ID, name), x, y, z);
     }
     void setVector3f(const GLchar *name, const glm::vec3 &value)
     {
+        this->use();
+
         glUniform3f(glGetUniformLocation(ID, name), value.x, value.y, value.z);
     }
     void setVector4f(const GLchar *name, const glm::vec4 &value)
     {
+        this->use();
         glUniform4f(glGetUniformLocation(ID, name), value.x, value.y, value.z, value.w);
     }
     void setMatrix4(const GLchar *name, const glm::mat4 &matrix)
     {
+        this->use();
         glUniformMatrix4fv(glGetUniformLocation(ID, name), 1, GL_FALSE, glm::value_ptr(matrix));
     }
 

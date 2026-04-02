@@ -79,7 +79,6 @@ public:
         glBindVertexArray(0);
         delete[] data;
 
-        this->shader.use();
         this->shader.setInteger("reflectionTexture", 0);
         this->shader.setInteger("refractionTexture", 1);
         this->shader.setInteger("dudvMap", 2); // Must match uniform name in shader
