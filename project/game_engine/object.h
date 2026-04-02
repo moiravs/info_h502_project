@@ -183,11 +183,12 @@ public:
 	{
 		float y = terrain.getHeight(x, z);
 		this->worldPos = glm::vec3(x, y, z);
-		std::cout << "x" << x << "y" << y << "z" << z << std::endl;
 		this->model = glm::translate(glm::mat4(1.0f), worldPos);
-
-		// Optional: Add rotation if needed
-		// this->model = glm::rotate(this->model, ...);
+	}
+	void setWorldPosition(float x, float y, float z)
+	{
+		this->worldPos = glm::vec3(x, y, z);
+		this->model = glm::translate(glm::mat4(1.0f), worldPos);
 	}
 
 	float getHeight()
