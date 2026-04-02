@@ -81,7 +81,7 @@ public:
 
         this->shader.setInteger("reflectionTexture", 0);
         this->shader.setInteger("refractionTexture", 1);
-        this->shader.setInteger("dudvMap", 2); // Must match uniform name in shader
+        this->shader.setInteger("dudvMap", 2);
     }
 
     void draw()

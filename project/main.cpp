@@ -48,8 +48,6 @@ int main()
 
 	// Shaders
 	Shader heightMapShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vert", PATH_TO_SRC "/../assets/shaders/cpu_height.frag");
-	Shader heightMapReflectionShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vert", PATH_TO_SRC "/../assets/shaders/cpu_height.frag");
-	Shader heightMapRefractionShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vert", PATH_TO_SRC "/../assets/shaders/cpu_height.frag");
 	Shader waterShader(PATH_TO_SRC "/../assets/shaders/water.vert", PATH_TO_SRC "/../assets/shaders/water.frag");
 	Shader treeShader(PATH_TO_SRC "/../assets/shaders/bunny.vert", PATH_TO_SRC "/../assets/shaders/bunnyblue.frag");
 
@@ -64,11 +62,13 @@ int main()
 	TerrainGeneration heightMap(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
 	TerrainRenderer terrainRenderer(heightMap);
 
+	GLuint uboWater;
+	glGenBuffers(1, &uboWater);
+	glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec4), NULL, GL_DYNAMIC_DRAW);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 3, uboWater);
+
 	heightMapShader.setVector4f("plane", glm::vec4(0, 1, 0, waterHeight));
-
-	heightMapReflectionShader.setVector4f("plane", glm::vec4(0, 1, 0, waterHeight));
-
-	heightMapRefractionShader.setVector4f("plane", glm::vec4(0, -1, 0, waterHeight));
 
 	WaterFrameBuffers fbos = WaterFrameBuffers();
 
@@ -92,22 +92,27 @@ int main()
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
+	glm::vec4 reflectionPlane = glm::vec4(0, 1, 0, waterHeight);
+	glm::vec4 refractionPlane = glm::vec4(0, -1, 0, waterHeight);
+
 	while (!dm.shouldClose())
 	{
-
 		// Reflection
 		glEnable(GL_CLIP_DISTANCE0);
-		// fbos->bindReflectionFrameBuffer();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Essential!
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		fbos.bindReflectionFrameBuffer();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Essential!
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		float distance = 2 * (camera.GetCameraPosition().y - waterHeight);
 
 		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y - distance, camera.GetCameraPosition().z));
-		heightMapReflectionShader.use();
+		heightMapShader.use();
 		camera.invertPitch();
-		heightMapReflectionShader.updatePos(camera);
+
+		glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(reflectionPlane));
+
+		heightMapShader.updatePos(camera);
 		terrainRenderer.draw();
 
 		camera.invertPitch();
@@ -116,11 +121,16 @@ int main()
 
 		// Refraction
 		fbos.bindRefractionFrameBuffer();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Essential!
-		heightMapRefractionShader.use();
-		heightMapRefractionShader.updatePos(camera);
+		heightMapShader.use();
+
+		glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(refractionPlane));
+
+		heightMapShader.updatePos(camera);
 		terrainRenderer.draw();
+
 		fbos.unbindCurrentFrameBuffer();
 
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
