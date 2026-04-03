@@ -32,11 +32,16 @@ class DisplayManager
     double lastX = 800;
     double lastY = 600;
     bool firstMouse = true;
+    double lastTime;
+    int nbFrames = 0;
 
     // timing
     float lastFrame = 0.0f;
 
-    GLFWwindow *createWindow()
+    std::function<void()> fps;
+
+    GLFWwindow *
+    createWindow()
     {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -67,7 +72,10 @@ class DisplayManager
     }
 
 public:
-    DisplayManager() : window(DisplayManager::createWindow()) {}
+    DisplayManager() : window(DisplayManager::createWindow())
+    {
+        lastTime = glfwGetTime();
+    }
 
     void resizeViewport(const int width, const int height) const
     {
@@ -114,6 +122,7 @@ public:
 
     void update()
     {
+
         glfwSwapBuffers(this->window);
         glfwPollEvents();
 
@@ -125,6 +134,17 @@ public:
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Measure speed
+        double currentTime = glfwGetTime();
+        nbFrames++;
+        if (currentTime - lastTime >= 1.0)
+        { // If last prinf() was more than 1 sec ago
+            // printf and reset timer
+            printf("%f ms/frame\n", 1000.0 / double(nbFrames));
+            nbFrames = 0;
+            lastTime += 1.0;
+        }
     }
 
     void processInput() const
