@@ -21,12 +21,28 @@ public:
     int m_Height;
     int m_Channels;
     unsigned int texture0;
+    unsigned char *data;
 
     Texture() = default;
 
     int getWidth()
     {
         return m_Width;
+    }
+
+    unsigned char *getData()
+    {
+        return data;
+    }
+
+    int getChannels()
+    {
+        return m_Channels;
+    }
+
+    int getHeight()
+    {
+        return m_Height;
     }
 
     Texture(const std::string &filePath)
@@ -38,17 +54,15 @@ public:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        int width, height, nrChannels;
         stbi_set_flip_vertically_on_load(true);
 
-        unsigned char *data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
+        data = stbi_load(filePath.c_str(), &m_Width, &m_Height, &m_Channels, 0);
         if (data)
         {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
             glGenerateMipmap(GL_TEXTURE_2D);
         }
 
-        stbi_image_free(data);
     }
 
     ~Texture()

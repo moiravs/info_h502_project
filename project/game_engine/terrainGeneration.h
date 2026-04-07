@@ -24,22 +24,20 @@ class TerrainGeneration
 public:
     GLuint ID;
 
-    TerrainGeneration(const char *texturePath, float targetWidth, float targetLength)
+    TerrainGeneration(Texture texture, float targetWidth, float targetLength)
     {
 
         this->targetWidth = targetWidth;
         this->targetLength = targetLength;
-        stbi_set_flip_vertically_on_load(true);
-        int nrChannels;
-        unsigned char *data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
-        if (!data)
-        {
-            std::cout << "Failed to load texture" << std::endl;
-        }
 
         float yScale = 64.0f / 256.0f, yShift = 16.0f;
         int rez = 1;
-        unsigned bytePerPixel = nrChannels;
+        unsigned bytePerPixel = texture.getChannels();
+        unsigned char *data = texture.getData();
+
+        width = texture.getWidth();
+        height = texture.getHeight();
+
         for (int i = 0; i < height; i++)
         {
             for (int j = 0; j < width; j++)

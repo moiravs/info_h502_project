@@ -59,7 +59,8 @@ int main()
 	Object water(PLAN_SIZE_X / 2, waterHeight, true);
 
 	// Terrain
-	TerrainGeneration heightMap(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
+	Texture terrainTexture(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png");
+	TerrainGeneration heightMap(terrainTexture, PLAN_SIZE_X, PLAN_SIZE_X);
 	TerrainRenderer terrainRenderer(heightMap);
 
 	GLuint uboWater;
