@@ -1,4 +1,4 @@
-#version 420 core
+#version 410 core
 in vec3 position; 
 in vec2 tex_coord; 
 in vec3 normal; 
