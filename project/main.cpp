@@ -66,6 +66,8 @@ int main()
 	glGenBuffers(1, &uboWater);
 	glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec4), NULL, GL_DYNAMIC_DRAW);
+	GLuint blockIndex = glGetUniformBlockIndex(heightMapShader.ID, "WaterData");
+	glUniformBlockBinding(heightMapShader.ID, blockIndex, 3);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 3, uboWater);
 
 	heightMapShader.setVector4f("plane", glm::vec4(0, 1, 0, waterHeight));

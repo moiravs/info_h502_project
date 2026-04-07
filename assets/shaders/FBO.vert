@@ -1,4 +1,4 @@
-#version 420 core
+#version 410 core
 in vec3 position;
 
 uniform vec2 iResolution;
