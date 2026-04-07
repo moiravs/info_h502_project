@@ -31,6 +31,7 @@ public:
 
     Texture(const std::string &filePath)
     {
+
         glGenTextures(1, &texture0);
         glBindTexture(GL_TEXTURE_2D, texture0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -40,8 +41,6 @@ public:
         int width, height, nrChannels;
         stbi_set_flip_vertically_on_load(true);
 
-        // std::cout << filePath.c_str() << std::endl;
-        // unsigned char *data = stbi_load(PATH_TO_SRC "/../assets/textures/wall.jpg", &width, &height, &nrChannels, 0);
         unsigned char *data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
         if (data)
         {

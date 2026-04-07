@@ -16,16 +16,23 @@ public:
     GLuint ID;
     glm::mat4 model = glm::mat4(1.0);
 
-    Shader(const char *vertexPath, const char *fragmentPath)
+    Shader(const char *vertexPath, const char *fragmentPath, const char *tessControlPath = nullptr, const char *tessEvalPath = nullptr)
     {
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
         std::string fragmentCode;
         std::ifstream vShaderFile;
         std::ifstream fShaderFile;
+
+        std::string tessControlCode;
+        std::string tessEvalCode;
+        std::ifstream tcShaderFile;
+        std::ifstream teShaderFile;
         // ensure ifstream objects can throw exceptions:
         vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
         fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+        tcShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+        teShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
         try
         {
@@ -45,6 +52,23 @@ public:
             // convert stream into string
             vertexCode = vShaderStream.str();
             fragmentCode = fShaderStream.str();
+
+            if (tessControlPath != nullptr)
+            {
+                tcShaderFile.open(tessControlPath);
+                std::stringstream tcShaderStream;
+                tcShaderStream << tcShaderFile.rdbuf();
+                tcShaderFile.close();
+                tessControlCode = tcShaderStream.str();
+            }
+            if (tessEvalPath != nullptr)
+            {
+                teShaderFile.open(tessEvalPath);
+                std::stringstream teShaderStream;
+                teShaderStream << teShaderFile.rdbuf();
+                teShaderFile.close();
+                tessEvalCode = teShaderStream.str();
+            }
         }
         catch (std::ifstream::failure &e)
         {
@@ -55,8 +79,22 @@ public:
 
         GLuint vertex = compileShader(vertexCode, GL_VERTEX_SHADER);
         GLuint fragment = compileShader(fragmentCode, GL_FRAGMENT_SHADER);
-        ID = compileProgram(vertex, fragment);
 
+        ID = glCreateProgram();
+        glAttachShader(ID, vertex);
+        glAttachShader(ID, fragment);
+        if (tessControlPath != nullptr)
+        {
+            GLuint tessControl = compileShader(tessControlCode, GL_TESS_CONTROL_SHADER);
+            glAttachShader(ID, tessControl);
+        }
+        if (tessEvalPath != nullptr)
+        {
+            GLuint tessEval = compileShader(tessEvalCode, GL_TESS_EVALUATION_SHADER);
+            glAttachShader(ID, tessEval);
+        }
+
+        glLinkProgram(ID);
         this->setMatrix4("model", model);
     }
 
