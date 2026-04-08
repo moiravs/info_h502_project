@@ -36,48 +36,28 @@ public:
             int numVertices = object.numVertices;
             this->models = models;
 
-            auto *data = new float[8 * numVertices];
-            for (int i = 0; i < numVertices; i++)
-            {
-                const Vertex v = object.vertices.at(i);
-                data[i * 8] = v.Position.x;
-                data[i * 8 + 1] = v.Position.y;
-                data[i * 8 + 2] = v.Position.z;
-
-                data[i * 8 + 3] = v.Texture.x;
-                data[i * 8 + 4] = v.Texture.y;
-
-                data[i * 8 + 5] = v.Normal.x;
-                data[i * 8 + 6] = v.Normal.y;
-                data[i * 8 + 7] = v.Normal.z;
-            }
-
             glGenVertexArrays(1, &VAO);
             glGenBuffers(1, &VBO);
-
-            // define VBO and VAO as active buffer and active vertex array
             glBindVertexArray(VAO);
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
-            glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(Vertex) * numVertices), data, GL_STATIC_DRAW);
+
+            glBufferData(GL_ARRAY_BUFFER, object.vertices.size() * sizeof(Vertex), object.vertices.data(), GL_STATIC_DRAW);
+
+            GLsizei stride = sizeof(Vertex);
 
             auto att_pos = glGetAttribLocation(shader.ID, "position");
             glEnableVertexAttribArray(att_pos);
-            glVertexAttribPointer(att_pos, 3, GL_FLOAT, false, 8 * sizeof(float), nullptr);
-
-            auto att_col = glGetAttribLocation(shader.ID, "normal");
-            glEnableVertexAttribArray(att_col);
-            glVertexAttribPointer(att_col, 3, GL_FLOAT, false, 8 * sizeof(float),
-                                  reinterpret_cast<void *>(5 * sizeof(float)));
+            glVertexAttribPointer(att_pos, 3, GL_FLOAT, GL_FALSE, stride, (void *)offsetof(Vertex, Position));
 
             auto att_tex = glGetAttribLocation(shader.ID, "tex_coord");
             glEnableVertexAttribArray(att_tex);
-            glVertexAttribPointer(att_tex, 2, GL_FLOAT, false, 8 * sizeof(float),
-                                  reinterpret_cast<void *>(3 * sizeof(float)));
+            glVertexAttribPointer(att_tex, 2, GL_FLOAT, GL_FALSE, stride, (void *)offsetof(Vertex, Texture));
 
-            // desactive the buffer
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            auto att_nor = glGetAttribLocation(shader.ID, "normal");
+            glEnableVertexAttribArray(att_nor);
+            glVertexAttribPointer(att_nor, 3, GL_FLOAT, GL_FALSE, stride, (void *)offsetof(Vertex, Normal));
+
             glBindVertexArray(0);
-            delete[] data;
         }
     }
 
