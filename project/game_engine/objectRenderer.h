@@ -34,10 +34,10 @@ public:
 
             tex = Texture(PATH_TO_SRC "/../assets/textures/wall.jpg");
             int numVertices = object.numVertices;
-            this->models = models;
 
             glGenVertexArrays(1, &VAO);
             glGenBuffers(1, &VBO);
+
             glBindVertexArray(VAO);
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
 

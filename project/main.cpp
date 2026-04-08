@@ -19,6 +19,7 @@
 #include "game_engine/terrainRenderer.h"
 #include "game_engine/waterFrameBuffers.h"
 #include "game_engine/waterRenderer.h"
+#include "game_engine/instanceRenderer.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
@@ -74,22 +75,29 @@ int main()
 
 	WaterFrameBuffers fbos = WaterFrameBuffers();
 
-	std::vector<Object> trees;
+	std::vector<glm::mat4> treeMatrices;
 
-	// Create 3 trees
-	for (int i = 0; i < 4; i++)
+	int maxRandom = PLAN_SIZE_X / 2;
+	int minRandom = -PLAN_SIZE_X / 2;
+	for (int i = 0; i < 100; i++)
 	{
-		Object tree(PATH_TO_SRC "/../assets/models/Tree.obj");
-		trees.emplace_back(tree);
+		glm::mat4 model = glm::mat4(1.0f);
+		float x = rand() % (maxRandom - minRandom) + minRandom;
+		float z = rand() % (maxRandom - minRandom) + minRandom;
+		float y = heightMap.getHeight(x, z);
+		if (y <= waterHeight)
+		{
+			i--;
+			continue;
+		}
+		model = glm::translate(model, glm::vec3(x, y, z));
+		model = glm::rotate(model, (float)(rand() % 360), glm::vec3(0, 1, 0));
+
+		treeMatrices.push_back(model);
 	}
 
-	// Position them (this can be done once or in the update loop)
-	trees[0].setWorldPosition(0.0f, 0.0f, heightMap);
-	trees[1].setWorldPosition(20.0f, 20.0f, heightMap);
-	trees[2].setWorldPosition(40.0f, 0.0f, heightMap);
-	trees[3].setWorldPosition(160.0f, 9.0f, 130.0f);
+	InstancedRenderer treeRenderer(treeShader, tree, wall, treeMatrices);
 
-	ObjectRenderer treeRenderer(treeShader, trees, wall);
 	WaterRenderer waterRenderer(waterShader, water, fbos);
 
 	glm::vec4 reflectionPlane = glm::vec4(0, 1, 0, waterHeight);
