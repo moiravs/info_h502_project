@@ -5,22 +5,26 @@ DONE:
     - Added texture to the tree
 - Reflection/refraction
     - Water
+- Instancing 
+    - Instancing trees
+
 
 EN COURS:
 - Refactor :((
 
 TODO:
+# Features
 - Object moving in the scene
     - Water (physics simulation)
-
-- Lights
-    - Add a lamp
-
-- Tessalation for the height terrain https://learnopengl.com/Guest-Articles/2021/Tessellation/Tessellation
-
 - Add object
     - Fire camp 
+- Lights
+    - Add a lamp
+    
+# Améliorer les performances
+- Frustum culling
+- Tessalation for the height terrain https://learnopengl.com/Guest-Articles/2021/Tessellation/Tessellation
 
-- Instancing 
-    - Instancing trees
+
+
 
