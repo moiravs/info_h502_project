@@ -35,14 +35,14 @@ int main()
 
 	if (!glfwInit())
 	{
-		throw std::runtime_error("Failed to initialise GLFW \n");
+		FATAL("Failed to initialise GLFW \n");
 	}
 
 	auto dm = DisplayManager();
 
 	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
 	{
-		throw std::runtime_error("Failed to initialize GLAD");
+		FATAL("Failed to initialize GLAD");
 	}
 
 	glEnable(GL_DEPTH_TEST);

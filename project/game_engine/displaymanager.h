@@ -9,6 +9,7 @@
 
 #include <glad/glad.h>
 #include "camera.h"
+#include "../utils/utils.h"
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
@@ -44,7 +45,7 @@ class DisplayManager
     createWindow()
     {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         GLFWwindow *w = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL: Terrain CPU",
@@ -53,7 +54,7 @@ class DisplayManager
         if (w == nullptr)
         {
             glfwTerminate();
-            throw std::runtime_error("Failed to create GLFW window\n");
+            FATAL("Failed to create GLFW window.");
         }
 
         glfwMakeContextCurrent(w);

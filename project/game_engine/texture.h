@@ -11,6 +11,7 @@
 
 #include "terrainGeneration.h"
 #include <vector>
+#include "../utils/utils.h"
 
 #include <stb_image.h>
 
@@ -45,11 +46,19 @@ public:
         unsigned char *data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
         if (data)
         {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-            glGenerateMipmap(GL_TEXTURE_2D);
-        }
+            GLenum format = GL_RED;
+            if (nrChannels == 3)
+                format = GL_RGB;
+            else if (nrChannels == 4)
+                format = GL_RGBA;
 
-        stbi_image_free(data);
+            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+            glGenerateMipmap(GL_TEXTURE_2D);
+            stbi_image_free(data);
+        } else
+        {
+            ERROR("Unable to load texture from file");
+        }
     }
 
     ~Texture()
