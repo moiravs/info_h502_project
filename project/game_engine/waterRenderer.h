@@ -36,29 +36,13 @@ public:
         vertices = _object.getVertices();
         numVertices = vertices.size();
 
-        auto *data = new float[8 * numVertices];
-        for (int i = 0; i < numVertices; i++)
-        {
-            const Vertex v = vertices.at(i);
-            data[i * 8] = v.Position.x;
-            data[i * 8 + 1] = v.Position.y;
-            data[i * 8 + 2] = v.Position.z;
-
-            data[i * 8 + 3] = v.Texture.x;
-            data[i * 8 + 4] = v.Texture.y;
-
-            data[i * 8 + 5] = v.Normal.x;
-            data[i * 8 + 6] = v.Normal.y;
-            data[i * 8 + 7] = v.Normal.z;
-        }
-
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
 
         // define VBO and VAO as active buffer and active vertex array
         glBindVertexArray(VAO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(Vertex) * numVertices), data, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(Vertex) * numVertices), object.vertices.data(), GL_STATIC_DRAW);
 
         auto att_pos = glGetAttribLocation(_shader.ID, "position");
         glEnableVertexAttribArray(att_pos);
@@ -77,7 +61,6 @@ public:
         // desactive the buffer
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
-        delete[] data;
 
         this->_shader.setInteger("reflectionTexture", 0);
         this->_shader.setInteger("refractionTexture", 1);
