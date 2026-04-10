@@ -16,7 +16,7 @@
 #include "shader.h"
 #include "waterFrameBuffers.h"
 
-class WaterRenderer
+class WaterRenderer : public Renderer
 {
 public:
     std::vector<Vertex> vertices;
@@ -76,7 +76,7 @@ public:
         glDrawArrays(GL_TRIANGLES, 0, static_cast<int>(numVertices));
     }
 
-    void render()
+    void render() override
     {
 
         this->_shader.use();

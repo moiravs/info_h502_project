@@ -30,6 +30,14 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 int PLAN_SIZE_X = 1000;
 int waterHeight = 0;
 
+void renderScene(std::vector<Renderer *> renderers)
+{
+	for (auto i : renderers)
+	{
+		i->render();
+	}
+}
+
 int main()
 {
 
@@ -61,7 +69,7 @@ int main()
 
 	// Terrain
 	TerrainGeneration heightMap(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
-	TerrainRenderer terrainRenderer(heightMap);
+	TerrainRenderer terrainRenderer(heightMap, heightMapShader);
 
 	GLuint uboWater;
 	glGenBuffers(1, &uboWater);
@@ -121,73 +129,52 @@ int main()
 	treeShader.setLight(randomLightForSphere);
 
 	// Texture
-	Texture wall(PATH_TO_SRC "/../assets/textures/tree.jpg");
+	Texture treeTexture(PATH_TO_SRC "/../assets/textures/tree.jpg");
 
-	InstancedRenderer treeRenderer(treeShader, tree, &wall, treeMatrices);
+	InstancedRenderer treeRenderer(treeShader, tree, &treeTexture, treeMatrices);
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
 	while (!dm.shouldClose())
 	{
 
-		// Reflection
+		// 1. Reflection
 		glEnable(GL_CLIP_DISTANCE0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		fbos.bindReflectionFrameBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		float distance = 2 * (camera.GetCameraPosition().y - waterHeight);
 
-		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y - distance, camera.GetCameraPosition().z));
-		camera.invertPitch();
-
+		camera.prepareReflection(waterHeight);
 		glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(reflectionPlane));
+		renderScene({&treeRenderer, &terrainRenderer});
+		camera.resetCameraAfterReflection(waterHeight);
 
-		heightMapShader.use();
-		heightMapShader.updatePos(camera);
-		terrainRenderer.draw();
-		treeRenderer.render();
-
-		camera.invertPitch();
-
-		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y + distance, camera.GetCameraPosition().z));
-
-		// Refraction
+		// 2. Refraction
 		fbos.bindRefractionFrameBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(refractionPlane));
 
-		heightMapShader.use();
-		heightMapShader.updatePos(camera);
-		terrainRenderer.draw();
-		treeRenderer.render();
+		renderScene({&treeRenderer, &terrainRenderer});
 
 		fbos.unbindCurrentFrameBuffer();
-
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
-		// Normal
+		// Normal Scene
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-
 		glDisable(GL_CLIP_DISTANCE0);
 
 		heightMapShader.use();
 		heightMapShader.setLight(randomLightForSphere); // Send the light data
-		heightMapShader.updatePos(camera);
 
-		terrainRenderer.draw();
-		treeRenderer.render();
-		waterRenderer.render();
+		renderScene({&treeRenderer, &waterRenderer, &terrainRenderer});
 
 		double now = glfwGetTime();
 
 		shader.use();
-
 		shader.setVector3f("u_view_pos", camera.Position);
 		shader.updatePos(camera);
 

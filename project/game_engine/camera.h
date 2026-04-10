@@ -127,6 +127,23 @@ public:
             this->Position += WORLD_UP * velocity;
     }
 
+    void prepareReflection(int height)
+    {
+
+        float reflectedY = (2.0f * height) - this->Position.y;
+        this->Position.y = reflectedY;
+
+        this->invertPitch();
+    }
+
+    void resetCameraAfterReflection(int height)
+    {
+        this->invertPitch();
+
+        float originalY = (2.0f * height) - this->Position.y;
+        this->Position.y = originalY;
+    }
+
     void ProcessKeyboardRotation(float YawRot, float PitchRot, const float deltaTime, const GLboolean constrainPitch = true)
     {
         const float velocity = this->RotationSpeed * deltaTime;
