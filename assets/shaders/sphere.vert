@@ -18,4 +18,4 @@ gl_Position = projection*view*frag_coord;
 v_normal = vec3(itM * vec4(normal, 1.0)); 
 v_frag_coord = frag_coord.xyz; 
     // same component in every direction
-};
+}
