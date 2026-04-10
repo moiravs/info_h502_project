@@ -57,6 +57,11 @@ public:
     {
         return pos;
     }
+
+    void setPos(glm::vec3 m_pos)
+    {
+        pos = m_pos;
+    }
 };
 
 #endif

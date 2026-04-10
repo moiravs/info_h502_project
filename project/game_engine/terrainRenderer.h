@@ -34,9 +34,16 @@ public:
         glBindBuffer(GL_ARRAY_BUFFER, terrainVBO);
         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
 
-        // position attribute
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+        // Inside TerrainRenderer constructor
+        int stride = 6 * sizeof(float);
+
+        // Position (Location 0)
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void *)0);
         glEnableVertexAttribArray(0);
+
+        // Normal (Location 2)
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, (void *)(3 * sizeof(float)));
+        glEnableVertexAttribArray(2);
 
         glGenBuffers(1, &terrainIBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainIBO);

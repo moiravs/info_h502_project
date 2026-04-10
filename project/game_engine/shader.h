@@ -70,13 +70,13 @@ public:
 
     void setLight(Light light)
     {
-        this->setFloat("shininess", 62.0f);
+        this->setFloat("shininess", 32.0f);
         this->setFloat("light.ambient_strength", light.getAmbient());
         this->setFloat("light.diffuse_strength", light.getDiffuse());
         this->setFloat("light.specular_strength", light.getSpecular());
         this->setFloat("light.constant", 1.0);
-        this->setFloat("light.linear", 1.0);
-        this->setFloat("light.quadratic", 0.7);
+        this->setFloat("light.linear", 0.14);
+        this->setFloat("light.quadratic", 0.07);
         this->setVector3f("light.light_pos", light.getPos());
     }
 
@@ -87,7 +87,7 @@ public:
 
         this->setMatrix4("projection", projection);
         this->setMatrix4("view", view);
-    }
+        }
     void setInteger(const GLchar *name, GLint value)
     {
         this->use();
