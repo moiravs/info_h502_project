@@ -26,13 +26,29 @@ public:
     std::vector<Object> objects;
     glm::mat4 model = glm::mat4(1.0);
 
+    ObjectRenderer(Shader _shader, Object _object) : shader(_shader)
+    {
+        this->objects.push_back(_object);
+        initObjectRenderer();
+    }
+
+    ObjectRenderer(Shader _shader, Object _object, Texture _tex) : shader(_shader), tex(_tex)
+    {
+        this->objects.push_back(_object);
+        initObjectRenderer();
+    }
+
     ObjectRenderer(Shader shader, std::vector<Object> objects, Texture tex) : shader(shader), tex(tex), objects(objects)
+    {
+        initObjectRenderer();
+    }
+
+    void initObjectRenderer()
     {
 
         for (auto object : objects)
         {
 
-            tex = Texture(PATH_TO_SRC "/../assets/textures/wall.jpg");
             int numVertices = object.numVertices;
 
             glGenVertexArrays(1, &VAO);
@@ -49,10 +65,9 @@ public:
             glEnableVertexAttribArray(att_pos);
             glVertexAttribPointer(att_pos, 3, GL_FLOAT, GL_FALSE, stride, (void *)offsetof(Vertex, Position));
 
-            auto att_tex = glGetAttribLocation(shader.ID, "tex_coord");
-            glEnableVertexAttribArray(att_tex);
-            glVertexAttribPointer(att_tex, 2, GL_FLOAT, GL_FALSE, stride, (void *)offsetof(Vertex, Texture));
-
+            // auto att_tex = glGetAttribLocation(shader.ID, "tex_coord");
+            // glEnableVertexAttribArray(att_tex);
+            // glVertexAttribPointer(att_tex, 2, GL_FLOAT, GL_FALSE, stride, (void *)offsetof(Vertex, Texture));
             auto att_nor = glGetAttribLocation(shader.ID, "normal");
             glEnableVertexAttribArray(att_nor);
             glVertexAttribPointer(att_nor, 3, GL_FLOAT, GL_FALSE, stride, (void *)offsetof(Vertex, Normal));
@@ -61,14 +76,9 @@ public:
         }
     }
 
-    void draw() const
-    {
-    }
-
     void render()
     {
 
-        tex.bind();
         for (auto obj : objects)
         {
             this->shader.use();
@@ -82,7 +92,6 @@ public:
             glBindVertexArray(this->VAO);
             glDrawArrays(GL_TRIANGLES, 0, static_cast<int>(obj.numVertices));
         }
-        tex.unbind();
     }
 };
 #endif
