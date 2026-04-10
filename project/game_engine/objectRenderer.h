@@ -83,6 +83,8 @@ public:
         {
             this->shader.use();
             this->shader.setMatrix4("model", obj.model);
+            glm::mat4 inverseModel = glm::transpose(glm::inverse(model));
+            this->shader.setMatrix4("itM", inverseModel);
             this->shader.updatePos(camera);
             if (transparent)
             {
