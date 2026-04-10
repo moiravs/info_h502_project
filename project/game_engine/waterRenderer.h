@@ -27,13 +27,13 @@ public:
 
     GLuint VBO, VAO;
     bool transparent;
-    Shader shader;
-    Object object;
+    Shader _shader;
+    Object _object;
     WaterFrameBuffers _fbos;
 
-    WaterRenderer(Shader shader, Object object, WaterFrameBuffers fbos) : shader(shader), object(object), _fbos(fbos)
+    WaterRenderer(Shader shader, Object object, WaterFrameBuffers fbos) : _shader(shader), _object(object), _fbos(fbos)
     {
-        vertices = object.getVertices();
+        vertices = _object.getVertices();
         numVertices = vertices.size();
 
         auto *data = new float[8 * numVertices];
@@ -60,16 +60,16 @@ public:
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(Vertex) * numVertices), data, GL_STATIC_DRAW);
 
-        auto att_pos = glGetAttribLocation(shader.ID, "position");
+        auto att_pos = glGetAttribLocation(_shader.ID, "position");
         glEnableVertexAttribArray(att_pos);
         glVertexAttribPointer(att_pos, 3, GL_FLOAT, false, 8 * sizeof(float), nullptr);
 
-        auto att_col = glGetAttribLocation(shader.ID, "normal");
+        auto att_col = glGetAttribLocation(_shader.ID, "normal");
         glEnableVertexAttribArray(att_col);
         glVertexAttribPointer(att_col, 3, GL_FLOAT, false, 8 * sizeof(float),
                               reinterpret_cast<void *>(5 * sizeof(float)));
 
-        auto att_tex = glGetAttribLocation(shader.ID, "tex_coord");
+        auto att_tex = glGetAttribLocation(_shader.ID, "tex_coord");
         glEnableVertexAttribArray(att_tex);
         glVertexAttribPointer(att_tex, 2, GL_FLOAT, false, 8 * sizeof(float),
                               reinterpret_cast<void *>(3 * sizeof(float)));
@@ -79,9 +79,9 @@ public:
         glBindVertexArray(0);
         delete[] data;
 
-        this->shader.setInteger("reflectionTexture", 0);
-        this->shader.setInteger("refractionTexture", 1);
-        this->shader.setInteger("dudvMap", 2);
+        this->_shader.setInteger("reflectionTexture", 0);
+        this->_shader.setInteger("refractionTexture", 1);
+        this->_shader.setInteger("dudvMap", 2);
     }
 
     void draw()
@@ -96,7 +96,7 @@ public:
     void render()
     {
 
-        this->shader.use();
+        this->_shader.use();
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, _fbos.getReflectionTexture());
@@ -107,7 +107,7 @@ public:
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, dudvMap.getTexture());
 
-        this->shader.updatePos(camera);
+        this->_shader.updatePos(camera);
         this->draw();
     }
 };
