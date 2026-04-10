@@ -109,7 +109,7 @@ int main()
 	ObjectRenderer sphereRenderer(shader, sphere1);
 
 	Light randomLightForSphere(1.0, 22.0, 1.5);
-	randomLightForSphere.setProperties(0.1, 0.5, 0.8);
+	randomLightForSphere.setProperties(0.6, 0.5, 0.8);
 
 	// Rendering
 
@@ -117,8 +117,11 @@ int main()
 	shader.setVector3f("materialColour", glm::vec3(0.5f, 0.6, 0.8));
 	shader.setLight(randomLightForSphere);
 
+	treeShader.use();
+	treeShader.setLight(randomLightForSphere);
+
 	// Texture
-	Texture wall(PATH_TO_SRC "/../assets/textures/wall.jpg");
+	Texture wall(PATH_TO_SRC "/../assets/textures/tree.jpg");
 
 	InstancedRenderer treeRenderer(treeShader, tree, &wall, treeMatrices);
 

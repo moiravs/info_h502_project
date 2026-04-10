@@ -2,18 +2,23 @@
 layout (location = 0) in vec3 position; 
 layout (location = 1) in vec2 tex_coord; 
 layout (location = 2) in vec3 normal; 
-// The instance matrix starts at location 3 and spans 3, 4, 5, 6
 layout (location = 3) in mat4 instanceMatrix; 
 
-out vec4 v_col; 
 out vec2 v_t; 
+out vec3 v_normal;
+out vec3 v_fragPos;
 
 uniform mat4 view;
 uniform mat4 projection;
 
 void main() { 
-    // Use instanceMatrix instead of a single 'model' uniform
-    gl_Position = projection * view * instanceMatrix * vec4(position, 1.0);
-    v_col = vec4(normal * 0.5 + 0.5, 1.0);
+    // Calculate world position
+    vec4 worldPos = instanceMatrix * vec4(position, 1.0);
+    v_fragPos = vec3(worldPos);
+    
+    // Transform normal to world space (remove scaling/translation influence)
+    v_normal = mat3(transpose(inverse(instanceMatrix))) * normal;
+    
     v_t = tex_coord; 
+    gl_Position = projection * view * worldPos;
 }
