@@ -13,8 +13,6 @@
 #include <vector>
 #include "../utils/utils.h"
 
-#include <stb_image.h>
-
 class Texture
 {
 public:
