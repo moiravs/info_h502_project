@@ -124,7 +124,6 @@ int main()
 	shader.use();
 	shader.setVector3f("materialColour", glm::vec3(0.5f, 0.6, 0.8));
 	shader.setLight(randomLightForSphere);
-	shader.setMatrix4("itM", inverseModel);
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
@@ -188,7 +187,6 @@ int main()
 
 		shader.use();
 
-		shader.setMatrix4("itM", inverseModel);
 		shader.setVector3f("u_view_pos", camera.Position);
 		shader.updatePos(camera);
 

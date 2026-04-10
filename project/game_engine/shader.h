@@ -87,7 +87,7 @@ public:
 
         this->setMatrix4("projection", projection);
         this->setMatrix4("view", view);
-    }
+        }
     void setInteger(const GLchar *name, GLint value)
     {
         this->use();
