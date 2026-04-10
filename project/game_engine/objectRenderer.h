@@ -14,8 +14,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "object.h"
 #include "texture.h"
+#include "renderer.h"
 
-class ObjectRenderer
+class ObjectRenderer : public Renderer
 {
 public:
     GLuint _VBO, _VAO;
@@ -76,7 +77,7 @@ public:
         }
     }
 
-    void render()
+    void render() override
     {
 
         for (auto obj : _objects)
