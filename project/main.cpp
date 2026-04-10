@@ -55,9 +55,6 @@ int main()
 	Shader waterShader(PATH_TO_SRC "/../assets/shaders/water.vert", PATH_TO_SRC "/../assets/shaders/water.frag");
 	Shader treeShader(PATH_TO_SRC "/../assets/shaders/tree.vert", PATH_TO_SRC "/../assets/shaders/tree.frag");
 
-	// Texture
-	Texture wall(PATH_TO_SRC "/../assets/textures/wall.jpg");
-
 	// Objects
 	Object tree(PATH_TO_SRC "/../assets/models/Tree.obj");
 	Object water(PLAN_SIZE_X / 2, waterHeight, true);
@@ -101,7 +98,6 @@ int main()
 
 	WaterRenderer waterRenderer(waterShader, water, fbos);
 
-	InstancedRenderer treeRenderer(treeShader, tree, wall, treeMatrices);
 	glm::vec4 reflectionPlane = glm::vec4(0, 1, 0, waterHeight);
 	glm::vec4 refractionPlane = glm::vec4(0, -1, 0, waterHeight);
 
@@ -120,6 +116,11 @@ int main()
 	shader.use();
 	shader.setVector3f("materialColour", glm::vec3(0.5f, 0.6, 0.8));
 	shader.setLight(randomLightForSphere);
+
+	// Texture
+	Texture wall(PATH_TO_SRC "/../assets/textures/wall.jpg");
+
+	InstancedRenderer treeRenderer(treeShader, tree, &wall, treeMatrices);
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
