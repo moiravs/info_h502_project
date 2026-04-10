@@ -21,6 +21,8 @@
 #include "game_engine/waterRenderer.h"
 #include "game_engine/instanceRenderer.h"
 
+#include "utils/utils.h"
+
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
 int PLAN_SIZE_X = 1000;
@@ -47,7 +49,7 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);
 
-	// Shaders
+		// Shaders
 	Shader heightMapShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vert", PATH_TO_SRC "/../assets/shaders/cpu_height.frag");
 	Shader waterShader(PATH_TO_SRC "/../assets/shaders/water.vert", PATH_TO_SRC "/../assets/shaders/water.frag");
 	Shader treeShader(PATH_TO_SRC "/../assets/shaders/tree.vert", PATH_TO_SRC "/../assets/shaders/tree.frag");
