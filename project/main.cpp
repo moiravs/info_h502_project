@@ -105,16 +105,16 @@ int main()
 
 	Object sphere1(PATH_TO_SRC "/../assets/models/sphere_smooth.obj");
 
-	sphere1.setWorldPosition(0, 20, -2);
-	ObjectRenderer sphereRenderer(shader, sphere1);
+	sphere1.setWorldPosition(1.0, 15.0, 1.5);
+	ObjectRenderer sphereRenderer(shader, &sphere1);
 
-	Light randomLightForSphere(1.0, 22.0, 1.5);
-	randomLightForSphere.setProperties(0.6, 0.5, 0.8);
+	Light randomLightForSphere(1.0, 15.0, 1.5);
+	randomLightForSphere.setProperties(0, 0.4, 1);
 
 	// Rendering
 
 	shader.use();
-	shader.setVector3f("materialColour", glm::vec3(0.5f, 0.6, 0.8));
+	shader.setVector3f("materialColour", glm::vec3(1.0f, 1.0, 1.0));
 	shader.setLight(randomLightForSphere);
 
 	treeShader.use();
@@ -177,6 +177,7 @@ int main()
 		glDisable(GL_CLIP_DISTANCE0);
 
 		heightMapShader.use();
+		heightMapShader.setLight(randomLightForSphere); // Send the light data
 		heightMapShader.updatePos(camera);
 
 		terrainRenderer.draw();
@@ -192,6 +193,8 @@ int main()
 
 		auto delta = randomLightForSphere.getPos() + glm::vec3(0.0, 0.0, 2 * std::sin(now));
 		// std::cout << delta.z <<std::endl;
+		sphere1.setWorldPosition(delta.x, delta.y, delta.z);
+		randomLightForSphere.setPos(delta);
 		shader.setVector3f("light.light_pos", delta);
 
 		sphereRenderer.render();
