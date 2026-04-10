@@ -1,164 +1,217 @@
-#include <iostream>
+// #include <iostream>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+// #include <glad/glad.h>
+// #include <GLFW/glfw3.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+// #include <glm/glm.hpp>
+// #include <glm/gtc/matrix_transform.hpp>
+// #include <glm/gtc/type_ptr.hpp>
 
-#define STB_IMAGE_IMPLEMENTATION
+// #define STB_IMAGE_IMPLEMENTATION
 
-#include <vector>
+// #include <vector>
 
-#include "game_engine/shader.h"
-#include "game_engine/camera.h"
-#include "game_engine/terrainGeneration.h"
-#include "game_engine/displaymanager.h"
-#include "game_engine/objectRenderer.h"
-#include "game_engine/terrainRenderer.h"
-#include "game_engine/waterFrameBuffers.h"
-#include "game_engine/waterRenderer.h"
-#include "game_engine/instanceRenderer.h"
+// #include "game_engine/shader.h"
+// #include "game_engine/camera.h"
+// #include "game_engine/terrainGeneration.h"
+// #include "game_engine/displaymanager.h"
+// #include "game_engine/objectRenderer.h"
+// #include "game_engine/terrainRenderer.h"
+// #include "game_engine/waterFrameBuffers.h"
+// #include "game_engine/waterRenderer.h"
+// #include "game_engine/instanceRenderer.h"
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+// void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
-int PLAN_SIZE_X = 1000;
-int waterHeight = 0;
+// int PLAN_SIZE_X = 1000;
+// int waterHeight = 0;
 
-int main()
-{
+// int main()
+// {
 
-#ifdef __APPLE__
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
+// #ifdef __APPLE__
+// 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+// #endif
 
-	if (!glfwInit())
-	{
-		FATAL("Failed to initialise GLFW \n");
-	}
+// 	if (!glfwInit())
+// 	{
+// 		FATAL("Failed to initialise GLFW \n");
+// 	}
 
-	auto dm = DisplayManager();
+// 	auto dm = DisplayManager();
 
-	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
-	{
-		FATAL("Failed to initialize GLAD");
-	}
+// 	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+// 	{
+// 		FATAL("Failed to initialize GLAD");
+// 	}
 
-	glEnable(GL_DEPTH_TEST);
+// 	glEnable(GL_DEPTH_TEST);
 
-	// Shaders
-	Shader heightMapShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vert", PATH_TO_SRC "/../assets/shaders/cpu_height.frag");
-	Shader waterShader(PATH_TO_SRC "/../assets/shaders/water.vert", PATH_TO_SRC "/../assets/shaders/water.frag");
-	Shader treeShader(PATH_TO_SRC "/../assets/shaders/tree.vert", PATH_TO_SRC "/../assets/shaders/tree.frag");
+// 	// Shaders
+// 	Shader heightMapShader(PATH_TO_SRC "/../assets/shaders/cpu_height.vert", PATH_TO_SRC "/../assets/shaders/cpu_height.frag");
+// 	Shader waterShader(PATH_TO_SRC "/../assets/shaders/water.vert", PATH_TO_SRC "/../assets/shaders/water.frag");
+// 	Shader treeShader(PATH_TO_SRC "/../assets/shaders/tree.vert", PATH_TO_SRC "/../assets/shaders/tree.frag");
 
-	// Texture
-	Texture wall(PATH_TO_SRC "/../assets/textures/wall.jpg");
+// 	// Texture
+// 	Texture wall(PATH_TO_SRC "/../assets/textures/wall.jpg");
 
-	// Objects
-	Object tree(PATH_TO_SRC "/../assets/models/Tree.obj");
-	Object water(PLAN_SIZE_X / 2, waterHeight, true);
+// 	// Objects
+// 	Object tree(PATH_TO_SRC "/../assets/models/Tree.obj");
+// 	Object water(PLAN_SIZE_X / 2, waterHeight, true);
 
-	// Terrain
-	TerrainGeneration heightMap(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
-	TerrainRenderer terrainRenderer(heightMap);
+// 	// Terrain
+// 	TerrainGeneration heightMap(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
+// 	TerrainRenderer terrainRenderer(heightMap);
 
-	GLuint uboWater;
-	glGenBuffers(1, &uboWater);
-	glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec4), NULL, GL_DYNAMIC_DRAW);
-	GLuint blockIndex = glGetUniformBlockIndex(heightMapShader.ID, "WaterData");
-	glUniformBlockBinding(heightMapShader.ID, blockIndex, 3);
-	glBindBufferBase(GL_UNIFORM_BUFFER, 3, uboWater);
+// 	GLuint uboWater;
+// 	glGenBuffers(1, &uboWater);
+// 	glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
+// 	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec4), NULL, GL_DYNAMIC_DRAW);
+// 	GLuint blockIndex = glGetUniformBlockIndex(heightMapShader.ID, "WaterData");
+// 	glUniformBlockBinding(heightMapShader.ID, blockIndex, 3);
+// 	glBindBufferBase(GL_UNIFORM_BUFFER, 3, uboWater);
 
-	heightMapShader.setVector4f("plane", glm::vec4(0, 1, 0, waterHeight));
+// 	heightMapShader.setVector4f("plane", glm::vec4(0, 1, 0, waterHeight));
 
-	WaterFrameBuffers fbos = WaterFrameBuffers();
+// 	WaterFrameBuffers fbos = WaterFrameBuffers();
 
-	std::vector<glm::mat4> treeMatrices;
+// 	std::vector<glm::mat4> treeMatrices;
 
-	int maxRandom = PLAN_SIZE_X / 2;
-	int minRandom = -PLAN_SIZE_X / 2;
-	for (int i = 0; i < 100; i++)
-	{
-		glm::mat4 model = glm::mat4(1.0f);
-		float x = rand() % (maxRandom - minRandom) + minRandom;
-		float z = rand() % (maxRandom - minRandom) + minRandom;
-		float y = heightMap.getHeight(x, z);
-		if (y <= waterHeight)
-		{
-			i--;
-			continue;
-		}
-		model = glm::translate(model, glm::vec3(x, y, z));
-		model = glm::rotate(model, (float)(rand() % 360), glm::vec3(0, 1, 0));
+// 	int maxRandom = PLAN_SIZE_X / 2;
+// 	int minRandom = -PLAN_SIZE_X / 2;
+// 	for (int i = 0; i < 100; i++)
+// 	{
+// 		glm::mat4 model = glm::mat4(1.0f);
+// 		float x = rand() % (maxRandom - minRandom) + minRandom;
+// 		float z = rand() % (maxRandom - minRandom) + minRandom;
+// 		float y = heightMap.getHeight(x, z);
+// 		if (y <= waterHeight)
+// 		{
+// 			i--;
+// 			continue;
+// 		}
+// 		model = glm::translate(model, glm::vec3(x, y, z));
+// 		model = glm::rotate(model, (float)(rand() % 360), glm::vec3(0, 1, 0));
 
-		treeMatrices.push_back(model);
-	}
+// 		treeMatrices.push_back(model);
+// 	}
 
-	InstancedRenderer treeRenderer(treeShader, tree, wall, treeMatrices);
+// 	// InstancedRenderer treeRenderer(treeShader, tree, wall, treeMatrices);
 
-	WaterRenderer waterRenderer(waterShader, water, fbos);
+// 	WaterRenderer waterRenderer(waterShader, water, fbos);
 
-	glm::vec4 reflectionPlane = glm::vec4(0, 1, 0, waterHeight);
-	glm::vec4 refractionPlane = glm::vec4(0, -1, 0, waterHeight);
+// 	glm::vec4 reflectionPlane = glm::vec4(0, 1, 0, waterHeight);
+// 	glm::vec4 refractionPlane = glm::vec4(0, -1, 0, waterHeight);
 
-	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
+// 	Shader shader(PATH_TO_SRC "/../assets/shaders/sphere.vert", PATH_TO_SRC "/../assets/shaders/sphere.frag");
 
-	while (!dm.shouldClose())
-	{
-		// Reflection
-		glEnable(GL_CLIP_DISTANCE0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+// 	Object sphere1(PATH_TO_SRC "/../assets/models/tree.obj");
 
-		fbos.bindReflectionFrameBuffer();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		float distance = 2 * (camera.GetCameraPosition().y - waterHeight);
+// 	glm::vec3 light_pos = glm::vec3(1.0, 2.0, 1.5);
+// 	glm::mat4 model = glm::mat4(1.0);
+// 	model = glm::translate(model, glm::vec3(0.0, 10.0, 10.0));
 
-		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y - distance, camera.GetCameraPosition().z));
-		camera.invertPitch();
+// 	glm::mat4 inverseModel = glm::transpose(glm::inverse(model));
 
-		glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
-		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(reflectionPlane));
+// 	glm::mat4 view = camera.GetViewMatrix();
+// 	glm::mat4 perspective = camera.GetProjectionMatrix();
 
-		heightMapShader.use();
-		heightMapShader.updatePos(camera);
-		terrainRenderer.draw();
-		treeRenderer.render();
+// 	float ambient = 0.1;
+// 	float diffuse = 0.5;
+// 	float specular = 0.8;
 
-		camera.invertPitch();
+// 	glm::vec3 materialColour = glm::vec3(0.5f, 0.6, 0.8);
 
-		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y + distance, camera.GetCameraPosition().z));
+// 	// Rendering
 
-		// Refraction
-		fbos.bindRefractionFrameBuffer();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+// 	shader.use();
+// 	shader.setFloat("shininess", 32.0f);
+// 	shader.setVector3f("materialColour", materialColour);
+// 	shader.setFloat("light.ambient_strength", ambient);
+// 	shader.setFloat("light.diffuse_strength", diffuse);
+// 	shader.setFloat("light.specular_strength", specular);
+// 	shader.setFloat("light.constant", 1.0);
+// 	shader.setFloat("light.linear", 0.14);
+// 	shader.setFloat("light.quadratic", 0.07);
+// 	shader.setMatrix4("M", model);
+// 	shader.setMatrix4("itM", inverseModel);
+// 	shader.setMatrix4("V", view);
+// 	shader.setMatrix4("P", perspective);
+// 	shader.setVector3f("light.light_pos", light_pos);
 
-		glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
-		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(refractionPlane));
+// 	ObjectRenderer sphereRenderer(shader, sphere1, wall);
 
-		heightMapShader.use();
-		heightMapShader.updatePos(camera);
-		terrainRenderer.draw();
-		treeRenderer.render();
+// 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
-		fbos.unbindCurrentFrameBuffer();
+// 	while (!dm.shouldClose())
+// 	{
+// 		double now = glfwGetTime();
 
-		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
+// 		// Reflection
+// 		glEnable(GL_CLIP_DISTANCE0);
+// 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Normal
-		glDisable(GL_CLIP_DISTANCE0);
+// 		fbos.bindReflectionFrameBuffer();
+// 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+// 		float distance = 2 * (camera.GetCameraPosition().y - waterHeight);
 
-		heightMapShader.use();
-		heightMapShader.updatePos(camera);
+// 		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y - distance, camera.GetCameraPosition().z));
+// 		camera.invertPitch();
 
-		terrainRenderer.draw();
-		treeRenderer.render();
-		waterRenderer.render();
+// 		glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
+// 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(reflectionPlane));
 
-		dm.update();
-	}
-	fbos.cleanUp();
-	glfwTerminate();
-	return 0;
-}
+// 		heightMapShader.use();
+// 		heightMapShader.updatePos(camera);
+// 		terrainRenderer.draw();
+// 		// treeRenderer.render();
+
+// 		camera.invertPitch();
+
+// 		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y + distance, camera.GetCameraPosition().z));
+
+// 		// Refraction
+// 		fbos.bindRefractionFrameBuffer();
+// 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+// 		glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
+// 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(refractionPlane));
+
+// 		heightMapShader.use();
+// 		heightMapShader.updatePos(camera);
+// 		terrainRenderer.draw();
+// 		// treeRenderer.render();
+
+// 		fbos.unbindCurrentFrameBuffer();
+
+// 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
+
+// 		// Normal
+// 		glDisable(GL_CLIP_DISTANCE0);
+
+// 		heightMapShader.use();
+// 		heightMapShader.updatePos(camera);
+
+// 		terrainRenderer.draw();
+// 		// treeRenderer.render();
+// 		waterRenderer.render();
+
+// 		shader.use();
+// 		shader.updatePos(camera);
+// 		shader.setMatrix4("M", model);
+// 		shader.setMatrix4("itM", inverseModel);
+// 		shader.setMatrix4("V", view);
+// 		shader.setMatrix4("P", perspective);
+// 		shader.setVector3f("u_view_pos", camera.Position);
+
+// 		auto delta = light_pos + glm::vec3(0.0, 0.0, 2 * std::sin(now));
+// 		shader.setVector3f("light.light_pos", delta);
+
+// 		sphereRenderer.render();
+
+// 		dm.update();
+// 	}
+// 	fbos.cleanUp();
+// 	glfwTerminate();
+// 	return 0;
+// }
