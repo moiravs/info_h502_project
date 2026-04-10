@@ -18,27 +18,27 @@
 class ObjectRenderer
 {
 public:
-    GLuint VBO, VAO;
-    bool transparent;
-    std::vector<glm::mat4> models;
-    Shader shader;
-    Texture tex;
-    std::vector<Object> objects;
+    GLuint _VBO, _VAO;
+    bool _transparent;
+    std::vector<glm::mat4> _models;
+    Shader _shader;
+    Texture _tex;
+    std::vector<Object> _objects;
     glm::mat4 model = glm::mat4(1.0);
 
-    ObjectRenderer(Shader _shader, Object _object) : shader(_shader)
+    ObjectRenderer(Shader shader, Object object) : _shader(shader)
     {
-        this->objects.push_back(_object);
+        this->_objects.push_back(object);
         initObjectRenderer();
     }
 
-    ObjectRenderer(Shader _shader, Object _object, Texture _tex) : shader(_shader), tex(_tex)
+    ObjectRenderer(Shader shader, Object object, Texture tex) : _shader(shader), _tex(tex)
     {
-        this->objects.push_back(_object);
+        this->_objects.push_back(object);
         initObjectRenderer();
     }
 
-    ObjectRenderer(Shader shader, std::vector<Object> objects, Texture tex) : shader(shader), tex(tex), objects(objects)
+    ObjectRenderer(Shader shader, std::vector<Object> objects, Texture tex) : _shader(shader), _tex(tex), _objects(objects)
     {
         initObjectRenderer();
     }
@@ -46,29 +46,29 @@ public:
     void initObjectRenderer()
     {
 
-        for (auto object : objects)
+        for (auto object : _objects)
         {
 
             int numVertices = object.numVertices;
 
-            glGenVertexArrays(1, &VAO);
-            glGenBuffers(1, &VBO);
+            glGenVertexArrays(1, &_VAO);
+            glGenBuffers(1, &_VBO);
 
-            glBindVertexArray(VAO);
-            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBindVertexArray(_VAO);
+            glBindBuffer(GL_ARRAY_BUFFER, _VBO);
 
             glBufferData(GL_ARRAY_BUFFER, object.vertices.size() * sizeof(Vertex), object.vertices.data(), GL_STATIC_DRAW);
 
             GLsizei stride = sizeof(Vertex);
 
-            auto att_pos = glGetAttribLocation(shader.ID, "position");
+            auto att_pos = glGetAttribLocation(_shader.ID, "position");
             glEnableVertexAttribArray(att_pos);
             glVertexAttribPointer(att_pos, 3, GL_FLOAT, GL_FALSE, stride, (void *)offsetof(Vertex, Position));
 
-            // auto att_tex = glGetAttribLocation(shader.ID, "tex_coord");
-            // glEnableVertexAttribArray(att_tex);
-            // glVertexAttribPointer(att_tex, 2, GL_FLOAT, GL_FALSE, stride, (void *)offsetof(Vertex, Texture));
-            auto att_nor = glGetAttribLocation(shader.ID, "normal");
+            auto att_tex = glGetAttribLocation(_shader.ID, "tex_coord");
+            glEnableVertexAttribArray(att_tex);
+            glVertexAttribPointer(att_tex, 2, GL_FLOAT, GL_FALSE, stride, (void *)offsetof(Vertex, Texture));
+            auto att_nor = glGetAttribLocation(_shader.ID, "normal");
             glEnableVertexAttribArray(att_nor);
             glVertexAttribPointer(att_nor, 3, GL_FLOAT, GL_FALSE, stride, (void *)offsetof(Vertex, Normal));
 
@@ -79,19 +79,19 @@ public:
     void render()
     {
 
-        for (auto obj : objects)
+        for (auto obj : _objects)
         {
-            this->shader.use();
-            this->shader.setMatrix4("model", obj.model);
+            this->_shader.use();
+            this->_shader.setMatrix4("model", obj.model);
             glm::mat4 inverseModel = glm::transpose(glm::inverse(model));
-            this->shader.setMatrix4("itM", inverseModel);
-            this->shader.updatePos(camera);
-            if (transparent)
+            this->_shader.setMatrix4("itM", inverseModel);
+            this->_shader.updatePos(camera);
+            if (_transparent)
             {
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             }
-            glBindVertexArray(this->VAO);
+            glBindVertexArray(this->_VAO);
             glDrawArrays(GL_TRIANGLES, 0, static_cast<int>(obj.numVertices));
         }
     }

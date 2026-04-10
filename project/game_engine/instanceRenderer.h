@@ -19,27 +19,25 @@
 class InstancedRenderer
 {
 public:
-    GLuint VAO, VBO, instanceVBO;
-    int vertexCount;
-    int instanceCount;
-    Shader shader;
-    Texture tex;
+    GLuint _VAO, _VBO, _instanceVBO;
+    int _vertexCount;
+    int _instanceCount;
+    Shader _shader;
+    Texture _tex;
 
-    InstancedRenderer(Shader s, Object &model, Texture t, std::vector<glm::mat4> &matrices)
-        : shader(s), tex(t)
+    InstancedRenderer(Shader shader, Object &model, Texture texture, std::vector<glm::mat4> &matrices)
+        : _shader(shader), _tex(texture)
     {
-        tex = Texture(PATH_TO_SRC "/../assets/textures/wall.jpg");
+        _instanceCount = matrices.size();
+        _vertexCount = model.numVertices;
 
-        instanceCount = matrices.size();
-        vertexCount = model.numVertices;
+        glGenVertexArrays(1, &_VAO);
+        glGenBuffers(1, &_VBO);
+        glGenBuffers(1, &_instanceVBO);
 
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-        glGenBuffers(1, &instanceVBO);
+        glBindVertexArray(_VAO);
 
-        glBindVertexArray(VAO);
-
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, _VBO);
         glBufferData(GL_ARRAY_BUFFER, model.vertices.size() * sizeof(Vertex), model.vertices.data(), GL_STATIC_DRAW);
 
         // Position (Loc 0)
@@ -53,8 +51,8 @@ public:
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, Normal));
 
         // 2. Setup Instance Data (Matrices)
-        glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-        glBufferData(GL_ARRAY_BUFFER, instanceCount * sizeof(glm::mat4), &matrices[0], GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, _instanceVBO);
+        glBufferData(GL_ARRAY_BUFFER, _instanceCount * sizeof(glm::mat4), &matrices[0], GL_STATIC_DRAW);
 
         // A mat4 is 4 vec4s. We enable locations 3, 4, 5, and 6.
         for (unsigned int i = 0; i < 4; i++)
@@ -68,21 +66,17 @@ public:
         glBindVertexArray(0);
     }
 
-    void draw() const
-    {
-    }
-
     void render()
     {
-        tex.bind();
+        _tex.bind();
 
-        shader.use();
-        shader.updatePos(camera);
+        _shader.use();
+        _shader.updatePos(camera);
 
-        glBindVertexArray(VAO);
-        glDrawArraysInstanced(GL_TRIANGLES, 0, vertexCount, instanceCount);
+        glBindVertexArray(_VAO);
+        glDrawArraysInstanced(GL_TRIANGLES, 0, _vertexCount, _instanceCount);
         glBindVertexArray(0);
-        tex.unbind();
+        _tex.unbind();
     }
 };
 #endif

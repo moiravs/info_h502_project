@@ -110,9 +110,6 @@ int main()
 
 	Object sphere1(PATH_TO_SRC "/../assets/models/sphere_smooth.obj");
 
-	glm::mat4 model = glm::mat4(1.0);
-	model = glm::translate(model, glm::vec3(0.0, 30.0, -2.0));
-	glm::mat4 inverseModel = glm::transpose(glm::inverse(model));
 	sphere1.setWorldPosition(0, 20, -2);
 	ObjectRenderer sphereRenderer(shader, sphere1);
 
