@@ -22,6 +22,7 @@ TODO:
     - Add a lamp
     
 # Améliorer les performances
+- Implement Billboarding to just render the trees far away as a 2D image
 - Frustum culling
 - Tessalation for the height terrain https://learnopengl.com/Guest-Articles/2021/Tessellation/Tessellation
 
