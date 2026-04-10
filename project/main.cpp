@@ -99,10 +99,9 @@ int main()
 		treeMatrices.push_back(model);
 	}
 
-	InstancedRenderer treeRenderer(treeShader, tree, wall, treeMatrices);
-
 	WaterRenderer waterRenderer(waterShader, water, fbos);
 
+	InstancedRenderer treeRenderer(treeShader, tree, wall, treeMatrices);
 	glm::vec4 reflectionPlane = glm::vec4(0, 1, 0, waterHeight);
 	glm::vec4 refractionPlane = glm::vec4(0, -1, 0, waterHeight);
 
