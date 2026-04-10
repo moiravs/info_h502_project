@@ -15,9 +15,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 // camera - give pretty starting point
-Camera camera = Camera(glm::vec3(140.0f, 110.0f, 120.0f),
-                       glm::vec3(0.0f, 1.0f, 0.0f),
-                       -0.0f, -0.0f);
+Camera camera(glm::vec3(0.0, 0.0, 0.1));
+
+// Camera camera = Camera(glm::vec3(140.0f, 110.0f, 120.0f),
+//                        glm::vec3(0.0f, 1.0f, 0.0f),
+//                        -0.0f, -0.0f);
 
 constexpr unsigned int SCR_WIDTH = 800;
 constexpr unsigned int SCR_HEIGHT = 600;
@@ -133,7 +135,7 @@ public:
 
         this->processInput();
 
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Measure speed
