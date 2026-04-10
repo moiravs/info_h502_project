@@ -23,9 +23,9 @@ public:
     int _vertexCount;
     int _instanceCount;
     Shader _shader;
-    Texture _tex;
+    Texture *_tex;
 
-    InstancedRenderer(Shader shader, Object &model, Texture texture, std::vector<glm::mat4> &matrices)
+    InstancedRenderer(Shader shader, Object &model, Texture *texture, std::vector<glm::mat4> &matrices)
         : _shader(shader), _tex(texture)
     {
         _instanceCount = matrices.size();
@@ -68,7 +68,7 @@ public:
 
     void render()
     {
-        _tex.bind();
+        _tex->bind();
 
         _shader.use();
         _shader.updatePos(camera);
@@ -76,7 +76,7 @@ public:
         glBindVertexArray(_VAO);
         glDrawArraysInstanced(GL_TRIANGLES, 0, _vertexCount, _instanceCount);
         glBindVertexArray(0);
-        _tex.unbind();
+        _tex->unbind();
     }
 };
 #endif
