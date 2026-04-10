@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "game_engine/shader.h"
+#include "game_engine/light.h"
 #include "game_engine/camera.h"
 #include "game_engine/terrainGeneration.h"
 #include "game_engine/displaymanager.h"
@@ -22,6 +23,7 @@
 #include "game_engine/instanceRenderer.h"
 
 #include "utils/utils.h"
+#include "game_engine/light.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
@@ -107,76 +109,64 @@ int main()
 	Shader shader(PATH_TO_SRC "/../assets/shaders/sphere.vert", PATH_TO_SRC "/../assets/shaders/sphere.frag");
 
 	Object sphere1(PATH_TO_SRC "/../assets/models/sphere_smooth.obj");
-	ObjectRenderer sphereRenderer(shader, sphere1);
 
-	glm::vec3 light_pos = glm::vec3(1.0, 2.0, 1.5);
 	glm::mat4 model = glm::mat4(1.0);
 	model = glm::translate(model, glm::vec3(0.0, 30.0, -2.0));
-	model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
 	glm::mat4 inverseModel = glm::transpose(glm::inverse(model));
-	sphere1.setWorldPosition(0, 30, -2);
+	sphere1.setWorldPosition(0, 20, -2);
+	ObjectRenderer sphereRenderer(shader, sphere1);
 
-	float ambient = 0.1;
-	float diffuse = 0.5;
-	float specular = 0.8;
-
-	glm::vec3 materialColour = glm::vec3(0.5f, 0.6, 0.8);
+	Light randomLightForSphere(1.0, 22.0, 1.5);
+	randomLightForSphere.setProperties(0.1, 0.5, 0.8);
 
 	// Rendering
 
 	shader.use();
-	shader.setFloat("shininess", 32.0f);
-	shader.setVector3f("materialColour", materialColour);
-	shader.setFloat("light.ambient_strength", ambient);
-	shader.setFloat("light.diffuse_strength", diffuse);
-	shader.setFloat("light.specular_strength", specular);
-	shader.setFloat("light.constant", 1.0);
-	shader.setFloat("light.linear", 0.14);
-	shader.setFloat("light.quadratic", 0.07);
+	shader.setVector3f("materialColour", glm::vec3(0.5f, 0.6, 0.8));
+	shader.setLight(randomLightForSphere);
 	shader.setMatrix4("itM", inverseModel);
-	shader.setVector3f("light.light_pos", light_pos);
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
 	while (!dm.shouldClose())
 	{
 
-		// // Reflection
-		// glEnable(GL_CLIP_DISTANCE0);
-		// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// Reflection
+		glEnable(GL_CLIP_DISTANCE0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// fbos.bindReflectionFrameBuffer();
-		// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		// float distance = 2 * (camera.GetCameraPosition().y - waterHeight);
+		fbos.bindReflectionFrameBuffer();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		float distance = 2 * (camera.GetCameraPosition().y - waterHeight);
 
-		// camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y - distance, camera.GetCameraPosition().z));
-		// camera.invertPitch();
+		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y - distance, camera.GetCameraPosition().z));
+		camera.invertPitch();
 
-		// glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
-		// glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(reflectionPlane));
+		glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(reflectionPlane));
 
-		// heightMapShader.use();
-		// heightMapShader.updatePos(camera);
-		// terrainRenderer.draw();
-		// // treeRenderer.render();
+		heightMapShader.use();
+		heightMapShader.updatePos(camera);
+		terrainRenderer.draw();
+		treeRenderer.render();
 
-		// camera.invertPitch();
+		camera.invertPitch();
 
-		// camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y + distance, camera.GetCameraPosition().z));
+		camera.SetCameraPosition(glm::vec3(camera.GetCameraPosition().x, camera.GetCameraPosition().y + distance, camera.GetCameraPosition().z));
 
-		// // Refraction
-		// fbos.bindRefractionFrameBuffer();
-		// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// Refraction
+		fbos.bindRefractionFrameBuffer();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
-		// glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(refractionPlane));
+		glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(refractionPlane));
 
-		// heightMapShader.use();
-		// heightMapShader.updatePos(camera);
-		// terrainRenderer.draw();
-		// // treeRenderer.render();
+		heightMapShader.use();
+		heightMapShader.updatePos(camera);
+		terrainRenderer.draw();
+		treeRenderer.render();
 
-		// fbos.unbindCurrentFrameBuffer();
+		fbos.unbindCurrentFrameBuffer();
 
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
@@ -191,8 +181,8 @@ int main()
 		heightMapShader.updatePos(camera);
 
 		terrainRenderer.draw();
-		// // treeRenderer.render();
-		// waterRenderer.render();
+		treeRenderer.render();
+		waterRenderer.render();
 
 		double now = glfwGetTime();
 
@@ -202,7 +192,7 @@ int main()
 		shader.setVector3f("u_view_pos", camera.Position);
 		shader.updatePos(camera);
 
-		auto delta = light_pos + glm::vec3(0.0, 0.0, 2 * std::sin(now));
+		auto delta = randomLightForSphere.getPos() + glm::vec3(0.0, 0.0, 2 * std::sin(now));
 		// std::cout << delta.z <<std::endl;
 		shader.setVector3f("light.light_pos", delta);
 
@@ -210,7 +200,7 @@ int main()
 
 		dm.update();
 	}
-	// fbos.cleanUp();
+	fbos.cleanUp();
 	glfwTerminate();
 	return 0;
 }
