@@ -30,10 +30,17 @@ public:
     GLuint refractionTexture;
     GLuint refractionDepthTexture;
 
+    GLuint uboWater;
+
         WaterFrameBuffers()
     { // call when loading the game
         initialiseReflectionFrameBuffer();
         initialiseRefractionFrameBuffer();
+
+        glGenBuffers(1, &uboWater);
+        glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
+        glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec4), NULL, GL_DYNAMIC_DRAW);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 3, uboWater);
     }
     void cleanUp()
     { // call when closing the game
@@ -52,6 +59,21 @@ public:
     void bindRefractionFrameBuffer()
     { // call before rendering to this FBO
         bindFrameBuffer(refractionFrameBuffer, REFRACTION_WIDTH, REFRACTION_HEIGHT);
+    }
+
+    void setClipPlane(const glm::vec4 &plane)
+    {
+        glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(plane));
+    }
+
+    void connectShader(const Shader &shader)
+    {
+        GLuint blockIndex = glGetUniformBlockIndex(shader.ID, "WaterData");
+        if (blockIndex != GL_INVALID_INDEX)
+        {
+            glUniformBlockBinding(shader.ID, blockIndex, 3);
+        }
     }
 
     void unbindCurrentFrameBuffer()
