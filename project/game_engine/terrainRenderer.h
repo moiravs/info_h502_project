@@ -10,16 +10,18 @@
 #include <iostream>
 
 #include "terrainGeneration.h"
+#include "renderer.h"
 #include <vector>
-class TerrainRenderer
+class TerrainRenderer : public Renderer
 {
 public:
     unsigned int terrainVAO, terrainVBO, terrainIBO;
     TerrainGeneration &m_texture;
     int numStrips;
     int numTrisPerStrip;
+    Shader _shader;
 
-    TerrainRenderer(TerrainGeneration &terrain_gen) : m_texture(terrain_gen)
+    TerrainRenderer(TerrainGeneration &terrain_gen, Shader shader) : m_texture(terrain_gen), _shader(shader)
     {
         std::vector<float> vertices = terrain_gen.getVertices();
         std::vector<unsigned> indices = terrain_gen.getIndices();
@@ -50,8 +52,10 @@ public:
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STATIC_DRAW);
     }
 
-    void draw()
+    void render()
     {
+        _shader.use();
+        _shader.updatePos(camera);
         glBindVertexArray(terrainVAO);
 
         for (unsigned strip = 0; strip < numStrips; strip++)
