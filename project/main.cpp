@@ -120,7 +120,7 @@ int main()
 	sphere1.setWorldPosition(1.0, 15.0, 1.5);
 
 	Light randomLightForSphere(1.0, 15.0, 1.5);
-	randomLightForSphere.setProperties(0, 0.4, 1);
+	randomLightForSphere.setProperties(0.4, 0.4, 1);
 
 	// Rendering
 	skyboxShader.use();
@@ -144,7 +144,6 @@ int main()
 
 	while (!dm.shouldClose())
 	{
-
 		// 1. Reflection
 		glEnable(GL_CLIP_DISTANCE0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
