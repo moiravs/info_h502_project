@@ -16,7 +16,7 @@
 #include "texture.h"
 #include "shader.h"
 
-class InstancedRenderer
+class InstancedRenderer : public Renderer
 {
 public:
     GLuint _VAO, _VBO, _instanceVBO;
@@ -66,7 +66,7 @@ public:
         glBindVertexArray(0);
     }
 
-    void render()
+    void render() override
     {
         _tex->bind();
 
