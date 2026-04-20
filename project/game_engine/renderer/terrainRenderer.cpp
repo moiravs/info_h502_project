@@ -1,6 +1,7 @@
 #include "terrainRenderer.h"
 
 #include "../displaymanager.h"
+#include "../mainCamera.h"
 
 TerrainRenderer::TerrainRenderer(TerrainGeneration& terrain_gen, const Shader& shader): m_texture(terrain_gen), _shader(shader)
 {
@@ -36,7 +37,7 @@ TerrainRenderer::TerrainRenderer(TerrainGeneration& terrain_gen, const Shader& s
 void TerrainRenderer::render()
 {
     _shader.use();
-    _shader.updatePos(camera);
+    _shader.updatePos(MainCamera::get());
     glBindVertexArray(terrainVAO);
 
     for (unsigned strip = 0; strip < numStrips; strip++)

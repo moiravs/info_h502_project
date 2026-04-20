@@ -6,8 +6,9 @@
 
 #include <glad/glad.h>
 
-#include "terrainGeneration.h"
 #include <glm/glm.hpp>
+
+#include "entity.h"
 
 struct Vertex
 {
@@ -16,18 +17,16 @@ struct Vertex
     glm::vec3 Normal;
 };
 
-class Object
+class Object : public Entity
 {
     std::vector<glm::vec3> positions;
     std::vector<glm::vec2> textures;
     std::vector<glm::vec3> normals;
     std::vector<Vertex> vertices;
+    glm::mat4 model = glm::mat4(1.0);
 
     GLuint VBO, VAO;
     bool transparent;
-
-    glm::mat4 model = glm::mat4(1.0);
-    glm::vec3 worldPos{};
 public:
     explicit Object(const char *path, bool transparent = false);
 
@@ -41,14 +40,14 @@ public:
 
     std::vector<Vertex> getVertices();
 
-    [[nodiscard]] const glm::mat4& getModel() const;
+    // this weird line is there so that the overloads of Entity::setPosition stay despite the override
+    using Entity::setPosition;
+    void setPosition(const glm::vec3& position) override;
 
     [[nodiscard]] size_t getNumVertices() const;
 
-    void setWorldPosition(float x, float z, const TerrainGeneration &terrain);
-
-    void setWorldPosition(float x, float y, float z);
-
     [[nodiscard]] float getHeight() const;
+
+    [[nodiscard]] const glm::mat4& getModel() const;
 };
 #endif

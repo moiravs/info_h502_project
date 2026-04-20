@@ -1,5 +1,6 @@
 #include "displaymanager.h"
 
+#include "mainCamera.h"
 #include "../utils/constants.h"
 #include "../utils/utils.h"
 
@@ -61,7 +62,7 @@ void DisplayManager::moveMouse(const double xpos, const double ypos)
 
     this->lastX = xpos;
     this->lastY = ypos;
-    camera.processMouseMovement(dx, dy, deltaTime, true);
+    MainCamera::get()->processMouseMovement(dx, dy, deltaTime);
 }
 
 bool DisplayManager::shouldClose() const
@@ -109,32 +110,34 @@ void DisplayManager::update()
 
 void DisplayManager::processInput() const
 {
+    const auto camera = MainCamera::get();
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-        camera.processKeyboardMovement(FORWARD, deltaTime);
+        camera->processKeyboardMovement(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.processKeyboardMovement(BACKWARD, deltaTime);
+        camera->processKeyboardMovement(BACKWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.processKeyboardMovement(FORWARD, deltaTime);
+        camera->processKeyboardMovement(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.processKeyboardMovement(LEFT, deltaTime);
+        camera->processKeyboardMovement(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-        camera.processKeyboardMovement(LEFT, deltaTime);
+        camera->processKeyboardMovement(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.processKeyboardMovement(RIGHT, deltaTime);
+        camera->processKeyboardMovement(RIGHT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        camera.processKeyboardMovement(JUMP, deltaTime);
+        camera->processKeyboardMovement(JUMP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        camera.processKeyboardMovement(CROUCH, deltaTime);
+        camera->processKeyboardMovement(CROUCH, deltaTime);
 
     // camera rotation
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-        camera.processKeyboardRotation(1.0, 0.0, deltaTime);
+        camera->processKeyboardRotation(1.0, 0.0, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-        camera.processKeyboardRotation(-1.0, 0.0, deltaTime);
+        camera->processKeyboardRotation(-1.0, 0.0, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-        camera.processKeyboardRotation(0.0, 1.0, deltaTime);
+        camera->processKeyboardRotation(0.0, 1.0, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        camera.processKeyboardRotation(0.0, -1.0, deltaTime);
+        camera->processKeyboardRotation(0.0, -1.0, deltaTime);
 }

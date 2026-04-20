@@ -6,8 +6,8 @@
 #include <string>
 #include <fstream>
 
-#include "camera.h"
-#include "light.h"
+#include "entity/camera.h"
+#include "entity/light.h"
 
 class Shader
 {
@@ -24,9 +24,9 @@ public:
 
     [[nodiscard]] GLuint getID() const;
 
-    void setLight(const Light& light);
+    void setLight(const std::shared_ptr<Light>& light) const;
 
-    void updatePos(const Camera& currentCamera) const;
+    void updatePos(const std::shared_ptr<Camera>& currentCamera) const;
 
     void setInteger(const GLchar *name, GLint value) const;
 

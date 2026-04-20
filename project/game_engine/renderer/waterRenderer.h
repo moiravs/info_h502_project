@@ -4,7 +4,7 @@
 #include <vector>
 
 #include <glad/glad.h>
-#include "../object.h"
+#include "../entity/object.h"
 #include "../shader.h"
 #include "../waterFrameBuffer.h"
 #include "renderer.h"

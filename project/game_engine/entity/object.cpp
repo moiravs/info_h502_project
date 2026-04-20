@@ -4,8 +4,9 @@
 #include <sstream>
 #include <glm/gtc/matrix_transform.hpp>
 
-Object::Object(const char* path, bool transparent) : VBO(0), VAO(0)
+Object::Object(const char* path, bool transparent) : Entity(), VBO(0), VAO(0)
 {
+
     this->transparent = transparent;
     std::ifstream infile(path);
     if (infile.is_open())
@@ -98,7 +99,7 @@ Object::Object(const char* path, bool transparent) : VBO(0), VAO(0)
     }
 }
 
-Object::Object(float size, float height, bool transparent) : VBO(0), VAO(0)
+Object::Object(float size, float height, bool transparent) : Entity(), VBO(0), VAO(0)
 {
     this->transparent = transparent;
     // 4 corners of the plane
@@ -147,19 +148,6 @@ std::vector<Vertex> Object::getVertices()
     return vertices;
 }
 
-void Object::setWorldPosition(const float x, const float z, const TerrainGeneration& terrain)
-{
-    const float y = terrain.getHeight(x, z);
-    this->worldPos = glm::vec3(x, y, z);
-    this->model = glm::translate(glm::mat4(1.0f), worldPos);
-}
-
-void Object::setWorldPosition(const float x, const float y, const float z)
-{
-    this->worldPos = glm::vec3(x, y, z);
-    this->model = glm::translate(glm::mat4(1.0f), worldPos);
-}
-
 float Object::getHeight() const
 {
     if (vertices.empty())
@@ -182,6 +170,12 @@ float Object::getHeight() const
 size_t Object::getNumVertices() const
 {
     return this->vertices.size();
+}
+
+void Object::setPosition(const glm::vec3& position)
+{
+    this->Entity::setPosition(position);
+    this->model = glm::translate(glm::mat4(1.0f), position);
 }
 
 const glm::mat4& Object::getModel() const
