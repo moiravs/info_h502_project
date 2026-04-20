@@ -6,8 +6,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "utils/utils.h"
 
 #define STB_IMAGE_IMPLEMENTATION
+// the include below must NOT be removed
+#include <stb_image.h>
 
 #include <vector>
 
@@ -16,17 +19,16 @@
 #include "game_engine/camera.h"
 #include "game_engine/terrainGeneration.h"
 #include "game_engine/displaymanager.h"
-#include "game_engine/objectRenderer.h"
-#include "game_engine/terrainRenderer.h"
-#include "game_engine/waterFrameBuffers.h"
-#include "game_engine/waterRenderer.h"
-#include "game_engine/instanceRenderer.h"
+#include "game_engine/renderer/objectRenderer.h"
+#include "game_engine/renderer/terrainRenderer.h"
+#include "game_engine/waterFrameBuffer.h"
+#include "game_engine/renderer/waterRenderer.h"
+#include "game_engine/renderer/instanceRenderer.h"
 
-#include "utils/utils.h"
-#include "game_engine/light.h"
-#include "game_engine/cubemap.h"
 #include "game_engine/skybox.h"
-#include "game_engine/skyboxRenderer.h"
+#include "game_engine/renderer/skyboxRenderer.h"
+
+#include "utils/constants.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
@@ -90,7 +92,7 @@ int main()
 				   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/back.jpg"});
 
 	// Water
-	WaterFrameBuffers fbos = WaterFrameBuffers();
+	WaterFrameBuffer fbos = WaterFrameBuffer();
 	fbos.connectShader(heightMapShader);
 
 	std::vector<glm::mat4> treeMatrices;
@@ -178,7 +180,7 @@ int main()
 		double now = glfwGetTime();
 
 		shader.use();
-		shader.setVector3f("u_view_pos", camera.Position);
+		shader.setVector3f("u_view_pos", camera.getPosition());
 		shader.updatePos(camera);
 
 		auto delta = randomLightForSphere.getPos() + glm::vec3(0.0, 0.0, 2 * std::sin(now));
