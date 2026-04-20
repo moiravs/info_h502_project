@@ -3,17 +3,10 @@
 
 #include <iostream>
 
-#include "camera.h"
+#include "entity/camera.h"
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
-
-// camera - give pretty starting point
-inline Camera camera(glm::vec3(0.0, 0.0, 0.1));
-
-// Camera camera = Camera(glm::vec3(140.0f, 110.0f, 120.0f),
-//                        glm::vec3(0.0f, 1.0f, 0.0f),
-//                        -0.0f, -0.0f);
 
 class DisplayManager
 {
@@ -43,7 +36,7 @@ public:
 
     void moveMouse(double xpos, double ypos);
 
-    bool shouldClose() const;
+    [[nodiscard]] bool shouldClose() const;
 
     static void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 

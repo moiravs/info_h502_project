@@ -1,9 +1,10 @@
 #include "waterRenderer.h"
 
 #include "../displaymanager.h"
+#include "../mainCamera.h"
 
 WaterRenderer::WaterRenderer(const Shader& shader, Object object, const WaterFrameBuffer& fbos) : transparent(false),
-    _shader(shader), _object(object), _fbos(fbos)
+                                                                                                  _shader(shader), _object(object), _fbos(fbos)
 {
     vertices = _object.getVertices();
     numVertices = vertices.size();
@@ -61,6 +62,6 @@ void WaterRenderer::render()
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, dudvMap.getTexture());
 
-    this->_shader.updatePos(camera);
+    this->_shader.updatePos(MainCamera::get());
     this->draw();
 }

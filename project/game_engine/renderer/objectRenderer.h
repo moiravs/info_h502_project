@@ -6,7 +6,7 @@
 #include <glad/glad.h>
 
 #include <glm/glm.hpp>
-#include "../object.h"
+#include "../entity/object.h"
 #include "../texture.h"
 #include "renderer.h"
 #include "../shader.h"

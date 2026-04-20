@@ -58,23 +58,23 @@ void Shader::use() const
     glUseProgram(ID);
 }
 
-void Shader::setLight(const Light& light)
+void Shader::setLight(const std::shared_ptr<Light>& light) const
 {
     this->setFloat("shininess", 32.0f);
-    this->setFloat("light.ambient_strength", light.getAmbient());
-    this->setFloat("light.diffuse_strength", light.getDiffuse());
-    this->setFloat("light.specular_strength", light.getSpecular());
+    this->setFloat("light.ambient_strength", light->getAmbient());
+    this->setFloat("light.diffuse_strength", light->getDiffuse());
+    this->setFloat("light.specular_strength", light->getSpecular());
     this->setFloat("light.constant", 1.0);
     this->setFloat("light.linear", 0.14);
     this->setFloat("light.quadratic", 0.07);
-    this->setVector3f("light.light_pos", light.getPos());
+    this->setVector3f("light.light_pos", light->getPosition());
 }
 
-void Shader::updatePos(const Camera& currentCamera) const
+void Shader::updatePos(const std::shared_ptr<Camera>& currentCamera) const
 {
-    const glm::mat4 projection = currentCamera.getProjectionMatrix(glm::radians(currentCamera.getZoom()),
+    const glm::mat4 projection = Camera::getProjectionMatrix(glm::radians(currentCamera->getZoom()),
             static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), 0.1f, 100000.0f);
-    const glm::mat4 view = currentCamera.getViewMatrix();
+    const glm::mat4 view = currentCamera->getViewMatrix();
 
     this->setMatrix4("projection", projection);
     this->setMatrix4("view", view);

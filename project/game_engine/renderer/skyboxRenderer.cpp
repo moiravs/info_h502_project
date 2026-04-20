@@ -2,6 +2,7 @@
 
 #include "../../utils/constants.h"
 #include "../displaymanager.h"
+#include "../mainCamera.h"
 
 SkyboxRenderer::SkyboxRenderer(const Shader& shader, Skybox* skybox) : _transparent(false), _shader(shader),
                                                                        _skybox(skybox)
@@ -20,12 +21,13 @@ SkyboxRenderer::SkyboxRenderer(const Shader& shader, Skybox* skybox) : _transpar
 
 void SkyboxRenderer::render()
 {
+    const auto camera = MainCamera::get();
     glDepthFunc(GL_LEQUAL); // change depth function so depth test passes when values are equal to depth buffer's content
     _shader.use();
-    glm::mat4 view = camera.getViewMatrix();
-    const glm::mat4 projection = glm::perspective(glm::radians(camera.getZoom()),
+    glm::mat4 view = camera->getViewMatrix();
+    const glm::mat4 projection = glm::perspective(glm::radians(camera->getZoom()),
         static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), 0.1f, 10000.0f);
-    view = glm::mat4(glm::mat3(camera.getViewMatrix())); // remove translation from the view matrix
+    view = glm::mat4(glm::mat3(camera->getViewMatrix())); // remove translation from the view matrix
     _shader.setMatrix4("view", view);
     _shader.setMatrix4("projection", projection);
     // skybox cube

@@ -1,6 +1,7 @@
 #include "instanceRenderer.h"
 
 #include "../displaymanager.h"
+#include "../mainCamera.h"
 
 InstancedRenderer::InstancedRenderer(const Shader& shader, Object& model, Texture* texture, const std::vector<glm::mat4>& matrices)
 : _shader(shader), _tex(texture)
@@ -48,7 +49,7 @@ void InstancedRenderer::render()
     _tex->bind();
 
     _shader.use();
-    _shader.updatePos(camera);
+    _shader.updatePos(MainCamera::get());
 
     glBindVertexArray(VAO);
     glDrawArraysInstanced(GL_TRIANGLES, 0, _vertexCount, _instanceCount);

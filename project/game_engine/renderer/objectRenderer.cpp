@@ -1,6 +1,7 @@
 #include "objectRenderer.h"
 
 #include "../displaymanager.h"
+#include "../mainCamera.h"
 
 ObjectRenderer::ObjectRenderer(const Shader& shader, Object* object) : _shader(shader)
 {
@@ -57,7 +58,7 @@ void ObjectRenderer::render()
         this->_shader.setMatrix4("model", obj->getModel());
         glm::mat4 inverseModel = glm::transpose(glm::inverse(model));
         this->_shader.setMatrix4("itM", inverseModel);
-        this->_shader.updatePos(camera);
+        this->_shader.updatePos(MainCamera::get());
         if (_transparent)
         {
             glEnable(GL_BLEND);

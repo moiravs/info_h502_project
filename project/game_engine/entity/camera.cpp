@@ -1,0 +1,89 @@
+#include "camera.h"
+
+Camera::Camera(const glm::vec3 position, const glm::vec3 up, const float yaw, const float pitch)
+: Entity(position, yaw, pitch, up), zoom(ZOOM)
+{
+    this->Camera::updateRotation();
+}
+
+glm::mat4 Camera::getViewMatrix() const
+{
+    return glm::lookAt(this->getPosition(), this->getPosition() + this->getFront(), this->getUp());
+}
+
+glm::mat4 Camera::getProjectionMatrix(const float fov, const float ratio, const float near, const float far)
+{
+    return glm::perspective(fov, ratio, near, far);
+}
+
+float Camera::getZoom() const
+{
+    return this->zoom;
+}
+
+void Camera::invertPitch()
+{
+    this->setRotation(this->getYaw(), -this->getPitch());
+}
+
+void Camera::processKeyboardMovement(const PlayerMovement direction, const float deltaTime)
+{
+    const float velocity = MOV_SPEED * deltaTime;
+    if (direction == FORWARD)
+        this->setPosition(this->getPosition() + this->flatFront * velocity);
+    if (direction == BACKWARD)
+        this->setPosition(this->getPosition() - this->flatFront * velocity);
+    if (direction == LEFT)
+        this->setPosition(this->getPosition() - this->getRight() * velocity);
+    if (direction == RIGHT)
+        this->setPosition(this->getPosition() + this->getRight() * velocity);
+    if (direction == CROUCH)
+        this->setPosition(this->getPosition() - WORLD_UP * velocity);
+    if (direction == JUMP)
+        this->setPosition(this->getPosition() + WORLD_UP * velocity);
+}
+
+void Camera::prepareReflection(const int height)
+{
+    const auto pos = this->getPosition();
+    this->setPosition(pos.x, 2.0f * static_cast<float>(height) - pos.y, pos.z);
+
+    this->invertPitch();
+}
+
+void Camera::resetCameraAfterReflection(const int height)
+{
+    this->invertPitch();
+
+    const auto pos = this->getPosition();
+    this->setPosition(pos.x, 2.0f * static_cast<float>(height) - pos.y, pos.z);
+}
+
+void Camera::processKeyboardRotation(const float yawRot, const float pitchRot, const float deltaTime)
+{
+    const float velocity = ROT_SPEED * deltaTime;
+
+    this->rotate(velocity * yawRot, velocity * pitchRot);
+}
+
+void Camera::processMouseMovement(const float xoffset, const float yoffset, const float deltaTime)
+{
+    this->processKeyboardRotation(xoffset * SENSITIVITY, -yoffset * SENSITIVITY, deltaTime);
+}
+
+void Camera::processMouseScroll(const float yoffset)
+{
+    zoom -= static_cast<float>(yoffset);
+    if (zoom < 1.0f)
+        zoom = 1.0f;
+    if (zoom > 45.0f)
+        zoom = 45.0f;
+}
+
+void Camera::updateRotation()
+{
+    this->Entity::updateRotation();
+    this->flatFront = this->getFront();
+    this->flatFront.y = 0;
+    this->flatFront = glm::normalize(this->flatFront);
+}
