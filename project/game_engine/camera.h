@@ -2,8 +2,6 @@
 #define CAMERA_H
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -30,7 +28,6 @@ constexpr auto WORLD_UP = glm::vec3(0.0f, 1.0f, 0.0f);
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
 class Camera
 {
-public:
     // camera Attributes
     glm::vec3 Position;
     glm::vec3 Front;
@@ -47,162 +44,50 @@ public:
     float MouseSensitivity;
     float Zoom;
 
+    // calculates the front vector from the Camera's (updated) Euler Angles
+    void updateCameraVectors();
+public:
+
     // constructor with vectors
-    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = WORLD_UP,
-           float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), FlatFront(Front),
-                                                   MovementSpeed(MOV_SPEED), RotationSpeed(ROT_SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
-    {
-        this->Position = position;
-        this->WorldUp = up;
-        this->Yaw = yaw;
-        this->Pitch = pitch;
-        this->updateCameraVectors();
-    }
+    explicit Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = WORLD_UP,
+                    float yaw = YAW, float pitch = PITCH);
+
     // constructor with scalar values
-    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch)
-        : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(MOV_SPEED), RotationSpeed(ROT_SPEED),
-          MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
-    {
-        this->Position = glm::vec3(posX, posY, posZ);
-        this->WorldUp = glm::vec3(upX, upY, upZ);
-        this->Yaw = yaw;
-        this->Pitch = pitch;
-        this->updateCameraVectors();
-    }
+    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
 
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
-    glm::mat4 GetViewMatrix() const
-    {
-        return glm::lookAt(this->Position, this->Position + this->Front, this->Up);
-    }
+    [[nodiscard]] glm::mat4 getViewMatrix() const;
 
-    static glm::mat4 GetProjectionMatrix(
-        const float fov = 45.0, const float ratio = 1.0,
-        const float near = 0.01, const float far = 100.0)
-    {
-        return glm::perspective(fov, ratio, near, far);
-    }
+    static glm::mat4 getProjectionMatrix(float fov = 45.0, float ratio = 1.0, float near = 0.01, float far = 100.0);
 
-    glm::vec3 GetCameraUp() const
-    {
-        return this->Up;
-    }
+    [[nodiscard]] glm::vec3 getUp() const;
 
-    void invertPitch()
-    {
-        float tmp = this->Pitch;
-        this->Pitch = -tmp;
-        updateCameraVectors();
-    }
+    [[nodiscard]] float getZoom() const;
 
-    glm::vec3 GetCameraRight() const
-    {
-        return this->Right;
-    }
+    [[nodiscard]] glm::vec3 getPosition() const;
 
-    glm::vec3 GetCameraPosition() const
-    {
-        return this->Position;
-    }
+    void invertPitch();
 
-    void SetCameraPosition(glm::vec3 position)
-    {
-        this->Position = position;
-    }
+    [[nodiscard]] glm::vec3 getCameraRight() const;
+
+    [[nodiscard]] glm::vec3 getCameraPosition() const;
+
+    void setCameraPosition(glm::vec3 position);
+
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-    void ProcessKeyboardMovement(const PlayerMovement direction, const float deltaTime)
-    {
-        const float velocity = this->MovementSpeed * deltaTime;
-        if (direction == FORWARD)
-            this->Position += this->FlatFront * velocity;
-        if (direction == BACKWARD)
-            this->Position -= this->FlatFront * velocity;
-        if (direction == LEFT)
-            this->Position -= this->Right * velocity;
-        if (direction == RIGHT)
-            this->Position += this->Right * velocity;
-        if (direction == CROUCH)
-            this->Position -= WORLD_UP * velocity;
-        if (direction == JUMP)
-            this->Position += WORLD_UP * velocity;
-    }
+    void processKeyboardMovement(PlayerMovement direction, float deltaTime);
 
-    void prepareReflection(int height)
-    {
+    void prepareReflection(int height);
 
-        float reflectedY = (2.0f * height) - this->Position.y;
-        this->Position.y = reflectedY;
+    void resetCameraAfterReflection(int height);
 
-        this->invertPitch();
-    }
-
-    void resetCameraAfterReflection(int height)
-    {
-        this->invertPitch();
-
-        float originalY = (2.0f * height) - this->Position.y;
-        this->Position.y = originalY;
-    }
-
-    void ProcessKeyboardRotation(float YawRot, float PitchRot, const float deltaTime, const GLboolean constrainPitch = true)
-    {
-        const float velocity = this->RotationSpeed * deltaTime;
-        YawRot *= velocity;
-        PitchRot *= velocity;
-
-        this->Yaw += YawRot;
-        this->Pitch += PitchRot;
-
-        // Make sure that when pitch is out of bounds, screen doesn't get flipped
-        if (constrainPitch)
-        {
-            if (this->Pitch > 89.0f)
-                this->Pitch = 89.0f;
-            if (this->Pitch < -89.0f)
-                this->Pitch = -89.0f;
-        }
-        updateCameraVectors();
-    }
+    void processKeyboardRotation(float YawRot, float PitchRot, float deltaTime, GLboolean constrainPitch = true);
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-    void ProcessMouseMovement(const float xoffset, const float yoffset,
-                              const float deltaTime, const GLboolean constrainPitch = true)
-    {
-        /* The motivated students can implement rotation using the mouse rather than the keyboard
-         * You can draw inspiration from the ProcessKeyboardMovement function
-         */
-
-        this->ProcessKeyboardRotation(xoffset * MouseSensitivity, -yoffset * MouseSensitivity,
-                                      deltaTime, constrainPitch);
-    }
+    void processMouseMovement(float xoffset, float yoffset, float deltaTime, GLboolean constrainPitch = true);
 
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-    void ProcessMouseScroll(const float yoffset)
-    {
-        Zoom -= static_cast<float>(yoffset);
-        if (Zoom < 1.0f)
-            Zoom = 1.0f;
-        if (Zoom > 45.0f)
-            Zoom = 45.0f;
-    }
-
-private:
-    // calculates the front vector from the Camera's (updated) Euler Angles
-    void updateCameraVectors()
-    {
-
-        // calculate the new Front vector
-        glm::vec3 front;
-        front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-        front.y = sin(glm::radians(Pitch));
-        front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-        Front = glm::normalize(front);
-        front.y = 0;
-        FlatFront = glm::normalize(front);
-        // also re-calculate the Right and Up vector
-        Right = glm::normalize(glm::cross(Front, WorldUp)); // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-        Up = glm::normalize(glm::cross(Right, Front));
-    }
+    void processMouseScroll(const float yoffset);
 };
 
 #endif

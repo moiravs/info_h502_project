@@ -5,12 +5,6 @@
 #include <iostream>
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <stb_image.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #define ERROR(msg)                                         \
     std::cerr << "[ERROR] " << __FILE__ << ":" << __LINE__ \
@@ -25,13 +19,13 @@
     } while (0)
 
 #ifndef NDEBUG
-void APIENTRY glDebugOutput(GLenum source,
-                            GLenum type,
-                            unsigned int id,
-                            GLenum severity,
-                            GLsizei length,
-                            const char *message,
-                            const void *userParam)
+inline void APIENTRY glDebugOutput(const GLenum source,
+                                   const GLenum type,
+                                   const unsigned int id,
+                                   const GLenum severity,
+                                   GLsizei length,
+                                   const char *message,
+                                   const void *userParam)
 {
     // ignore non-significant error/warning codes
     if (id == 131169 || id == 131185 || id == 131218 || id == 131204)
