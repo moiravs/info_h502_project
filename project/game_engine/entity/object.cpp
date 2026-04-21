@@ -111,6 +111,8 @@ Object::Object(const char* path) : Entity()
     {
         std::cout << "Error opening file: " << path << std::endl;
     }
+
+    height = computeHeight();
 }
 
 Object::Object(float size, float height) : Entity()
@@ -139,6 +141,8 @@ Object::Object(float size, float height) : Entity()
     vertices.push_back({p1, t1, n});
     vertices.push_back({p3, t3, n});
     vertices.push_back({p4, t4, n});
+
+    height = computeHeight();
 }
 
 std::vector<glm::vec3> Object::getPositions()
@@ -161,7 +165,7 @@ std::vector<Vertex> Object::getVertices()
     return vertices;
 }
 
-float Object::getHeight() const
+float Object::computeHeight() const
 {
     if (vertices.empty())
         return 0.0f;
@@ -178,6 +182,11 @@ float Object::getHeight() const
     }
 
     return maxY - minY;
+}
+
+float Object::getHeight() const
+{
+    return height;
 }
 
 size_t Object::getNumVertices() const

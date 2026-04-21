@@ -77,13 +77,6 @@ int main()
 	// Texture
 	Texture treeTexture(PATH_TO_SRC "/../assets/textures/tree.jpg");
 
-	// Objects
-	auto tree = Object::make(PATH_TO_SRC "/../assets/models/Tree.obj");
-	auto water = Object::make(PLAN_SIZE_X / 2, waterHeight);
-	auto sphere1 = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj");
-	auto funnyFaceSphere = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj");
-	camera->attach(funnyFaceSphere, glm::vec3(1, 0, 10));
-
 	// Terrain
 	TerrainGeneration heightMap(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
 
@@ -123,23 +116,7 @@ int main()
 	auto reflectionPlane = glm::vec4(0, 1, 0, waterHeight);
 	auto refractionPlane = glm::vec4(0, -1, 0, waterHeight);
 
-	sphere1->setPosition(1.0, 15.0, 1.5);
-
-	auto randomLightForSphere = std::make_shared<Light>();
-	randomLightForSphere->setProperties(0.1, 0.9, 1);
-
-	funnyFaceSphere->attach(randomLightForSphere);
-
-	// Rendering
-	skyboxShader.use();
-	skyboxShader.setInteger("skybox", 0);
-
-	shader.use();
-	shader.setVector3f("materialColour", glm::vec3(1.0f, 1.0, 1.0));
-	shader.setLight(randomLightForSphere);
-
-	treeShader.use();
-	treeShader.setLight(randomLightForSphere);
+	auto tree = Object::make(PATH_TO_SRC "/../assets/models/Tree.obj");
 
 	// Renderer
 	auto terrainRenderer = std::make_shared<TerrainRenderer>(heightMap, heightMapShader);
@@ -148,9 +125,26 @@ int main()
 	auto treeRenderer = std::make_shared<InstancedRenderer>(treeShader, tree, &treeTexture, treeMatrices);
 	auto skyboxRenderer = std::make_shared<SkyboxRenderer>(skyboxShader, &skybox);
 
-	water->registerRenderer(waterRenderer);
-	sphere1->registerRenderer(sphereRenderer);
-	funnyFaceSphere->registerRenderer(sphereRenderer);
+	// Objects
+	auto water = Object::make(PLAN_SIZE_X / 2, waterHeight, waterRenderer);
+	auto sphere1 = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", sphereRenderer);
+	auto funnyFaceSphere = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", sphereRenderer);
+	camera->attach(funnyFaceSphere, glm::vec3(1, 0, 10));
+
+	sphere1->setPosition(1.0, 15.0, 1.5);
+
+	auto randomLightForSphere = std::make_shared<Light>();
+	randomLightForSphere->setProperties(0.1, 0.9, 1);
+
+	funnyFaceSphere->attach(randomLightForSphere);
+
+	// Rendering
+	skyboxShader.setInteger("skybox", 0);
+
+	shader.setVector3f("materialColour", glm::vec3(1.0f, 1.0, 1.0));
+	shader.setLight(randomLightForSphere);
+
+	treeShader.setLight(randomLightForSphere);
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
@@ -182,14 +176,12 @@ int main()
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glDisable(GL_CLIP_DISTANCE0);
 
-		heightMapShader.use();
 		heightMapShader.setLight(randomLightForSphere); // Send the light data
 
 		renderScene({treeRenderer, waterRenderer, terrainRenderer, skyboxRenderer});
 
 		double now = glfwGetTime();
 
-		shader.use();
 		shader.setVector3f("u_view_pos", camera->getPosition());
 		shader.updatePos(camera);
 

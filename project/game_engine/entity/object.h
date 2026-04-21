@@ -25,6 +25,8 @@ class Object : public Entity
     std::vector<Vertex> vertices;
     glm::mat4 model = glm::mat4(1.0);
 
+    float height = 0;
+    float computeHeight() const;
 public:
     explicit Object(const char *path);
     Object(float size, float height);
