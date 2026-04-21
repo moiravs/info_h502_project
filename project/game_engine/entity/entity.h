@@ -5,11 +5,11 @@
 #include "../../utils/constants.h"
 #include "glm/glm.hpp"
 
-class Entity {
+class Entity : public std::enable_shared_from_this<Entity> {
     struct Attachment
     {
         std::shared_ptr<Entity> entity;
-        glm::vec3 offset;
+        glm::vec3 offset{};
         Attachment() = default;
         Attachment(const std::shared_ptr<Entity>& entity, const glm::vec3& offset);
     };

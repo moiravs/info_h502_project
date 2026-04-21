@@ -1,13 +1,13 @@
 #include "waterRenderer.h"
 
-#include "../displaymanager.h"
 #include "../mainCamera.h"
 
-WaterRenderer::WaterRenderer(const Shader& shader, Object object, const WaterFrameBuffer& fbos) : transparent(false),
-                                                                                                  _shader(shader), _object(object), _fbos(fbos)
+WaterRenderer::WaterRenderer(const Shader& shader, const WaterFrameBuffer& fbos) :
+transparent(false), _shader(shader), _fbos(fbos){}
+
+void WaterRenderer::registerObject(const std::shared_ptr<Object> object)
 {
-    vertices = _object.getVertices();
-    numVertices = vertices.size();
+    this->Renderer::registerObject(object);
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -15,7 +15,7 @@ WaterRenderer::WaterRenderer(const Shader& shader, Object object, const WaterFra
     // define VBO and VAO as active buffer and active vertex array
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(Vertex) * numVertices), object.getVertices().data(),
+    glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(Vertex) * object->getNumVertices()), object->getVertices().data(),
                  GL_STATIC_DRAW);
 
     auto att_pos = glGetAttribLocation(_shader.getID(), "position");
@@ -43,10 +43,13 @@ WaterRenderer::WaterRenderer(const Shader& shader, Object object, const WaterFra
 
 void WaterRenderer::draw() const
 {
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glBindVertexArray(this->VAO);
-    glDrawArrays(GL_TRIANGLES, 0, static_cast<int>(numVertices));
+    for (const auto& object: this->_objects)
+    {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBindVertexArray(this->VAO);
+        glDrawArrays(GL_TRIANGLES, 0, static_cast<int>(object->getNumVertices()));
+    }
 }
 
 void WaterRenderer::render()

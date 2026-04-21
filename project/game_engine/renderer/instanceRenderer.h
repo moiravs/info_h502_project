@@ -21,7 +21,7 @@ class InstancedRenderer : public Renderer
     Texture *_tex;
 public:
 
-    InstancedRenderer(const Shader& shader, Object &model, Texture *texture, const std::vector<glm::mat4> &matrices);
+    InstancedRenderer(const Shader& shader, std::shared_ptr<Object> model, Texture *texture, const std::vector<glm::mat4> &matrices);
 
     void render() override;
 };
