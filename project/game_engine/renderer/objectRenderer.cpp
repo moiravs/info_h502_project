@@ -3,60 +3,43 @@
 #include "../displaymanager.h"
 #include "../mainCamera.h"
 
-ObjectRenderer::ObjectRenderer(const Shader& shader, Object* object) : _shader(shader)
+ObjectRenderer::ObjectRenderer(const Shader& shader) : Renderer(), _shader(shader) {}
+
+void ObjectRenderer::registerObject(std::shared_ptr<Object> object)
 {
-    this->_objects.push_back(object);
-    initObjectRenderer();
-}
+    this->Renderer::registerObject(object);
 
-ObjectRenderer::ObjectRenderer(const Shader& shader, Object* object, const Texture& tex): _shader(shader), _tex(tex)
-{
-    this->_objects.push_back(object);
-    initObjectRenderer();
-}
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
 
-ObjectRenderer::ObjectRenderer(const Shader& shader, const std::vector<Object*>& objects, const Texture& tex) : _shader(shader), _tex(tex), _objects(objects)
-{
-    initObjectRenderer();
-}
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-void ObjectRenderer::initObjectRenderer()
-{
-    for (auto object : _objects)
-    {
+    glBufferData(GL_ARRAY_BUFFER, object->getNumVertices() * sizeof(Vertex), object->getVertices().data(), GL_STATIC_DRAW);
 
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
+    constexpr GLsizei stride = sizeof(Vertex);
 
-        glBindVertexArray(VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    const auto att_pos = glGetAttribLocation(_shader.getID(), "position");
+    glEnableVertexAttribArray(att_pos);
+    glVertexAttribPointer(att_pos, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(Vertex, Position)));
 
-        glBufferData(GL_ARRAY_BUFFER, object->getNumVertices() * sizeof(Vertex), object->getVertices().data(), GL_STATIC_DRAW);
+    const auto att_tex = glGetAttribLocation(_shader.getID(), "tex_coord");
+    glEnableVertexAttribArray(att_tex);
+    glVertexAttribPointer(att_tex, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(Vertex, Texture)));
+    const auto att_nor = glGetAttribLocation(_shader.getID(), "normal");
+    glEnableVertexAttribArray(att_nor);
+    glVertexAttribPointer(att_nor, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(Vertex, Normal)));
 
-        GLsizei stride = sizeof(Vertex);
-
-        auto att_pos = glGetAttribLocation(_shader.getID(), "position");
-        glEnableVertexAttribArray(att_pos);
-        glVertexAttribPointer(att_pos, 3, GL_FLOAT, GL_FALSE, stride, (void *)offsetof(Vertex, Position));
-
-        auto att_tex = glGetAttribLocation(_shader.getID(), "tex_coord");
-        glEnableVertexAttribArray(att_tex);
-        glVertexAttribPointer(att_tex, 2, GL_FLOAT, GL_FALSE, stride, (void *)offsetof(Vertex, Texture));
-        auto att_nor = glGetAttribLocation(_shader.getID(), "normal");
-        glEnableVertexAttribArray(att_nor);
-        glVertexAttribPointer(att_nor, 3, GL_FLOAT, GL_FALSE, stride, (void *)offsetof(Vertex, Normal));
-
-        glBindVertexArray(0);
-    }
+    glBindVertexArray(0);
 }
 
 void ObjectRenderer::render()
 {
-    for (const auto obj : _objects)
+    for (const auto& obj : _objects)
     {
         this->_shader.use();
         this->_shader.setMatrix4("model", obj->getModel());
-        glm::mat4 inverseModel = glm::transpose(glm::inverse(model));
+        glm::mat4 inverseModel = glm::transpose(glm::inverse(obj->getModel()));
         this->_shader.setMatrix4("itM", inverseModel);
         this->_shader.updatePos(MainCamera::get());
         if (_transparent)

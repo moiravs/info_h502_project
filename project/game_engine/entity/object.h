@@ -3,12 +3,10 @@
 
 #include <iostream>
 #include <vector>
-
-#include <glad/glad.h>
-
 #include <glm/glm.hpp>
 
 #include "entity.h"
+#include "../renderer/renderer.h"
 
 struct Vertex
 {
@@ -16,6 +14,8 @@ struct Vertex
     glm::vec2 Texture;
     glm::vec3 Normal;
 };
+
+class Renderer;
 
 class Object : public Entity
 {
@@ -25,12 +25,12 @@ class Object : public Entity
     std::vector<Vertex> vertices;
     glm::mat4 model = glm::mat4(1.0);
 
-    GLuint VBO, VAO;
-    bool transparent;
 public:
-    explicit Object(const char *path, bool transparent = false);
+    explicit Object(const char *path);
+    Object(float size, float height);
 
-    Object(float size, float height, bool transparent = false);
+    static std::shared_ptr<Object> make(const char *path, std::shared_ptr<Renderer> renderer = nullptr);
+    static std::shared_ptr<Object> make(float size, float height, std::shared_ptr<Renderer> renderer = nullptr);
 
     std::vector<glm::vec3> getPositions();
 
@@ -49,5 +49,7 @@ public:
     [[nodiscard]] float getHeight() const;
 
     [[nodiscard]] const glm::mat4& getModel() const;
+
+    void registerRenderer(const std::shared_ptr<Renderer>& renderer);
 };
 #endif

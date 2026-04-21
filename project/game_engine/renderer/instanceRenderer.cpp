@@ -3,11 +3,11 @@
 #include "../displaymanager.h"
 #include "../mainCamera.h"
 
-InstancedRenderer::InstancedRenderer(const Shader& shader, Object& model, Texture* texture, const std::vector<glm::mat4>& matrices)
+InstancedRenderer::InstancedRenderer(const Shader& shader, std::shared_ptr<Object> model, Texture* texture, const std::vector<glm::mat4>& matrices)
 : _shader(shader), _tex(texture)
 {
     _instanceCount = matrices.size();
-    _vertexCount = model.getNumVertices();
+    _vertexCount = model->getNumVertices();
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -16,7 +16,7 @@ InstancedRenderer::InstancedRenderer(const Shader& shader, Object& model, Textur
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, model.getNumVertices() * sizeof(Vertex), model.getVertices().data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, model->getNumVertices() * sizeof(Vertex), model->getVertices().data(), GL_STATIC_DRAW);
 
     // Position (Loc 0)
     glEnableVertexAttribArray(0);

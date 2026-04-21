@@ -4,10 +4,24 @@
 #include <sstream>
 #include <glm/gtc/matrix_transform.hpp>
 
-Object::Object(const char* path, bool transparent) : Entity(), VBO(0), VAO(0)
-{
+#include "../renderer/objectRenderer.h"
 
-    this->transparent = transparent;
+std::shared_ptr<Object> Object::make(const char* path, std::shared_ptr<Renderer> renderer)
+{
+    const auto ret = std::make_shared<Object>(path);
+    ret->registerRenderer(renderer);
+    return ret;
+}
+
+std::shared_ptr<Object> Object::make(float size, float height, std::shared_ptr<Renderer> renderer)
+{
+    const auto ret = std::make_shared<Object>(size, height);
+    ret->registerRenderer(renderer);
+    return ret;
+}
+
+Object::Object(const char* path) : Entity()
+{
     std::ifstream infile(path);
     if (infile.is_open())
     {
@@ -99,9 +113,8 @@ Object::Object(const char* path, bool transparent) : Entity(), VBO(0), VAO(0)
     }
 }
 
-Object::Object(float size, float height, bool transparent) : Entity(), VBO(0), VAO(0)
+Object::Object(float size, float height) : Entity()
 {
-    this->transparent = transparent;
     // 4 corners of the plane
     glm::vec3 p1(-size, height, -size);
     glm::vec3 p2(size, height, -size);
@@ -181,4 +194,12 @@ void Object::setPosition(const glm::vec3& position)
 const glm::mat4& Object::getModel() const
 {
     return this->model;
+}
+
+void Object::registerRenderer(const std::shared_ptr<Renderer>& renderer)
+{
+    if (!renderer) return;
+    if (const auto obj = std::dynamic_pointer_cast<Object>(shared_from_this())) {
+        renderer->registerObject(obj);
+    }
 }
