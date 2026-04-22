@@ -16,9 +16,7 @@ class Shader
 
 public:
 
-    Shader(const char *vertexPath, const char *fragmentPath);
-
-    Shader(const std::string& vShaderCode, const std::string& fShaderCode);
+    Shader(const std::string& vertexPath, const std::string& fragmentPath);
 
     void use() const;
 
