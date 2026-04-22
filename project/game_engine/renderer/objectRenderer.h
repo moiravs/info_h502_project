@@ -9,11 +9,9 @@
 
 class ObjectRenderer : public Renderer
 {
-    GLuint VBO{}, VAO{};
     bool _transparent{};
-    Shader _shader;
 public:
-    explicit ObjectRenderer(const Shader& shader);
+    explicit ObjectRenderer(std::shared_ptr<Shader> shader);
     void registerObject(std::shared_ptr<Object> object) override;
     void render() override;
 };
