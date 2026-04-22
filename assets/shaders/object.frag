@@ -7,7 +7,6 @@ in vec3 v_normal;
 
 uniform vec3 u_view_pos; 
 
-// In GLSL you can use structures to better organize your code
 // light
 struct Light{
 vec3 light_pos; 
@@ -27,7 +26,7 @@ uniform vec3 materialColour;
 float specularCalculation(vec3 N, vec3 L, vec3 V ){ 
 vec3 R = reflect (-L,N);    // reflect (-L,N) is  equivalent to //max (2 * dot(N,L) * N - L , 0.0) ;
 float cosTheta = dot(R , V); 
-float spec = pow(max(cosTheta,0.0), 32.0); 
+float spec = pow(max(cosTheta,0.0), shininess);
 return light.specular_strength * spec;
 }
 

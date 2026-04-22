@@ -31,9 +31,15 @@ TerrainRenderer::TerrainRenderer(TerrainGeneration& terrain_gen)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STATIC_DRAW);
 }
 
-void TerrainRenderer::render()
+void TerrainRenderer::updateUniforms() const
 {
     _shader->updatePos(MainCamera::get());
+}
+
+void TerrainRenderer::render()
+{
+    Renderer::render();
+
     glBindVertexArray(VAO);
 
     for (unsigned strip = 0; strip < numStrips; strip++)

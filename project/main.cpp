@@ -130,8 +130,6 @@ int main()
 	sphere1->attach(randomLightForSphere);
 
 	// Rendering
-	skyboxRenderer->getShader()->setInteger("skybox", 0);
-	sphereRenderer->getShader()->setVector3f("materialColour", glm::vec3(1.0f, 1.0, 1.0));
 	sphereRenderer->getShader()->setLight(randomLightForSphere);
 	treeRenderer->getShader()->setLight(randomLightForSphere);
 	terrainRenderer->getShader()->setLight(randomLightForSphere);
@@ -140,7 +138,6 @@ int main()
 
 	while (!dm.shouldClose())
 	{
-
 		// 1. Reflection
 		glEnable(GL_CLIP_DISTANCE0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -170,9 +167,6 @@ int main()
 		renderScene({treeRenderer, waterRenderer, terrainRenderer, skyboxRenderer});
 
 		double now = glfwGetTime();
-
-		sphereRenderer->getShader()->setVector3f("u_view_pos", camera->getPosition());
-		sphereRenderer->getShader()->updatePos(camera);
 
 		sphereRenderer->getShader()->setVector3f("light.light_pos", randomLightForSphere->getPosition());
 

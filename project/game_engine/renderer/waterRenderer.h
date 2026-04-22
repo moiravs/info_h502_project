@@ -20,7 +20,7 @@ protected:
     [[nodiscard]] std::string getShaderName() const override;
 public:
     explicit WaterRenderer(std::shared_ptr<WaterFrameBuffer> fbos);
-
+    void updateUniforms() const override;
     void registerObject(std::shared_ptr<Object> object) override;
     void render() override;
 };

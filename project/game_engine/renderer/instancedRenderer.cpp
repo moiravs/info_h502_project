@@ -44,14 +44,18 @@ InstancedRenderer::InstancedRenderer(std::shared_ptr<Object> model, Texture* tex
 
 void InstancedRenderer::render()
 {
+    Renderer::render();
+
     _tex->bind();
-
-    _shader->updatePos(MainCamera::get());
-
     glBindVertexArray(VAO);
     glDrawArraysInstanced(GL_TRIANGLES, 0, _vertexCount, _instanceCount);
     glBindVertexArray(0);
     Texture::unbind();
+}
+
+void InstancedRenderer::updateUniforms() const
+{
+    _shader->updatePos(MainCamera::get());
 }
 
 InstancedRenderer::~InstancedRenderer()

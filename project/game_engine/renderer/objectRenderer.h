@@ -14,6 +14,7 @@ protected:
     [[nodiscard]] std::string getShaderName() const override;
 public:
     explicit ObjectRenderer();
+    void updateUniforms() const override;
     void registerObject(std::shared_ptr<Object> object) override;
     void render() override;
 };
