@@ -8,9 +8,10 @@ class Light : public Entity
     float _ambient, _diffuse, _specular;
     float _constant, _linear, _quadratic;
 
-public:
     Light(float x, float y, float z);
-    Light();
+public:
+    static std::shared_ptr<Light> make(float x, float y, float z);
+    static std::shared_ptr<Light> make();
 
     void setProperties(float ambient, float diffuse, float specular);
 
@@ -21,6 +22,12 @@ public:
     [[nodiscard]] float getSpecular() const;
 
     [[nodiscard]] float getDiffuse() const;
+
+    [[nodiscard]] float getConstant() const;
+
+    [[nodiscard]] float getLinear() const;
+
+    [[nodiscard]] float getQuadratic() const;
 };
 
 #endif
