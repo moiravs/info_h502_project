@@ -16,9 +16,8 @@ protected:
     [[nodiscard]] std::string getShaderName() const override;
 
 public:
-
-    TerrainRenderer(TerrainGeneration &terrain_gen);
-
+    explicit TerrainRenderer(TerrainGeneration &terrain_gen);
+    void updateUniforms() const override;
     void render() override;
     ~TerrainRenderer() override;
 };

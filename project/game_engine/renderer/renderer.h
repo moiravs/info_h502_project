@@ -18,10 +18,12 @@ protected:
     [[nodiscard]] virtual std::string getShaderName() const = 0;
 public:
     explicit Renderer(std::shared_ptr<Shader> shader);
+    virtual void updateUniforms() const = 0;
     virtual ~Renderer();
     virtual void registerObject(std::shared_ptr<Object> object);
+    // this method should eventually be protected/removed
     std::shared_ptr<Shader> getShader();
-    virtual void render() = 0;
+    virtual void render();
 };
 
 #endif

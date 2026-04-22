@@ -24,7 +24,7 @@ protected:
 public:
 
     InstancedRenderer(std::shared_ptr<Object> model, Texture *texture, const std::vector<glm::mat4> &matrices);
-
+    void updateUniforms() const override;
     ~InstancedRenderer() override;
     void render() override;
 };

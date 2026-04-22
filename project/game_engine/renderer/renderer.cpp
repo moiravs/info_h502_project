@@ -37,3 +37,8 @@ std::shared_ptr<Shader> Renderer::getShader()
 {
     return this->_shader;
 }
+
+void Renderer::render()
+{
+    this->updateUniforms();
+}

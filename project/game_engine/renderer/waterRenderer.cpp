@@ -41,6 +41,8 @@ void WaterRenderer::registerObject(const std::shared_ptr<Object> object)
 
 void WaterRenderer::render()
 {
+    Renderer::render();
+
     this->_shader->use();
 
     glActiveTexture(GL_TEXTURE0);
@@ -52,12 +54,15 @@ void WaterRenderer::render()
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, dudvMap.getTexture());
 
-    this->_shader->updatePos(MainCamera::get());
-
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glBindVertexArray(this->VAO);
     glDrawArrays(GL_TRIANGLES, 0, static_cast<int>(this->_object->getNumVertices()));
+}
+
+void WaterRenderer::updateUniforms() const
+{
+    this->_shader->updatePos(MainCamera::get());
 }
 
 std::string WaterRenderer::getShaderName() const

@@ -20,7 +20,7 @@ protected:
 
 public:
     explicit SkyboxRenderer(Skybox *skybox);
-
+    void updateUniforms() const override;
     void render() override;
 };
 #endif

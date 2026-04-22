@@ -30,12 +30,20 @@ void ObjectRenderer::registerObject(const std::shared_ptr<Object> object)
     glBindVertexArray(0);
 }
 
-void ObjectRenderer::render()
+void ObjectRenderer::updateUniforms() const
 {
+    this->_shader->setVector3f("materialColour", glm::vec3(1.0f, 1.0, 1.0));
     this->_shader->setMatrix4("model", this->_object->getModel());
     const glm::mat4 inverseModel = glm::transpose(glm::inverse(this->_object->getModel()));
     this->_shader->setMatrix4("itM", inverseModel);
     this->_shader->updatePos(MainCamera::get());
+    this->_shader->setVector3f("u_view_pos", MainCamera::get()->getPosition());
+}
+
+void ObjectRenderer::render()
+{
+    Renderer::render();
+
     if (_transparent)
     {
         glEnable(GL_BLEND);
