@@ -9,7 +9,6 @@
 
 class Skybox : public Cubemap
 {
-    unsigned int textureID;
     std::vector<float> skyboxVertices;
 
 public:

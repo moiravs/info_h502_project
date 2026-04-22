@@ -8,14 +8,14 @@
 
 class WaterFrameBuffer
 {
-    GLuint reflectionFrameBuffer;
-    GLuint reflectionTexture;
-    GLuint reflectionDepthBuffer;
-    GLuint refractionFrameBuffer;
-    GLuint refractionTexture;
-    GLuint refractionDepthTexture;
+    GLuint reflectionFrameBuffer{};
+    GLuint reflectionTexture{};
+    GLuint reflectionDepthBuffer{};
+    GLuint refractionFrameBuffer{};
+    GLuint refractionTexture{};
+    GLuint refractionDepthTexture{};
 
-    GLuint uboWater;
+    GLuint uboWater{};
 
 public:
     WaterFrameBuffer();
@@ -28,7 +28,7 @@ public:
 
     void setClipPlane(const glm::vec4 &plane) const;
 
-    static void connectShader(const Shader &shader);
+    static void connectShader(const std::shared_ptr<Shader>& shader);
 
     static void unbindCurrentFrameBuffer();
 

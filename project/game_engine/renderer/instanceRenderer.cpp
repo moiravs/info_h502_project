@@ -3,14 +3,12 @@
 #include "../displaymanager.h"
 #include "../mainCamera.h"
 
-InstancedRenderer::InstancedRenderer(const Shader& shader, std::shared_ptr<Object> model, Texture* texture, const std::vector<glm::mat4>& matrices)
-: _shader(shader), _tex(texture)
+InstancedRenderer::InstancedRenderer(std::shared_ptr<Shader> shader, std::shared_ptr<Object> model, Texture* texture, const std::vector<glm::mat4>& matrices)
+: Renderer(std::move(shader)), _tex(texture)
 {
     _instanceCount = matrices.size();
     _vertexCount = model->getNumVertices();
 
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
     glGenBuffers(1, &_instanceVBO);
 
     glBindVertexArray(VAO);
@@ -48,11 +46,16 @@ void InstancedRenderer::render()
 {
     _tex->bind();
 
-    _shader.use();
-    _shader.updatePos(MainCamera::get());
+    _shader->updatePos(MainCamera::get());
 
     glBindVertexArray(VAO);
     glDrawArraysInstanced(GL_TRIANGLES, 0, _vertexCount, _instanceCount);
     glBindVertexArray(0);
     Texture::unbind();
+}
+
+InstancedRenderer::~InstancedRenderer()
+{
+    Renderer::~Renderer();
+    glDeleteBuffers(1, &_instanceVBO);
 }

@@ -44,12 +44,12 @@ void WaterFrameBuffer::setClipPlane(const glm::vec4& plane) const
 }
 
 
-void WaterFrameBuffer::connectShader(const Shader& shader)
+void WaterFrameBuffer::connectShader(const std::shared_ptr<Shader>& shader)
 {
-    const GLuint blockIndex = glGetUniformBlockIndex(shader.getID(), "WaterData");
+    const GLuint blockIndex = glGetUniformBlockIndex(shader->getID(), "WaterData");
     if (blockIndex != GL_INVALID_INDEX)
     {
-        glUniformBlockBinding(shader.getID(), blockIndex, 3);
+        glUniformBlockBinding(shader->getID(), blockIndex, 3);
     }
 }
 

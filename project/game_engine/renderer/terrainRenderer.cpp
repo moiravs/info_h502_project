@@ -1,9 +1,9 @@
 #include "terrainRenderer.h"
 
-#include "../displaymanager.h"
 #include "../mainCamera.h"
 
-TerrainRenderer::TerrainRenderer(TerrainGeneration& terrain_gen, const Shader& shader): m_texture(terrain_gen), _shader(shader)
+TerrainRenderer::TerrainRenderer(std::shared_ptr<Shader> shader, TerrainGeneration& terrain_gen)
+: Renderer(std::move(shader)), m_texture(terrain_gen)
 {
     const std::vector<float>& vertices = terrain_gen.getVertices();
     const std::vector<unsigned>& indices = terrain_gen.getIndices();
@@ -11,11 +11,8 @@ TerrainRenderer::TerrainRenderer(TerrainGeneration& terrain_gen, const Shader& s
     numStrips = (terrain_gen.getHeight() - 1);
     numTrisPerStrip = (terrain_gen.getWidth()) * 2 - 2;
 
-    glGenVertexArrays(1, &terrainVAO);
-    glBindVertexArray(terrainVAO);
-
-    glGenBuffers(1, &terrainVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, terrainVBO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
 
     // Inside TerrainRenderer constructor
@@ -36,9 +33,8 @@ TerrainRenderer::TerrainRenderer(TerrainGeneration& terrain_gen, const Shader& s
 
 void TerrainRenderer::render()
 {
-    _shader.use();
-    _shader.updatePos(MainCamera::get());
-    glBindVertexArray(terrainVAO);
+    _shader->updatePos(MainCamera::get());
+    glBindVertexArray(VAO);
 
     for (unsigned strip = 0; strip < numStrips; strip++)
     {
@@ -51,7 +47,6 @@ void TerrainRenderer::render()
 
 TerrainRenderer::~TerrainRenderer()
 {
-    glDeleteVertexArrays(1, &terrainVAO);
-    glDeleteBuffers(1, &terrainVBO);
+    Renderer::~Renderer();
     glDeleteBuffers(1, &terrainIBO);
 }

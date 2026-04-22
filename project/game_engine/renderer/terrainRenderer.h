@@ -8,14 +8,13 @@
 
 class TerrainRenderer : public Renderer
 {
-    unsigned int terrainVAO{}, terrainVBO{}, terrainIBO{};
+    GLuint terrainIBO{};
     TerrainGeneration &m_texture;
     int numStrips;
     int numTrisPerStrip;
-    Shader _shader;
 public:
 
-    TerrainRenderer(TerrainGeneration &terrain_gen, const Shader& shader);
+    TerrainRenderer(std::shared_ptr<Shader> shader, TerrainGeneration &terrain_gen);
 
     void render() override;
     ~TerrainRenderer() override;

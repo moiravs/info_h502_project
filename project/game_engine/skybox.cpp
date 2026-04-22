@@ -1,6 +1,6 @@
 #include "skybox.h"
 
-Skybox::Skybox(const std::vector<std::string>& faces) : Cubemap(faces), textureID(0)
+Skybox::Skybox(const std::vector<std::string>& faces) : Cubemap(faces)
 {
     skyboxVertices = {
         // positions
