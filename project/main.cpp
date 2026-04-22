@@ -124,7 +124,7 @@ int main()
 	auto sphere1 = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", sphereRenderer);
 	sphere1->setPosition(1.0, 15.0, 1.5);
 
-	auto randomLightForSphere = std::make_shared<Light>();
+	auto randomLightForSphere = Light::make();
 	randomLightForSphere->setProperties(0.1, 0.9, 1);
 
 	sphere1->attach(randomLightForSphere);

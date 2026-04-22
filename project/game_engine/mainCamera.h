@@ -11,13 +11,7 @@ class MainCamera
     MainCamera() = default;
 
 public:
-    static std::shared_ptr<Camera> get()
-    {
-        if (instance == nullptr)
-            instance = std::make_shared<Camera>(glm::vec3(0.0, 0.0, 0.1));
-
-        return instance;
-    }
+    static std::shared_ptr<Camera> get();
 };
 
 #endif //INFOH502_CPP_MAINCAMERA_H
