@@ -26,3 +26,14 @@ Renderer::~Renderer()
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
 }
+
+std::shared_ptr<Shader> Renderer::generateShader() const
+{
+    const std::string shader_name = PATH_TO_SRC "/../assets/shaders/" + this->getShaderName();
+    return std::make_shared<Shader>(shader_name + ".vert", shader_name + ".frag");
+}
+
+std::shared_ptr<Shader> Renderer::getShader()
+{
+    return this->_shader;
+}

@@ -9,7 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "../utils/constants.h"
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath)
+Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
 {
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
@@ -22,7 +22,6 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 
     try
     {
-
         vShaderFile.open(vertexPath);
         fShaderFile.open(fragmentPath);
 
@@ -44,13 +43,6 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
     ID = compileProgram(vertex, fragment);
 
     this->setMatrix4("model", model);
-}
-
-Shader::Shader(const std::string& vShaderCode, const std::string& fShaderCode)
-{
-    const GLuint vertex = compileShader(vShaderCode, GL_VERTEX_SHADER);
-    const GLuint fragment = compileShader(fShaderCode, GL_FRAGMENT_SHADER);
-    ID = compileProgram(vertex, fragment);
 }
 
 void Shader::use() const

@@ -4,8 +4,8 @@
 #include "../displaymanager.h"
 #include "../mainCamera.h"
 
-SkyboxRenderer::SkyboxRenderer(std::shared_ptr<Shader> shader, Skybox* skybox) : Renderer(std::move(shader)),
-_transparent(false), _skybox(skybox)
+SkyboxRenderer::SkyboxRenderer(Skybox* skybox)
+: Renderer(this->generateShader()), _transparent(false), _skybox(skybox)
 {
     cubemapTexture = skybox->getTextureId();
 
@@ -35,4 +35,9 @@ void SkyboxRenderer::render()
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
     glDepthFunc(GL_LESS); // set depth function back to default
+}
+
+std::string SkyboxRenderer::getShaderName() const
+{
+    return "skybox";
 }

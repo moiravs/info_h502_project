@@ -13,10 +13,14 @@ protected:
     std::shared_ptr<Object> _object = nullptr;
     std::shared_ptr<Shader> _shader = nullptr;
     GLuint VAO = 0, VBO = 0;
+
+    [[nodiscard]] std::shared_ptr<Shader> generateShader() const;
+    [[nodiscard]] virtual std::string getShaderName() const = 0;
 public:
     explicit Renderer(std::shared_ptr<Shader> shader);
     virtual ~Renderer();
     virtual void registerObject(std::shared_ptr<Object> object);
+    std::shared_ptr<Shader> getShader();
     virtual void render() = 0;
 };
 

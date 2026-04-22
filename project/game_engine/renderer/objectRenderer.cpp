@@ -3,7 +3,7 @@
 #include "../displaymanager.h"
 #include "../mainCamera.h"
 
-ObjectRenderer::ObjectRenderer(std::shared_ptr<Shader> shader) : Renderer(std::move(shader)) {}
+ObjectRenderer::ObjectRenderer() : Renderer(this->generateShader()) {}
 
 void ObjectRenderer::registerObject(const std::shared_ptr<Object> object)
 {
@@ -43,4 +43,9 @@ void ObjectRenderer::render()
     }
     glBindVertexArray(this->VAO);
     glDrawArrays(GL_TRIANGLES, 0, static_cast<int>(this->_object->getNumVertices()));
+}
+
+std::string ObjectRenderer::getShaderName() const
+{
+    return "object";
 }

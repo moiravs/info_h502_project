@@ -18,9 +18,12 @@ class InstancedRenderer : public Renderer
     int _vertexCount;
     int _instanceCount;
     Texture *_tex;
+
+protected:
+    [[nodiscard]] std::string getShaderName() const override;
 public:
 
-    InstancedRenderer(std::shared_ptr<Shader> shader, std::shared_ptr<Object> model, Texture *texture, const std::vector<glm::mat4> &matrices);
+    InstancedRenderer(std::shared_ptr<Object> model, Texture *texture, const std::vector<glm::mat4> &matrices);
 
     ~InstancedRenderer() override;
     void render() override;

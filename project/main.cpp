@@ -24,7 +24,7 @@
 #include "game_engine/renderer/terrainRenderer.h"
 #include "game_engine/waterFrameBuffer.h"
 #include "game_engine/renderer/waterRenderer.h"
-#include "game_engine/renderer/instanceRenderer.h"
+#include "game_engine/renderer/instancedRenderer.h"
 
 #include "game_engine/skybox.h"
 #include "game_engine/renderer/skyboxRenderer.h"
@@ -67,13 +67,6 @@ int main()
 
 	const auto camera = MainCamera::get();
 
-	// Shaders
-	auto heightMapShader = std::make_shared<Shader>(PATH_TO_SRC "/../assets/shaders/cpu_height.vert", PATH_TO_SRC "/../assets/shaders/cpu_height.frag");
-	auto waterShader = std::make_shared<Shader>(PATH_TO_SRC "/../assets/shaders/water.vert", PATH_TO_SRC "/../assets/shaders/water.frag");
-	auto treeShader = std::make_shared<Shader>(PATH_TO_SRC "/../assets/shaders/tree.vert", PATH_TO_SRC "/../assets/shaders/tree.frag");
-	auto skyboxShader = std::make_shared<Shader>(PATH_TO_SRC "/../assets/shaders/skybox.vert", PATH_TO_SRC "/../assets/shaders/skybox.frag");
-	auto shader = std::make_shared<Shader>(PATH_TO_SRC "/../assets/shaders/sphere.vert", PATH_TO_SRC "/../assets/shaders/sphere.frag");
-
 	// Texture
 	Texture treeTexture(PATH_TO_SRC "/../assets/textures/tree.jpg");
 
@@ -89,8 +82,7 @@ int main()
 				   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/back.jpg"});
 
 	// Water
-	WaterFrameBuffer fbos = WaterFrameBuffer();
-	fbos.connectShader(heightMapShader);
+	auto fbos = std::make_shared<WaterFrameBuffer>();
 
 	std::vector<glm::mat4> treeMatrices;
 
@@ -119,56 +111,55 @@ int main()
 	auto tree = Object::make(PATH_TO_SRC "/../assets/models/Tree.obj");
 
 	// Renderer
-	auto terrainRenderer = std::make_shared<TerrainRenderer>(heightMapShader, heightMap);
-	auto sphereRenderer = std::make_shared<ObjectRenderer>(shader);
-	auto waterRenderer = std::make_shared<WaterRenderer>(waterShader, fbos);
-	auto treeRenderer = std::make_shared<InstancedRenderer>(treeShader, tree, &treeTexture, treeMatrices);
-	auto skyboxRenderer = std::make_shared<SkyboxRenderer>(skyboxShader, &skybox);
+	auto terrainRenderer = std::make_shared<TerrainRenderer>(heightMap);
+	auto sphereRenderer = std::make_shared<ObjectRenderer>();
+	auto waterRenderer = std::make_shared<WaterRenderer>(fbos);
+	auto treeRenderer = std::make_shared<InstancedRenderer>(tree, &treeTexture, treeMatrices);
+	auto skyboxRenderer = std::make_shared<SkyboxRenderer>(&skybox);
+
+	WaterFrameBuffer::connectShader(terrainRenderer->getShader());
 
 	// Objects
 	auto water = Object::make(PLAN_SIZE_X / 2, waterHeight, waterRenderer);
 	auto sphere1 = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", sphereRenderer);
-	auto funnyFaceSphere = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", sphereRenderer);
-	camera->attach(funnyFaceSphere, glm::vec3(1, 0, 10));
-
 	sphere1->setPosition(1.0, 15.0, 1.5);
 
 	auto randomLightForSphere = std::make_shared<Light>();
 	randomLightForSphere->setProperties(0.1, 0.9, 1);
 
-	funnyFaceSphere->attach(randomLightForSphere);
+	sphere1->attach(randomLightForSphere);
 
 	// Rendering
-	skyboxShader->setInteger("skybox", 0);
-
-	shader->setVector3f("materialColour", glm::vec3(1.0f, 1.0, 1.0));
-	shader->setLight(randomLightForSphere);
-
-	treeShader->setLight(randomLightForSphere);
+	skyboxRenderer->getShader()->setInteger("skybox", 0);
+	sphereRenderer->getShader()->setVector3f("materialColour", glm::vec3(1.0f, 1.0, 1.0));
+	sphereRenderer->getShader()->setLight(randomLightForSphere);
+	treeRenderer->getShader()->setLight(randomLightForSphere);
+	terrainRenderer->getShader()->setLight(randomLightForSphere);
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
 	while (!dm.shouldClose())
 	{
+
 		// 1. Reflection
 		glEnable(GL_CLIP_DISTANCE0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		fbos.bindReflectionFrameBuffer();
+		fbos->bindReflectionFrameBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera->prepareReflection(waterHeight);
-		fbos.setClipPlane(reflectionPlane);
+		fbos->setClipPlane(reflectionPlane);
 		renderScene({treeRenderer, terrainRenderer, skyboxRenderer});
 		camera->resetCameraAfterReflection(waterHeight);
 
 		// 2. Refraction
-		fbos.bindRefractionFrameBuffer();
+		fbos->bindRefractionFrameBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		fbos.setClipPlane(refractionPlane); // One clean call
+		fbos->setClipPlane(refractionPlane); // One clean call
 		renderScene({treeRenderer, terrainRenderer});
 
-		fbos.unbindCurrentFrameBuffer();
+		fbos->unbindCurrentFrameBuffer();
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
 		// Normal Scene
@@ -176,22 +167,20 @@ int main()
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glDisable(GL_CLIP_DISTANCE0);
 
-		heightMapShader->setLight(randomLightForSphere); // Send the light data
-
 		renderScene({treeRenderer, waterRenderer, terrainRenderer, skyboxRenderer});
 
 		double now = glfwGetTime();
 
-		shader->setVector3f("u_view_pos", camera->getPosition());
-		shader->updatePos(camera);
+		sphereRenderer->getShader()->setVector3f("u_view_pos", camera->getPosition());
+		sphereRenderer->getShader()->updatePos(camera);
 
-		shader->setVector3f("light.light_pos", randomLightForSphere->getPosition());
+		sphereRenderer->getShader()->setVector3f("light.light_pos", randomLightForSphere->getPosition());
 
 		sphereRenderer->render();
 
 		dm.update();
 	}
-	fbos.cleanUp();
+	fbos->cleanUp();
 	glfwTerminate();
 	return 0;
 }

@@ -2,8 +2,8 @@
 
 #include "../mainCamera.h"
 
-TerrainRenderer::TerrainRenderer(std::shared_ptr<Shader> shader, TerrainGeneration& terrain_gen)
-: Renderer(std::move(shader)), m_texture(terrain_gen)
+TerrainRenderer::TerrainRenderer(TerrainGeneration& terrain_gen)
+: Renderer(this->generateShader()), m_texture(terrain_gen)
 {
     const std::vector<float>& vertices = terrain_gen.getVertices();
     const std::vector<unsigned>& indices = terrain_gen.getIndices();
@@ -49,4 +49,9 @@ TerrainRenderer::~TerrainRenderer()
 {
     Renderer::~Renderer();
     glDeleteBuffers(1, &terrainIBO);
+}
+
+std::string TerrainRenderer::getShaderName() const
+{
+    return "cpu_height";
 }

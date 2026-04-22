@@ -10,8 +10,10 @@
 class ObjectRenderer : public Renderer
 {
     bool _transparent{};
+protected:
+    [[nodiscard]] std::string getShaderName() const override;
 public:
-    explicit ObjectRenderer(std::shared_ptr<Shader> shader);
+    explicit ObjectRenderer();
     void registerObject(std::shared_ptr<Object> object) override;
     void render() override;
 };
