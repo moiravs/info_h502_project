@@ -4,8 +4,8 @@
 #include "../displaymanager.h"
 #include "../mainCamera.h"
 
-SkyboxRenderer::SkyboxRenderer(Skybox* skybox)
-: Renderer(this->generateShader()), _transparent(false), _skybox(skybox)
+SkyboxRenderer::SkyboxRenderer(Skybox *skybox)
+    : Renderer(this->generateShader("skybox")), _transparent(false), _skybox(skybox)
 {
     cubemapTexture = skybox->getTextureId();
 
@@ -23,7 +23,7 @@ void SkyboxRenderer::updateUniforms() const
 {
     const auto camera = MainCamera::get();
     const glm::mat4 projection = glm::perspective(glm::radians(camera->getZoom()),
-        static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), 0.1f, 10000.0f);
+                                                  static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), 0.1f, 10000.0f);
     const auto view = glm::mat4(glm::mat3(camera->getViewMatrix())); // remove translation from the view matrix
     _shader->setMatrix4("view", view);
     _shader->setMatrix4("projection", projection);
@@ -41,9 +41,4 @@ void SkyboxRenderer::render()
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
     glDepthFunc(GL_LESS); // set depth function back to default
-}
-
-std::string SkyboxRenderer::getShaderName() const
-{
-    return "skybox";
 }

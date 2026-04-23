@@ -7,6 +7,7 @@
 
 #include "entity.h"
 #include "../renderer/renderer.h"
+#include <memory>
 
 struct Vertex
 {
@@ -27,6 +28,7 @@ class Object : public Entity
 
     float height = 0;
     float computeHeight() const;
+
 public:
     explicit Object(const char *path);
     Object(float size, float height);
@@ -44,14 +46,14 @@ public:
 
     // this weird line is there so that the overloads of Entity::setPosition stay despite the override
     using Entity::setPosition;
-    void setPosition(const glm::vec3& position) override;
+    void setPosition(const glm::vec3 &position) override;
 
     [[nodiscard]] size_t getNumVertices() const;
 
     [[nodiscard]] float getHeight() const;
 
-    [[nodiscard]] const glm::mat4& getModel() const;
+    [[nodiscard]] const glm::mat4 &getModel() const;
 
-    void registerRenderer(const std::shared_ptr<Renderer>& renderer);
+    void registerRenderer(const std::shared_ptr<Renderer> &renderer);
 };
 #endif

@@ -3,8 +3,8 @@
 #include "../displaymanager.h"
 #include "../mainCamera.h"
 
-InstancedRenderer::InstancedRenderer(std::shared_ptr<Object> model, Texture* texture, const std::vector<glm::mat4>& matrices)
-: Renderer(this->generateShader()), _tex(texture)
+InstancedRenderer::InstancedRenderer(std::shared_ptr<Object> model, Texture *texture, const std::vector<glm::mat4> &matrices)
+    : Renderer(this->generateShader("tree")), _tex(texture)
 {
     _instanceCount = matrices.size();
     _vertexCount = model->getNumVertices();
@@ -62,9 +62,4 @@ InstancedRenderer::~InstancedRenderer()
 {
     Renderer::~Renderer();
     glDeleteBuffers(1, &_instanceVBO);
-}
-
-std::string InstancedRenderer::getShaderName() const
-{
-    return "tree";
 }

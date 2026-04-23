@@ -6,7 +6,7 @@
 
 #include "../renderer/objectRenderer.h"
 
-std::shared_ptr<Object> Object::make(const char* path, std::shared_ptr<Renderer> renderer)
+std::shared_ptr<Object> Object::make(const char *path, std::shared_ptr<Renderer> renderer)
 {
     const auto ret = std::make_shared<Object>(path);
     ret->registerRenderer(renderer);
@@ -20,7 +20,7 @@ std::shared_ptr<Object> Object::make(float size, float height, std::shared_ptr<R
     return ret;
 }
 
-Object::Object(const char* path) : Entity()
+Object::Object(const char *path) : Entity()
 {
     std::ifstream infile(path);
     if (infile.is_open())
@@ -194,21 +194,23 @@ size_t Object::getNumVertices() const
     return this->vertices.size();
 }
 
-void Object::setPosition(const glm::vec3& position)
+void Object::setPosition(const glm::vec3 &position)
 {
     this->Entity::setPosition(position);
     this->model = glm::translate(glm::mat4(1.0f), position);
 }
 
-const glm::mat4& Object::getModel() const
+const glm::mat4 &Object::getModel() const
 {
     return this->model;
 }
 
-void Object::registerRenderer(const std::shared_ptr<Renderer>& renderer)
+void Object::registerRenderer(const std::shared_ptr<Renderer> &renderer)
 {
-    if (!renderer) return;
-    if (const auto obj = std::dynamic_pointer_cast<Object>(shared_from_this())) {
+    if (!renderer)
+        return;
+    if (const auto obj = std::dynamic_pointer_cast<Object>(this->shared_from_this()))
+    {
         renderer->registerObject(obj);
     }
 }

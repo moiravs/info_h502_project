@@ -15,8 +15,6 @@ class SkyboxRenderer : public Renderer
     Skybox *_skybox;
     glm::mat4 model = glm::mat4(1.0);
     unsigned int cubemapTexture;
-protected:
-    [[nodiscard]] std::string getShaderName() const override;
 
 public:
     explicit SkyboxRenderer(Skybox *skybox);

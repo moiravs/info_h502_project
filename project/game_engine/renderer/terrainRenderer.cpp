@@ -2,11 +2,11 @@
 
 #include "../mainCamera.h"
 
-TerrainRenderer::TerrainRenderer(TerrainGeneration& terrain_gen)
-: Renderer(this->generateShader()), m_texture(terrain_gen)
+TerrainRenderer::TerrainRenderer(TerrainGeneration &terrain_gen)
+    : Renderer(this->generateShader("cpu_height")), m_texture(terrain_gen)
 {
-    const std::vector<float>& vertices = terrain_gen.getVertices();
-    const std::vector<unsigned>& indices = terrain_gen.getIndices();
+    const std::vector<float> &vertices = terrain_gen.getVertices();
+    const std::vector<unsigned> &indices = terrain_gen.getIndices();
 
     numStrips = (terrain_gen.getHeight() - 1);
     numTrisPerStrip = (terrain_gen.getWidth()) * 2 - 2;
@@ -44,10 +44,10 @@ void TerrainRenderer::render()
 
     for (unsigned strip = 0; strip < numStrips; strip++)
     {
-        glDrawElements(GL_TRIANGLE_STRIP,                                           // primitive type
-                       numTrisPerStrip + 2,                                         // number of indices to render
-                       GL_UNSIGNED_INT,                                             // index data type
-                       reinterpret_cast<void*>(sizeof(unsigned) * (numTrisPerStrip + 2) * strip)); // offset to starting index
+        glDrawElements(GL_TRIANGLE_STRIP,                                                           // primitive type
+                       numTrisPerStrip + 2,                                                         // number of indices to render
+                       GL_UNSIGNED_INT,                                                             // index data type
+                       reinterpret_cast<void *>(sizeof(unsigned) * (numTrisPerStrip + 2) * strip)); // offset to starting index
     }
 }
 
@@ -55,9 +55,4 @@ TerrainRenderer::~TerrainRenderer()
 {
     Renderer::~Renderer();
     glDeleteBuffers(1, &terrainIBO);
-}
-
-std::string TerrainRenderer::getShaderName() const
-{
-    return "cpu_height";
 }

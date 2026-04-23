@@ -4,7 +4,7 @@
 
 #include "../../utils/utils.h"
 
-Renderer::Renderer(std::shared_ptr<Shader> shader): _shader(std::move(shader))
+Renderer::Renderer(std::shared_ptr<Shader> shader) : _shader(std::move(shader))
 {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -27,10 +27,10 @@ Renderer::~Renderer()
     glDeleteBuffers(1, &VBO);
 }
 
-std::shared_ptr<Shader> Renderer::generateShader() const
+std::shared_ptr<Shader> Renderer::generateShader(std::string shaderName) const
 {
-    const std::string shader_name = PATH_TO_SRC "/../assets/shaders/" + this->getShaderName();
-    return std::make_shared<Shader>(shader_name + ".vert", shader_name + ".frag");
+    const std::string fullName = PATH_TO_SRC "/../assets/shaders/" + shaderName;
+    return std::make_shared<Shader>(fullName + ".vert", fullName + ".frag");
 }
 
 std::shared_ptr<Shader> Renderer::getShader()

@@ -5,6 +5,7 @@
 
 #include <string>
 #include <fstream>
+#include <memory>
 
 #include "entity/camera.h"
 #include "entity/light.h"
@@ -15,16 +16,15 @@ class Shader
     glm::mat4 model = glm::mat4(1.0);
 
 public:
-
-    Shader(const std::string& vertexPath, const std::string& fragmentPath);
+    Shader(std::string vertexPath, std::string fragmentPath);
 
     void use() const;
 
     [[nodiscard]] GLuint getID() const;
 
-    void setLight(const std::shared_ptr<Light>& light) const;
+    void setLight(const std::shared_ptr<Light> &light) const;
 
-    void updatePos(const std::shared_ptr<Camera>& currentCamera) const;
+    void updatePos(const std::shared_ptr<Camera> &currentCamera) const;
 
     void setInteger(const GLchar *name, GLint value) const;
 
@@ -41,7 +41,7 @@ public:
     void setMatrix4(const GLchar *name, const glm::mat4 &matrix) const;
 
 private:
-    static GLuint compileShader(const std::string& shaderCode, GLenum shaderType);
+    static GLuint compileShader(const std::string &shaderCode, GLenum shaderType);
 
     static GLuint compileProgram(GLuint vertexShader, GLuint fragmentShader);
 };
