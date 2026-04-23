@@ -38,7 +38,7 @@ int waterHeight = 0;
 
 void renderScene(const std::vector<std::shared_ptr<Renderer>> &renderers)
 {
-	for (const auto& i : renderers)
+	for (const auto &i : renderers)
 	{
 		i->render();
 	}
