@@ -11,6 +11,7 @@
 class ObjectRenderer : public Renderer
 {
     bool _transparent{};
+    std::vector<GLuint> _vaos;
 
 public:
     explicit ObjectRenderer();
