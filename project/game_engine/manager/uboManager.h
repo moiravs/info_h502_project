@@ -7,11 +7,11 @@
 class UboManager {
     UboManager();
 
-    static UboManager instance;
     std::unordered_map<std::string, GLuint> bindings{};
 public:
-    static void registerShader(const Shader* shader);
-    static GLuint getBinding(const std::string& name);
+    static UboManager& get();
+    void registerShader(const Shader* shader);
+    GLuint getBinding(const std::string& name) const;
 };
 
 

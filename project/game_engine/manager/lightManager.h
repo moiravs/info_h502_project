@@ -1,35 +1,32 @@
 
 #ifndef INFOH502_CPP_LIGHTMANAGER_H
 #define INFOH502_CPP_LIGHTMANAGER_H
+
 #include <memory>
 
 #include "../shader.h"
 
-struct CompactLight
+struct LightBlock
 {
-    glm::vec3 position;
-    float pad1;
-
-    float ambient_strength;
-    float diffuse_strength;
-    float specular_strength;
-    float constant;
-
-    float linear;
-    float quadratic;
-    float pad2;
-    float pad3;
+    glm::vec4 positions[MAX_LIGHTS];    // x=x,        y=y,       z=z,         w=UNUSED
+    glm::vec4 properties[MAX_LIGHTS];   // x=ambiant,  y=diffuse, z=specular,  w=shininess
+    glm::vec4 attenuations[MAX_LIGHTS]; // x=constant, y=linear,  z=quadratic, w=UNUSED
+    int count;
+    int pad1;
+    int pad2;
+    int pad3;
 };
 
 class LightManager {
-    static std::shared_ptr<LightManager> instance;
     std::vector<std::shared_ptr<Light>> lights {};
     GLuint ubo{};
+    bool needsUpdate = false;
     LightManager();
     void rewriteBuffer() const;
 public:
-    static std::shared_ptr<LightManager> get();
-    void notify() const;
+    static LightManager& get();
+    void notify();
+    void applyChanges();
     void registerLight(std::shared_ptr<Light> light);
     ~LightManager();
 };

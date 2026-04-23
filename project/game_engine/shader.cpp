@@ -42,28 +42,16 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
 
     GLuint vertex = compileShader(vertexCode, GL_VERTEX_SHADER);
     GLuint fragment = compileShader(fragmentCode, GL_FRAGMENT_SHADER);
-    ID = compileProgram(vertex, fragment);
+    this->ID = compileProgram(vertex, fragment);
 
-    this->setMatrix4("model", model);
+    this->setMatrix4("model", this->model);
 
-    UboManager::registerShader(this);
+    UboManager::get().registerShader(this);
 }
 
 void Shader::use() const
 {
     glUseProgram(ID);
-}
-
-void Shader::setLight(const std::shared_ptr<Light>& light) const
-{
-    this->setFloat("shininess", 32.0f);
-    this->setFloat("light.ambient_strength", light->getAmbient());
-    this->setFloat("light.diffuse_strength", light->getDiffuse());
-    this->setFloat("light.specular_strength", light->getSpecular());
-    this->setFloat("light.constant", 1.0);
-    this->setFloat("light.linear", 0.14);
-    this->setFloat("light.quadratic", 0.07);
-    this->setVector3f("light.light_pos", light->getPosition());
 }
 
 void Shader::updatePos(const std::shared_ptr<Camera>& currentCamera) const

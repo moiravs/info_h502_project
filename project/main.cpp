@@ -27,6 +27,7 @@
 #include "game_engine/renderer/instancedRenderer.h"
 
 #include "game_engine/skybox.h"
+#include "game_engine/manager/lightManager.h"
 #include "game_engine/renderer/skyboxRenderer.h"
 
 #include "utils/constants.h"
@@ -65,7 +66,7 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);
 
-	const auto camera = MainCamera::get();
+	auto camera = MainCamera::get();
 
 	// Texture
 	Texture treeTexture(PATH_TO_SRC "/../assets/textures/tree.jpg");
@@ -123,19 +124,20 @@ int main()
 	sphere1->setPosition(1.0, 15.0, 1.5);
 
 	auto randomLightForSphere = Light::make();
-	randomLightForSphere->setProperties(0.1, 0.9, 1);
+	randomLightForSphere->setProperties(0.1, 0.9, 1, 32);
 
 	sphere1->attach(randomLightForSphere);
 
-	// Rendering
-	sphereRenderer->getShader()->setLight(randomLightForSphere);
-	treeRenderer->getShader()->setLight(randomLightForSphere);
-	terrainRenderer->getShader()->setLight(randomLightForSphere);
+	camera->attach(sphere1, glm::vec3(0, 0, 10));
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
+	auto& lightManager = LightManager::get();
+
 	while (!dm.shouldClose())
 	{
+		lightManager.applyChanges();
+
 		// 1. Reflection
 		glEnable(GL_CLIP_DISTANCE0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -166,13 +168,11 @@ int main()
 
 		double now = glfwGetTime();
 
-		sphereRenderer->getShader()->setVector3f("light.light_pos", randomLightForSphere->getPosition());
-
 		sphereRenderer->render();
 
 		dm.update();
 	}
-	fbos->cleanUp();
+
 	glfwTerminate();
 	return 0;
 }
