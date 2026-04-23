@@ -113,6 +113,12 @@ Object::Object(const char *path) : Entity()
     }
 
     height = computeHeight();
+
+    if (!m_mesh.LoadMesh(path))
+    {
+        std::cerr << "Assimp failed to load: " << path << std::endl;
+    }
+    // computeHeight can now iterate through m_mesh.m_Entries
 }
 
 Object::Object(float size, float height) : Entity()
