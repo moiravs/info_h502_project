@@ -2,13 +2,17 @@
 #include "lightManager.h"
 
 #include "uboManager.h"
+#include "../../utils/utils.h"
 
 LightManager::LightManager()
 {
     glGenBuffers(1, &ubo);
+
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(CompactLight), nullptr, GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_UNIFORM_BUFFER, UboManager::getBinding("Lights"), ubo);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(LightBlock), nullptr, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    glBindBufferBase(GL_UNIFORM_BUFFER, UboManager::get().getBinding("Lights"), ubo);
 }
 
 LightManager::~LightManager()
@@ -16,50 +20,54 @@ LightManager::~LightManager()
     glDeleteBuffers(1, &ubo);
 }
 
-std::shared_ptr<LightManager> LightManager::instance = nullptr;
-
-std::shared_ptr<LightManager> LightManager::get()
+LightManager& LightManager::get()
 {
-    if (instance == nullptr)
-        instance = std::make_shared<LightManager>(LightManager());
-
+    static LightManager instance;
     return instance;
 }
 
 void LightManager::registerLight(std::shared_ptr<Light> light)
 {
+    if (lights.size() == MAX_LIGHTS)
+    {
+        ERROR("Maximal number of lights exceeded. Cannot add a new light to the scene.");
+        return;
+    }
+
     this->lights.push_back(std::move(light));
     this->notify();
 }
 
-void LightManager::notify() const
+void LightManager::notify()
 {
-    // this gets called whenever a light changes
+    this->needsUpdate = true;
+}
+
+void LightManager::applyChanges()
+{
+    if (!this->needsUpdate) return;
     this->rewriteBuffer();
+    this->needsUpdate = false;
 }
 
 void LightManager::rewriteBuffer() const
 {
-    std::vector<CompactLight> toCopy;
-    toCopy.reserve(lights.size());
+    LightBlock g{};
+    g.count = static_cast<int>(lights.size());
 
-    for (const auto& l: lights) {
-        CompactLight g{};
-
-        g.position = l->getPosition();
-        g.ambient_strength = l->getAmbient();
-        g.diffuse_strength = l->getDiffuse();
-        g.specular_strength = l->getSpecular();
-        g.constant = l->getConstant();
-        g.linear = l->getLinear();
-        g.quadratic = l->getQuadratic();
-
-        toCopy.push_back(g);
+    for (int i = 0; i < g.count; i++) {
+        g.positions[i] = glm::vec4(lights[i]->getPosition(), 0);
+        g.properties[i] = glm::vec4(lights[i]->getAmbient(), lights[i]->getDiffuse(),
+            lights[i]->getSpecular(), lights[i]->getShininess());
+        g.attenuations[i] = glm::vec4(lights[i]->getConstant(), lights[i]->getLinear(),
+            lights[i]->getQuadratic(), 0);
     }
+
+    // g.positions[0] = glm::vec4(1, 1, 1, 1);
 
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, 0,
-                    toCopy.size() * sizeof(CompactLight),
-                    toCopy.data());
+                     sizeof(LightBlock),
+                     &g);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }

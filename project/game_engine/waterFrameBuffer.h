@@ -4,7 +4,6 @@
 #include <glad/glad.h>
 
 #include <glm/glm.hpp>
-#include "shader.h"
 
 class WaterFrameBuffer
 {
@@ -19,8 +18,7 @@ class WaterFrameBuffer
 
 public:
     WaterFrameBuffer();
-
-    void cleanUp() const;
+    ~WaterFrameBuffer();
 
     void bindReflectionFrameBuffer() const;
 

@@ -1,5 +1,7 @@
 #include "waterFrameBuffer.h"
 
+#include <iostream>
+
 #include "../utils/constants.h"
 #include <glm/gtc/type_ptr.hpp>
 
@@ -11,12 +13,11 @@ WaterFrameBuffer::WaterFrameBuffer()
     initialiseRefractionFrameBuffer();
 
     glGenBuffers(1, &uboWater);
-    glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
+    glBindBufferBase(GL_UNIFORM_BUFFER, UboManager::get().getBinding("WaterData"), uboWater);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_UNIFORM_BUFFER, UboManager::getBinding("WaterData"), uboWater);
 }
 
-void WaterFrameBuffer::cleanUp() const
+WaterFrameBuffer::~WaterFrameBuffer()
 {
     // call when closing the game
     glDeleteFramebuffers(1, &reflectionFrameBuffer);
@@ -25,6 +26,7 @@ void WaterFrameBuffer::cleanUp() const
     glDeleteFramebuffers(1, &refractionFrameBuffer);
     glDeleteTextures(1, &refractionTexture);
     glDeleteTextures(1, &refractionDepthTexture);
+    glDeleteBuffers(1, &uboWater);
 }
 
 void WaterFrameBuffer::bindReflectionFrameBuffer() const
