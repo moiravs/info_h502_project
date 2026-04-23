@@ -7,24 +7,35 @@ DONE:
     - Water
 - Instancing 
     - Instancing trees
-
+- Lights
+    - Add a lamp
 
 EN COURS:
-- Refactor :((
+- Refactor Lights
+
 
 TODO:
+
+- Frustum culling https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
+
+
+- Assimp (pour load des arbres cool)
+- Fire camp (https://learnopengl.com/In-Practice/2D-Game/Particles)
+
+
 # Features
+
+
 - Object moving in the scene
     - Water (physics simulation)
     - FISHHHH
-- Add object
-    - Fire camp 
-- Lights
-    - Add a lamp
+
+    
+
     
 # Améliorer les performances
 - Implement Billboarding to just render the trees far away as a 2D image
-- Frustum culling
+
 - Tessalation for the height terrain https://learnopengl.com/Guest-Articles/2021/Tessellation/Tessellation
 
 
