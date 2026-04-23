@@ -18,7 +18,7 @@
 #include "game_engine/entity/light.h"
 #include "game_engine/entity/camera.h"
 #include "game_engine/terrainGeneration.h"
-#include "game_engine/displaymanager.h"
+#include "game_engine/manager/displaymanager.h"
 #include "game_engine/mainCamera.h"
 #include "game_engine/renderer/objectRenderer.h"
 #include "game_engine/renderer/terrainRenderer.h"
@@ -116,8 +116,6 @@ int main()
 	auto waterRenderer = std::make_shared<WaterRenderer>(fbos);
 	auto treeRenderer = std::make_shared<InstancedRenderer>(tree, &treeTexture, treeMatrices);
 	auto skyboxRenderer = std::make_shared<SkyboxRenderer>(&skybox);
-
-	WaterFrameBuffer::connectShader(terrainRenderer->getShader());
 
 	// Objects
 	auto water = Object::make(PLAN_SIZE_X / 2, waterHeight, waterRenderer);

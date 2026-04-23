@@ -1,6 +1,6 @@
 #include "light.h"
 
-#include "../lightManager.h"
+#include "../manager/lightManager.h"
 
 std::shared_ptr<Light> Light::make()
 {

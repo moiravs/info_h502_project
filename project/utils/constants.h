@@ -21,4 +21,11 @@ constexpr float ROT_SPEED = 100.0f;
 constexpr float SENSITIVITY = 0.2f;
 constexpr float ZOOM = 45.0f;
 
+constexpr int MAX_LIGHTS = 128;
+
+// Bindings
+const std::vector<std::string> UBO_BINDING_NAMES = {
+    "WaterData", "Lights"
+};
+
 #endif //INFOH502_CPP_CONSTANTS_H

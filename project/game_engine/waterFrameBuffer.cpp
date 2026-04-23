@@ -3,6 +3,8 @@
 #include "../utils/constants.h"
 #include <glm/gtc/type_ptr.hpp>
 
+#include "manager/uboManager.h"
+
 WaterFrameBuffer::WaterFrameBuffer()
 {
     initialiseReflectionFrameBuffer();
@@ -11,7 +13,7 @@ WaterFrameBuffer::WaterFrameBuffer()
     glGenBuffers(1, &uboWater);
     glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_UNIFORM_BUFFER, 3, uboWater);
+    glBindBufferBase(GL_UNIFORM_BUFFER, UboManager::getBinding("WaterData"), uboWater);
 }
 
 void WaterFrameBuffer::cleanUp() const
@@ -41,16 +43,6 @@ void WaterFrameBuffer::setClipPlane(const glm::vec4& plane) const
 {
     glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(plane));
-}
-
-
-void WaterFrameBuffer::connectShader(const std::shared_ptr<Shader>& shader)
-{
-    const GLuint blockIndex = glGetUniformBlockIndex(shader->getID(), "WaterData");
-    if (blockIndex != GL_INVALID_INDEX)
-    {
-        glUniformBlockBinding(shader->getID(), blockIndex, 3);
-    }
 }
 
 void WaterFrameBuffer::unbindCurrentFrameBuffer()

@@ -28,8 +28,6 @@ public:
 
     void setClipPlane(const glm::vec4 &plane) const;
 
-    static void connectShader(const std::shared_ptr<Shader>& shader);
-
     static void unbindCurrentFrameBuffer();
 
     [[nodiscard]] int getReflectionTexture() const;

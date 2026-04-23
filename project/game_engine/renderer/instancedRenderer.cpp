@@ -1,6 +1,6 @@
 #include "instancedRenderer.h"
 
-#include "../displaymanager.h"
+#include "../manager/displaymanager.h"
 #include "../mainCamera.h"
 
 InstancedRenderer::InstancedRenderer(std::shared_ptr<Object> model, Texture* texture, const std::vector<glm::mat4>& matrices)

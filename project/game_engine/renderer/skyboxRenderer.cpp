@@ -1,7 +1,7 @@
 #include "skyboxRenderer.h"
 
 #include "../../utils/constants.h"
-#include "../displaymanager.h"
+#include "../manager/displaymanager.h"
 #include "../mainCamera.h"
 
 SkyboxRenderer::SkyboxRenderer(Skybox* skybox)
