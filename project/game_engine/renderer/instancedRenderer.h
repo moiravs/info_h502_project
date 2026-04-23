@@ -14,10 +14,11 @@
 
 class InstancedRenderer : public Renderer
 {
-    GLuint _instanceVBO{};
-    int _vertexCount;
-    int _instanceCount;
+    std::shared_ptr<Object> _model;
     Texture *_tex;
+    GLuint _instanceVBO;
+    unsigned int _instanceCount;
+    std::vector<GLuint> _vaos;
 
 public:
     InstancedRenderer(std::shared_ptr<Object> model, Texture *texture, const std::vector<glm::mat4> &matrices);

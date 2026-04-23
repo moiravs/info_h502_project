@@ -8,13 +8,8 @@
 #include "entity.h"
 #include "../renderer/renderer.h"
 #include <memory>
-
-struct Vertex
-{
-    glm::vec3 Position;
-    glm::vec2 Texture;
-    glm::vec3 Normal;
-};
+#include "../modelLoader.h"
+#include "vertex.h"
 
 class Renderer;
 
@@ -28,6 +23,8 @@ class Object : public Entity
 
     float height = 0;
     float computeHeight() const;
+
+    Mesh m_mesh;
 
 public:
     explicit Object(const char *path);
@@ -53,6 +50,7 @@ public:
     [[nodiscard]] float getHeight() const;
 
     [[nodiscard]] const glm::mat4 &getModel() const;
+    const Mesh &getMesh() const { return m_mesh; }
 
     void registerRenderer(const std::shared_ptr<Renderer> &renderer);
 };

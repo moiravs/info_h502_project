@@ -7,6 +7,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 
 # Find packages
+find_package(assimp REQUIRED)
 find_package(OpenGL REQUIRED)
 
 # GLAD
@@ -47,5 +48,5 @@ file(GLOB_RECURSE ALL_PROJECT_SOURCES
 
 # Use the discovered files to create your executable
 add_executable(VRproject ${ALL_PROJECT_SOURCES})
-target_link_libraries(VRproject PUBLIC OpenGL::GL glfw glad)
+target_link_libraries(VRproject PUBLIC assimp::assimp OpenGL::GL glfw glad)
 
