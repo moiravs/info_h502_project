@@ -1,8 +1,8 @@
 #include "displaymanager.h"
 
-#include "mainCamera.h"
-#include "../utils/constants.h"
-#include "../utils/utils.h"
+#include "../mainCamera.h"
+#include "../../utils/constants.h"
+#include "../../utils/utils.h"
 
 GLFWwindow* DisplayManager::createWindow()
 {

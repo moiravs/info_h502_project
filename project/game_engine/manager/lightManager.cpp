@@ -1,9 +1,14 @@
 
 #include "lightManager.h"
 
+#include "uboManager.h"
+
 LightManager::LightManager()
 {
     glGenBuffers(1, &ubo);
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(CompactLight), nullptr, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, UboManager::getBinding("Lights"), ubo);
 }
 
 LightManager::~LightManager()
@@ -33,18 +38,13 @@ void LightManager::notify() const
     this->rewriteBuffer();
 }
 
-void LightManager::registerShader(std::shared_ptr<Shader> shader)
-{
-    // TODO
-}
-
 void LightManager::rewriteBuffer() const
 {
-    std::vector<GPULight> toCopy;
+    std::vector<CompactLight> toCopy;
     toCopy.reserve(lights.size());
 
     for (const auto& l: lights) {
-        GPULight g{};
+        CompactLight g{};
 
         g.position = l->getPosition();
         g.ambient_strength = l->getAmbient();
@@ -57,11 +57,9 @@ void LightManager::rewriteBuffer() const
         toCopy.push_back(g);
     }
 
-    //TODO not sure it's correct
-
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, 0,
-                    toCopy.size() * sizeof(GPULight),
+                    toCopy.size() * sizeof(CompactLight),
                     toCopy.data());
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }

@@ -1,6 +1,6 @@
 #include "objectRenderer.h"
 
-#include "../displaymanager.h"
+#include "../manager/displaymanager.h"
 #include "../mainCamera.h"
 
 ObjectRenderer::ObjectRenderer() : Renderer(this->generateShader()) {}

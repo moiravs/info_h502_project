@@ -7,6 +7,8 @@
 
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "manager/uboManager.h"
 #include "../utils/constants.h"
 
 Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
@@ -43,6 +45,8 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
     ID = compileProgram(vertex, fragment);
 
     this->setMatrix4("model", model);
+
+    UboManager::registerShader(this);
 }
 
 void Shader::use() const
