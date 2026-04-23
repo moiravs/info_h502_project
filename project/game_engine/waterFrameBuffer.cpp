@@ -1,5 +1,5 @@
 #include "waterFrameBuffer.h"
-
+#include <memory>
 #include "../utils/constants.h"
 #include <glm/gtc/type_ptr.hpp>
 
@@ -37,14 +37,13 @@ void WaterFrameBuffer::bindRefractionFrameBuffer() const
     bindFrameBuffer(refractionFrameBuffer, REFRACTION_WIDTH, REFRACTION_HEIGHT);
 }
 
-void WaterFrameBuffer::setClipPlane(const glm::vec4& plane) const
+void WaterFrameBuffer::setClipPlane(const glm::vec4 &plane) const
 {
     glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(plane));
 }
 
-
-void WaterFrameBuffer::connectShader(const std::shared_ptr<Shader>& shader)
+void WaterFrameBuffer::connectShader(const std::shared_ptr<Shader> &shader)
 {
     const GLuint blockIndex = glGetUniformBlockIndex(shader->getID(), "WaterData");
     if (blockIndex != GL_INVALID_INDEX)

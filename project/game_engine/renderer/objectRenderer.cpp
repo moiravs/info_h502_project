@@ -3,7 +3,7 @@
 #include "../displaymanager.h"
 #include "../mainCamera.h"
 
-ObjectRenderer::ObjectRenderer() : Renderer(this->generateShader()) {}
+ObjectRenderer::ObjectRenderer() : Renderer(this->generateShader("object")) {}
 
 void ObjectRenderer::registerObject(const std::shared_ptr<Object> object)
 {
@@ -18,14 +18,14 @@ void ObjectRenderer::registerObject(const std::shared_ptr<Object> object)
 
     const auto att_pos = glGetAttribLocation(_shader->getID(), "position");
     glEnableVertexAttribArray(att_pos);
-    glVertexAttribPointer(att_pos, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(Vertex, Position)));
+    glVertexAttribPointer(att_pos, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void *>(offsetof(Vertex, Position)));
 
     const auto att_tex = glGetAttribLocation(_shader->getID(), "tex_coord");
     glEnableVertexAttribArray(att_tex);
-    glVertexAttribPointer(att_tex, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(Vertex, Texture)));
+    glVertexAttribPointer(att_tex, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void *>(offsetof(Vertex, Texture)));
     const auto att_nor = glGetAttribLocation(_shader->getID(), "normal");
     glEnableVertexAttribArray(att_nor);
-    glVertexAttribPointer(att_nor, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(Vertex, Normal)));
+    glVertexAttribPointer(att_nor, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void *>(offsetof(Vertex, Normal)));
 
     glBindVertexArray(0);
 }
@@ -51,9 +51,4 @@ void ObjectRenderer::render()
     }
     glBindVertexArray(this->VAO);
     glDrawArrays(GL_TRIANGLES, 0, static_cast<int>(this->_object->getNumVertices()));
-}
-
-std::string ObjectRenderer::getShaderName() const
-{
-    return "object";
 }
