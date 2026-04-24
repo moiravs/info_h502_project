@@ -3,8 +3,9 @@
 #include "../mainCamera.h"
 
 WaterRenderer::WaterRenderer(std::shared_ptr<WaterFrameBuffer> fbos)
-: Renderer(this->generateShader()), transparent(false), _fbos(std::move(fbos))
-{}
+    : Renderer(this->generateShader("water")), transparent(false), _fbos(std::move(fbos))
+{
+}
 
 void WaterRenderer::registerObject(const std::shared_ptr<Object> object)
 {
@@ -23,12 +24,12 @@ void WaterRenderer::registerObject(const std::shared_ptr<Object> object)
     auto att_col = glGetAttribLocation(_shader->getID(), "normal");
     glEnableVertexAttribArray(att_col);
     glVertexAttribPointer(att_col, 3, GL_FLOAT, false, 8 * sizeof(float),
-                          reinterpret_cast<void*>(5 * sizeof(float)));
+                          reinterpret_cast<void *>(5 * sizeof(float)));
 
     auto att_tex = glGetAttribLocation(_shader->getID(), "tex_coord");
     glEnableVertexAttribArray(att_tex);
     glVertexAttribPointer(att_tex, 2, GL_FLOAT, false, 8 * sizeof(float),
-                          reinterpret_cast<void*>(3 * sizeof(float)));
+                          reinterpret_cast<void *>(3 * sizeof(float)));
 
     // desactive the buffer
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -62,8 +63,3 @@ void WaterRenderer::render()
 
 void WaterRenderer::updateUniforms() const
 {}
-
-std::string WaterRenderer::getShaderName() const
-{
-    return "water";
-}

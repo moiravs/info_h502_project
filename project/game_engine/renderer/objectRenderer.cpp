@@ -1,32 +1,36 @@
 #include "objectRenderer.h"
 
 #include "../manager/displaymanager.h"
-#include "../mainCamera.h"
 
-ObjectRenderer::ObjectRenderer() : Renderer(this->generateShader()) {}
+ObjectRenderer::ObjectRenderer() : Renderer(this->generateShader("lamp")) {}
 
 void ObjectRenderer::registerObject(const std::shared_ptr<Object> object)
 {
     this->Renderer::registerObject(object);
+    const Mesh &mesh = object->getMesh();
 
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    _vaos.resize(mesh.m_Entries.size());
+    glGenVertexArrays(_vaos.size(), _vaos.data());
 
-    glBufferData(GL_ARRAY_BUFFER, object->getNumVertices() * sizeof(Vertex), object->getVertices().data(), GL_STATIC_DRAW);
+    for (unsigned int i = 0; i < mesh.m_Entries.size(); i++)
+    {
+        glBindVertexArray(_vaos[i]);
 
-    constexpr GLsizei stride = sizeof(Vertex);
+        glBindBuffer(GL_ARRAY_BUFFER, mesh.m_Entries[i].VB);
 
-    const auto att_pos = glGetAttribLocation(_shader->getID(), "position");
-    glEnableVertexAttribArray(att_pos);
-    glVertexAttribPointer(att_pos, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(Vertex, Position)));
+        constexpr GLsizei stride = sizeof(Vertex);
 
-    const auto att_tex = glGetAttribLocation(_shader->getID(), "tex_coord");
-    glEnableVertexAttribArray(att_tex);
-    glVertexAttribPointer(att_tex, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(Vertex, Texture)));
-    const auto att_nor = glGetAttribLocation(_shader->getID(), "normal");
-    glEnableVertexAttribArray(att_nor);
-    glVertexAttribPointer(att_nor, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(Vertex, Normal)));
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void *)offsetof(Vertex, Position));
 
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void *)offsetof(Vertex, Texture));
+
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, (void *)offsetof(Vertex, Normal));
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.m_Entries[i].IB);
+    }
     glBindVertexArray(0);
 }
 
@@ -42,16 +46,20 @@ void ObjectRenderer::render()
 {
     Renderer::render();
 
-    if (_transparent)
-    {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    }
-    glBindVertexArray(this->VAO);
-    glDrawArrays(GL_TRIANGLES, 0, static_cast<int>(this->_object->getNumVertices()));
-}
+    const Mesh &mesh = _object->getMesh();
 
-std::string ObjectRenderer::getShaderName() const
-{
-    return "lamp";
+    for (unsigned int i = 0; i < _vaos.size(); i++)
+    {
+        const auto &entry = mesh.m_Entries[i];
+
+        if (entry.MaterialIndex < mesh.m_Textures.size() && mesh.m_Textures[entry.MaterialIndex])
+        {
+            mesh.m_Textures[entry.MaterialIndex]->bind();
+        }
+
+        glBindVertexArray(_vaos[i]);
+        glDrawElements(GL_TRIANGLES, entry.NumIndices, GL_UNSIGNED_INT, 0);
+    }
+
+    glBindVertexArray(0);
 }

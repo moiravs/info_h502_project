@@ -6,7 +6,7 @@
 
 #include "../renderer/objectRenderer.h"
 
-std::shared_ptr<Object> Object::make(const char* path, std::shared_ptr<Renderer> renderer)
+std::shared_ptr<Object> Object::make(const char *path, std::shared_ptr<Renderer> renderer)
 {
     const auto ret = std::make_shared<Object>(path);
     ret->registerRenderer(renderer);
@@ -20,99 +20,16 @@ std::shared_ptr<Object> Object::make(float size, float height, std::shared_ptr<R
     return ret;
 }
 
-Object::Object(const char* path) : Entity()
+Object::Object(const char *path) : Entity()
 {
-    std::ifstream infile(path);
-    if (infile.is_open())
-    {
-        std::string line;
-        while (std::getline(infile, line))
-        {
-            std::istringstream iss(line);
-            std::string indice;
-            iss >> indice;
-            if (indice == "v")
-            {
-                float x, y, z;
-                iss >> x >> y >> z;
-                positions.emplace_back(x, y, z);
-            }
-            else if (indice == "vn")
-            {
-                float x, y, z;
-                iss >> x >> y >> z;
-                normals.emplace_back(x, y, z);
-            }
-            else if (indice == "vt")
-            {
-                float u, v;
-                iss >> u >> v;
-                textures.emplace_back(u, v);
-            }
-            else if (indice == "f")
-            {
-                std::string f1, f2, f3;
-                iss >> f1 >> f2 >> f3;
-
-                std::string p, t, n;
-
-                // for vertex 1
-                Vertex v1{};
-
-                p = f1.substr(0, f1.find('/'));
-                f1.erase(0, f1.find('/') + 1);
-
-                t = f1.substr(0, f1.find('/'));
-                f1.erase(0, f1.find('/') + 1);
-
-                n = f1.substr(0, f1.find('/'));
-
-                v1.Position = positions.at(std::stoull(p) - 1);
-                v1.Normal = normals.at(std::stoull(n) - 1);
-                v1.Texture = textures.at(std::stoull(t) - 1);
-                vertices.push_back(v1);
-
-                // for vertex 2
-                Vertex v2{};
-
-                p = f2.substr(0, f2.find('/'));
-                f2.erase(0, f2.find('/') + 1);
-
-                t = f2.substr(0, f2.find('/'));
-                f2.erase(0, f2.find('/') + 1);
-
-                n = f2.substr(0, f2.find('/'));
-
-                v2.Position = positions.at(std::stoull(p) - 1);
-                v2.Normal = normals.at(std::stoull(n) - 1);
-                v2.Texture = textures.at(std::stoull(t) - 1);
-                vertices.push_back(v2);
-
-                // for vertex 3
-                Vertex v3{};
-
-                p = f3.substr(0, f3.find('/'));
-                f3.erase(0, f3.find('/') + 1);
-
-                t = f3.substr(0, f3.find('/'));
-                f3.erase(0, f3.find('/') + 1);
-
-                n = f3.substr(0, f3.find('/'));
-
-                v3.Position = positions.at(std::stoull(p) - 1);
-                v3.Normal = normals.at(std::stoull(n) - 1);
-                v3.Texture = textures.at(std::stoull(t) - 1);
-                vertices.push_back(v3);
-            }
-        }
-        infile.close();
-    }
-    else
-    {
-        std::cout << "Error opening file: " << path << std::endl;
-    }
 
     height = computeHeight();
+
+    if (!m_mesh.LoadMesh(path))
+    {
+        std::cerr << "Assimp failed to load: " << path << std::endl;
+    }
+    // computeHeight can now iterate through m_mesh.m_Entries
 }
 
 Object::Object(float size, float height) : Entity()
@@ -194,21 +111,23 @@ size_t Object::getNumVertices() const
     return this->vertices.size();
 }
 
-void Object::setPosition(const glm::vec3& position)
+void Object::setPosition(const glm::vec3 &position)
 {
     this->Entity::setPosition(position);
     this->model = glm::translate(glm::mat4(1.0f), position);
 }
 
-const glm::mat4& Object::getModel() const
+const glm::mat4 &Object::getModel() const
 {
     return this->model;
 }
 
-void Object::registerRenderer(const std::shared_ptr<Renderer>& renderer)
+void Object::registerRenderer(const std::shared_ptr<Renderer> &renderer)
 {
-    if (!renderer) return;
-    if (const auto obj = std::dynamic_pointer_cast<Object>(shared_from_this())) {
+    if (!renderer)
+        return;
+    if (const auto obj = std::dynamic_pointer_cast<Object>(this->shared_from_this()))
+    {
         renderer->registerObject(obj);
     }
 }

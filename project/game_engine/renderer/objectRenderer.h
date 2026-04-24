@@ -3,13 +3,14 @@
 
 #include "../entity/object.h"
 #include "renderer.h"
+#include <memory>
 #include "../shader.h"
 
 class ObjectRenderer : public Renderer
 {
     bool _transparent{};
-protected:
-    [[nodiscard]] std::string getShaderName() const override;
+    std::vector<GLuint> _vaos;
+
 public:
     explicit ObjectRenderer();
     void updateUniforms() const override;

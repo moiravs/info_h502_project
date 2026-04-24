@@ -5,6 +5,7 @@
 
 #include <string>
 #include <fstream>
+#include <memory>
 
 #include "entity/camera.h"
 #include "entity/light.h"

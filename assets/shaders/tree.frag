@@ -24,11 +24,16 @@ in vec3 v_fragPos;
 
 uniform sampler2D texture0;
 
-void main() { 
-    // Ambient
-    vec3 col = vec3(0, 0, 0);
-    // Combine with texture
+void main() {
+
     vec4 texColor = texture(texture0, v_t);
+    if(texColor.a < 0.1) {
+        discard;
+    }
+
+    vec3 col = vec3(0, 0, 0);
+    vec3 result = (ambient + diffuse) * texColor.rgb;
+    FragColor = vec4(result, texColor.a);
     vec3 norm = normalize(v_normal);
 
     for (int i = 0; i < count; i++) {
@@ -43,4 +48,4 @@ void main() {
         col += (ambient + diffuse);
     }
     FragColor = vec4(col * texColor.rgb, texColor.a);
-} 
+}

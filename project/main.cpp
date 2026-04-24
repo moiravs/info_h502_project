@@ -39,7 +39,7 @@ int waterHeight = 0;
 
 void renderScene(const std::vector<std::shared_ptr<Renderer>> &renderers)
 {
-	for (const auto& i : renderers)
+	for (const auto &i : renderers)
 	{
 		i->render();
 	}
@@ -68,9 +68,6 @@ int main()
 
 	auto camera = MainCamera::get();
 
-	// Texture
-	Texture treeTexture(PATH_TO_SRC "/../assets/textures/tree.jpg");
-
 	// Terrain
 	TerrainGeneration heightMap(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
 
@@ -89,7 +86,7 @@ int main()
 
 	int maxRandom = PLAN_SIZE_X / 2;
 	int minRandom = -PLAN_SIZE_X / 2;
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 200; i++)
 	{
 		glm::mat4 model = glm::mat4(1.0f);
 		float x = rand() % (maxRandom - minRandom) + minRandom;
@@ -109,13 +106,13 @@ int main()
 	auto reflectionPlane = glm::vec4(0, 1, 0, waterHeight);
 	auto refractionPlane = glm::vec4(0, -1, 0, waterHeight);
 
-	auto tree = Object::make(PATH_TO_SRC "/../assets/models/Tree.obj");
+	auto tree = Object::make(PATH_TO_SRC "/../assets/models/Tree_V10_OBJ/Tree.obj");
 
 	// Renderer
 	auto terrainRenderer = std::make_shared<TerrainRenderer>(heightMap);
 	auto sphereRenderer = std::make_shared<ObjectRenderer>();
 	auto waterRenderer = std::make_shared<WaterRenderer>(fbos);
-	auto treeRenderer = std::make_shared<InstancedRenderer>(tree, &treeTexture, treeMatrices);
+	auto treeRenderer = std::make_shared<InstancedRenderer>(tree, nullptr, treeMatrices);
 	auto skyboxRenderer = std::make_shared<SkyboxRenderer>(&skybox);
 	auto sphereRenderer2 = std::make_shared<ObjectRenderer>();
 

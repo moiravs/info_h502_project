@@ -12,8 +12,6 @@ class TerrainRenderer : public Renderer
     TerrainGeneration &m_texture;
     int numStrips;
     int numTrisPerStrip;
-protected:
-    [[nodiscard]] std::string getShaderName() const override;
 
 public:
     explicit TerrainRenderer(TerrainGeneration &terrain_gen);
