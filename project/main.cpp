@@ -185,8 +185,6 @@ int main()
 		pg->render();
 
 		redLight->render();
-		sphereRenderer2->render();
-		game.checkTerrainCollision(sphere2, heightMap);
 		dm.update();
 	}
 
