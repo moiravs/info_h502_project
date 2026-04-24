@@ -61,9 +61,7 @@ void WaterRenderer::render()
 }
 
 void WaterRenderer::updateUniforms() const
-{
-    this->_shader->updatePos(MainCamera::get());
-}
+{}
 
 std::string WaterRenderer::getShaderName() const
 {

@@ -25,7 +25,7 @@ constexpr int MAX_LIGHTS = 128;
 
 // Bindings
 const std::vector<std::string> UBO_BINDING_NAMES = {
-    "WaterData", "Lights"
+    "WaterData", "Lights", "CameraInfo"
 };
 
 #endif //INFOH502_CPP_CONSTANTS_H

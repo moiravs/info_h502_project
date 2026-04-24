@@ -12,8 +12,12 @@ out vec3 v_fragPos;  // Pass to fragment
 out vec4 WorldPos;
 
 uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+
+layout(std140) uniform CameraInfo {
+    mat4 projection;
+    mat4 view;
+    vec4 camPosition;
+};
 
 void main()
 {
@@ -25,5 +29,6 @@ void main()
     // Transform normal to world space
     v_normal = mat3(transpose(inverse(model))) * aNormal;
 
+    //gl_Position = color;
     gl_Position = projection * view * WorldPos;
 }

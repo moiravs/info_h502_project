@@ -117,18 +117,27 @@ int main()
 	auto waterRenderer = std::make_shared<WaterRenderer>(fbos);
 	auto treeRenderer = std::make_shared<InstancedRenderer>(tree, &treeTexture, treeMatrices);
 	auto skyboxRenderer = std::make_shared<SkyboxRenderer>(&skybox);
+	auto sphereRenderer2 = std::make_shared<ObjectRenderer>();
 
 	// Objects
 	auto water = Object::make(PLAN_SIZE_X / 2, waterHeight, waterRenderer);
 	auto sphere1 = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", sphereRenderer);
+	auto sphere2 = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", sphereRenderer2);
 	sphere1->setPosition(1.0, 15.0, 1.5);
+	sphere2->setPosition(1.0, 15.0, 1.5);
 
 	auto randomLightForSphere = Light::make();
 	randomLightForSphere->setProperties(0.1, 0.9, 1, 32);
+	randomLightForSphere->setAttenuation(0.1, 0.1, 0);
 
 	sphere1->attach(randomLightForSphere);
 
 	camera->attach(sphere1, glm::vec3(0, 0, 10));
+
+	auto secondLight = Light::make();
+	secondLight->setProperties(0.1, 0.9, 1, 32);
+	secondLight->setAttenuation(0.5, 0.01, 0);
+	sphere2->attach(secondLight);
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
@@ -136,7 +145,8 @@ int main()
 
 	while (!dm.shouldClose())
 	{
-		lightManager.applyChanges();
+		lightManager.updateUBO();
+		camera->updateUBO();
 
 		// 1. Reflection
 		glEnable(GL_CLIP_DISTANCE0);
@@ -145,9 +155,11 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera->prepareReflection(waterHeight);
+		camera->updateUBO();
 		fbos->setClipPlane(reflectionPlane);
 		renderScene({treeRenderer, terrainRenderer, skyboxRenderer});
 		camera->resetCameraAfterReflection(waterHeight);
+		camera->updateUBO();
 
 		// 2. Refraction
 		fbos->bindRefractionFrameBuffer();
@@ -169,6 +181,7 @@ int main()
 		double now = glfwGetTime();
 
 		sphereRenderer->render();
+		sphereRenderer2->render();
 
 		dm.update();
 	}
