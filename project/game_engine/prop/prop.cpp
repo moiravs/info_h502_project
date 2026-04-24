@@ -3,7 +3,7 @@
 
 #include "../../utils/utils.h"
 
-void Prop::render() const
+void Prop::render()
 {
     for (const auto& r: this->_renderers)
         r->render();

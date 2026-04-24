@@ -9,6 +9,9 @@ constexpr auto WORLD_UP = glm::vec3(0.0f, 1.0f, 0.0f);
 constexpr unsigned int SCR_WIDTH = 800;
 constexpr unsigned int SCR_HEIGHT = 600;
 
+constexpr int PLAN_SIZE_X = 1000;
+constexpr int WATER_HEIGHT = 0;
+
 constexpr int REFLECTION_WIDTH = 320;
 constexpr int REFLECTION_HEIGHT = 180;
 constexpr int REFRACTION_WIDTH = 1280;
