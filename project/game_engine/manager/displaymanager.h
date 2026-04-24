@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "entity/camera.h"
+#include "../entity/camera.h"
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>

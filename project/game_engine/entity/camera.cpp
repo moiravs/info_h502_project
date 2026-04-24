@@ -1,7 +1,11 @@
 #include "camera.h"
 
+#include <iostream>
+
+#include "glm/gtc/type_ptr.hpp"
+
 Camera::Camera(const glm::vec3 position, const glm::vec3 up, const float yaw, const float pitch)
-: Entity(position, yaw, pitch, up), zoom(ZOOM)
+    : Entity(position, yaw, pitch, up), UboProvider("CameraInfo", sizeof(CameraInfo)), zoom(ZOOM)
 {
     this->Camera::updateRotation();
 }
@@ -86,4 +90,20 @@ void Camera::updateRotation()
     this->flatFront = this->getFront();
     this->flatFront.y = 0;
     this->flatFront = glm::normalize(this->flatFront);
+}
+
+void Camera::updateUBO() const
+{
+    const CameraInfo i = {
+        .projection = Camera::getProjectionMatrix(glm::radians(this->getZoom()),
+                                                static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), 0.1f, 100000.0f),
+        .view = this->getViewMatrix(),
+        .cameraPos = glm::vec4(this->getPosition(), 0)
+    };
+
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(i.projection));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(i.view));
+    glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::vec4), glm::value_ptr(i.cameraPos));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
