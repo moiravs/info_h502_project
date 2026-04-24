@@ -24,9 +24,6 @@
 #include "manager/lightManager.h"
 #include "renderer/skyboxRenderer.h"
 
-#include "particleGenerator.h"
-#include "fireGenerator.h"
-
 class Game
 {
 
