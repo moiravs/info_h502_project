@@ -1,9 +1,5 @@
 #include "skyboxRenderer.h"
 
-#include "../../utils/constants.h"
-#include "../displaymanager.h"
-#include "../mainCamera.h"
-
 SkyboxRenderer::SkyboxRenderer(Skybox *skybox)
     : Renderer(this->generateShader("skybox")), _transparent(false), _skybox(skybox)
 {

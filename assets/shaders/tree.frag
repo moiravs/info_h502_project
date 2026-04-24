@@ -32,8 +32,6 @@ void main() {
     }
 
     vec3 col = vec3(0, 0, 0);
-    vec3 result = (ambient + diffuse) * texColor.rgb;
-    FragColor = vec4(result, texColor.a);
     vec3 norm = normalize(v_normal);
 
     for (int i = 0; i < count; i++) {
