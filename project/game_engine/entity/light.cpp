@@ -81,3 +81,15 @@ float Light::getShininess() const
 {
     return this->_shininess;
 }
+
+void Light::setColor(const glm::vec3& color)
+{
+    this->_color = color;
+
+    LightManager::get().notify();
+}
+
+glm::vec3 Light::getColor() const
+{
+    return this->_color;
+}

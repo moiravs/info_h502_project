@@ -21,6 +21,8 @@ class Object : public Entity
     std::vector<Vertex> vertices;
     glm::mat4 model = glm::mat4(1.0);
 
+    glm::vec3 _color;
+
     float height = 0;
     float computeHeight() const;
 
@@ -45,9 +47,13 @@ public:
     using Entity::setPosition;
     void setPosition(const glm::vec3 &position) override;
 
+    void setColor(const glm::vec3 &color);
+
     [[nodiscard]] size_t getNumVertices() const;
 
     [[nodiscard]] float getHeight() const;
+
+    [[nodiscard]] glm::vec3 getColor() const;
 
     [[nodiscard]] const glm::mat4 &getModel() const;
     const Mesh &getMesh() const { return m_mesh; }
