@@ -190,7 +190,6 @@ int main()
 		double delta = currentTime - lastTime;
 		lastTime = currentTime;
 		pg->update(delta, currentTime, heightMap.getHeight(0.5, 5.0));
-		pg->sortParticles();
 		pg->render();
 		sphereRenderer2->render();
 

@@ -87,4 +87,6 @@ void FireGenerator::update(double delta, double currentTime, int height)
             p.cameraDist = -1;
         }
     }
+
+    this->sortParticles();
 }
