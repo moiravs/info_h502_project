@@ -39,9 +39,6 @@
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
-int PLAN_SIZE_X = 1000;
-int waterHeight = 0;
-
 void renderScene(const std::vector<std::shared_ptr<Renderer>> &renderers)
 {
 	for (const auto &i : renderers)
@@ -111,6 +108,7 @@ int main()
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
+	auto trees = PropMaker::makeTrees(heightMap);
 	auto &lightManager = LightManager::get();
 
 	auto pg = std::make_shared<ParticleRenderer>(ParticleParams{
@@ -145,8 +143,8 @@ int main()
 		camera->prepareReflection(WATER_HEIGHT);
 		camera->updateUBO();
 		fbos->setClipPlane(reflectionPlane);
-		renderScene({treeRenderer, terrainRenderer, skyboxRenderer});
-		camera->resetCameraAfterReflection(waterHeight);
+		game.renderScene({trees, terrainRenderer, skyboxRenderer});
+		camera->resetCameraAfterReflection(WATER_HEIGHT);
 		camera->updateUBO();
 
 		// 2. Refraction
@@ -154,7 +152,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		fbos->setClipPlane(refractionPlane); // One clean call
-		renderScene({treeRenderer, terrainRenderer});
+		game.renderScene({trees, terrainRenderer});
 
 		fbos->unbindCurrentFrameBuffer();
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);

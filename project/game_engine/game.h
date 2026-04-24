@@ -29,7 +29,7 @@ class Game
 
 public:
     Game();
-    void renderScene(const std::vector<std::shared_ptr<Renderer>> &renderers);
+    void renderScene(const std::vector<std::shared_ptr<Renderable>> &renderers);
     void checkTerrainCollision(std::shared_ptr<Entity> entity, TerrainGeneration terrain);
 };
 

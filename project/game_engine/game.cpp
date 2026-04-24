@@ -3,7 +3,7 @@
 Game::Game()
 {
 }
-void Game::renderScene(const std::vector<std::shared_ptr<Renderer>> &renderers)
+void Game::renderScene(const std::vector<std::shared_ptr<Renderable>> &renderers)
 {
     for (const auto &i : renderers)
     {
