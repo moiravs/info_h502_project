@@ -32,6 +32,7 @@
 
 #include "utils/constants.h"
 #include "game_engine/particleGenerator.h"
+#include "game_engine/fireGenerator.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
@@ -137,8 +138,7 @@ int main()
 
 	char fileVert[128] = PATH_TO_SRC "/../assets/shaders/part.vert";
 	char fileFrag[128] = PATH_TO_SRC "/../assets/shaders/part.frag";
-	Shader shader(fileVert, fileFrag);
-	ParticleGenerator *pg = new ParticleGenerator(shader);
+	FireGenerator *pg = new FireGenerator(std::make_shared<Shader>(fileVert, fileFrag));
 
 	double lastTime = glfwGetTime();
 
@@ -178,13 +178,10 @@ int main()
 
 		sphereRenderer->render();
 
-		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		double currentTime = glfwGetTime();
 		double delta = currentTime - lastTime;
 		lastTime = currentTime;
-		pg->update(delta, currentTime);
+		pg->update(delta, currentTime, heightMap.getHeight(0.5, 5.0));
 		pg->sortParticles();
 		pg->render();
 

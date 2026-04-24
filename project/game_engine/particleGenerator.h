@@ -19,6 +19,7 @@ struct Particle
     float life;
     float size;
     float cameraDist; // Squared distance to the camera position
+    float maxLife;
 
     Particle() : pos(0.0f), speed(0.0f), color(1.0f), life(0.0f), size(0.0f), cameraDist(0.0f) {}
 
@@ -32,24 +33,27 @@ struct Particle
 // particles by repeatedly spawning and updating particles and killing
 // them after a given amount of time.
 const int MaxParticles = 10000;
-static GLfloat *g_particule_position_size_data = new GLfloat[MaxParticles * 4];
-static GLfloat *g_particule_color_data = new GLfloat[MaxParticles * 4];
+
 class ParticleGenerator
 {
-private:
+protected:
+    GLfloat *g_particule_position_size_data = new GLfloat[MaxParticles * 4];
+    GLfloat *g_particule_color_data = new GLfloat[MaxParticles * 4];
     int particleCount = 0;
-    Shader _shader;
+    std::shared_ptr<Shader> _shader = nullptr;
+
     GLuint VBO_vertex, VBO_position, VBO_color, VAO;
     int lastUsedParticle = 0;
     Particle particlesContainer[MaxParticles];
 
 public:
-    void update(double delta, double currentTime);
+    virtual void update(double delta, double currentTime, int height) = 0;
     int findUnusedParticle();
     void sortParticles();
     void render();
 
-    ParticleGenerator(Shader shader);
+    ParticleGenerator(const std::shared_ptr<Shader> shader);
+    virtual ~ParticleGenerator() = default;
 };
 
 #endif
