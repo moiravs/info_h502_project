@@ -15,7 +15,8 @@ struct Particle
     float maxLife;
 
     Particle() : pos(0.0f), speed(0.0f), color(1.0f), life(0.0f), size(0.0f), cameraDist(0.0f), maxLife(0)
-    {}
+    {
+    }
 
     bool operator<(const Particle &otherP) const
     {
@@ -58,7 +59,7 @@ public:
     void render() override;
     void updateUniforms() const override;
 
-    explicit ParticleRenderer(const ParticleParams& params);
+    explicit ParticleRenderer(const ParticleParams &params);
     ~ParticleRenderer() override;
 };
 
