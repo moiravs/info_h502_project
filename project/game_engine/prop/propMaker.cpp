@@ -42,7 +42,6 @@ std::shared_ptr<Prop> PropMaker::makeTrees(const TerrainGeneration& heightMap)
         float z = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
         float y = heightMap.getHeight(x, z);
 
-        std::cout << x << " " << " " << y << " " << z << std::endl;
         if (y <= WATER_HEIGHT)
         {
             i--;
