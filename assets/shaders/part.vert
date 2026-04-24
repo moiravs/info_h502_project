@@ -5,8 +5,8 @@ in vec4 col;
 
 uniform vec3 cameraRight;
 uniform vec3 cameraUp;
-uniform mat4 V;
-uniform mat4 P;
+uniform mat4 view;
+uniform mat4 projection;
 
 
 out vec4 color;
@@ -21,8 +21,6 @@ void main(){
 	vec3 vertexPosition_worldspace = particleCenter + cameraRight * vertex.x * scale + cameraUp * vertex.y * scale;
 	
 
-	gl_Position = P*V*vec4(vertexPosition_worldspace, 1.0);
-	//gl_Position /= gl_Position.w;
-	//color = col;
+	gl_Position = projection*view*vec4(vertexPosition_worldspace, 1.0);
 	color = col;
 }

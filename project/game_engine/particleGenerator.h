@@ -36,39 +36,20 @@ static GLfloat *g_particule_position_size_data = new GLfloat[MaxParticles * 4];
 static GLfloat *g_particule_color_data = new GLfloat[MaxParticles * 4];
 class ParticleGenerator
 {
-public:
+private:
     int particleCount = 0;
     Shader _shader;
     GLuint VBO_vertex, VBO_position, VBO_color, VAO;
+    int lastUsedParticle = 0;
+    Particle particlesContainer[MaxParticles];
+
+public:
     void update(double delta, double currentTime);
     int findUnusedParticle();
     void sortParticles();
     void render();
-    Particle particlesContainer[MaxParticles];
 
-    int lastUsedParticle = 0;
-
-    //     // constructor
     ParticleGenerator(Shader shader);
-    //     // update all particles
-    //     void Update(float dt, Object &object, unsigned int newParticles, glm::vec3 offset = glm::vec3(0.0f, 0.0f, 0.0f));
-    //     // render all particles
-    //     void Draw();
-
-    // private:
-    //     // state
-    //     std::vector<Particle> particles;
-    //     unsigned int amount;
-    //     // render state
-    //     Shader shader;
-    //     Texture texture;
-    //     unsigned int VAO;
-    //     // initializes buffer and vertex attributes
-    //     void init();
-    //     // returns the first Particle index that's currently unused e.g. Life <= 0.0f or 0 if no particle is currently inactive
-    //     unsigned int firstUnusedParticle();
-    //     // respawns particle
-    //     void respawnParticle(Particle &particle, Object &object, glm::vec3 offset = glm::vec3(1.0f, 1.0f, 1.0f));
 };
 
 #endif

@@ -140,26 +140,6 @@ int main()
 	Shader shader(fileVert, fileFrag);
 	ParticleGenerator *pg = new ParticleGenerator(shader);
 
-	// First object!
-
-	for (int i = 0; i < MaxParticles; i++)
-	{
-		pg->particlesContainer[i].life = -1.0;
-	}
-
-	// Create the vertex buffer objects for the quad used as a particle,
-	// and the positions and colors of all particle
-	// the same vertex array object is used for all 3 VBOs
-
-	glm::mat4 view = camera->getViewMatrix();
-	glm::mat4 perspective = camera->getProjectionMatrix();
-
-	glm::vec3 cameraRight = camera->getRight();
-	glm::vec3 cameraUp = camera->getUp();
-	glm::vec3 cameraPosition = camera->getPosition();
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	double lastTime = glfwGetTime();
 
 	while (!dm.shouldClose())
@@ -205,8 +185,6 @@ int main()
 		double delta = currentTime - lastTime;
 		lastTime = currentTime;
 		pg->update(delta, currentTime);
-		// Add new particles
-
 		pg->sortParticles();
 		pg->render();
 
