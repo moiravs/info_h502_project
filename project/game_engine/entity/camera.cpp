@@ -98,12 +98,16 @@ void Camera::updateUBO() const
         .projection = Camera::getProjectionMatrix(glm::radians(this->getZoom()),
                                                 static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), 0.1f, 100000.0f),
         .view = this->getViewMatrix(),
-        .cameraPos = glm::vec4(this->getPosition(), 0)
+        .cameraPos = glm::vec4(this->getPosition(), 0),
+        .cameraRight = glm::vec4(this->getRight(), 0),
+        .cameraUp = glm::vec4(this->getUp(), 0)
     };
 
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(i.projection));
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(i.view));
     glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::vec4), glm::value_ptr(i.cameraPos));
+    glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + sizeof(glm::vec4), sizeof(glm::vec4), glm::value_ptr(i.cameraRight));
+    glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + 2 * sizeof(glm::vec4), sizeof(glm::vec4), glm::value_ptr(i.cameraUp));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
