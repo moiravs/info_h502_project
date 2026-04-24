@@ -16,8 +16,6 @@ class WaterRenderer : public Renderer
     bool transparent;
     std::shared_ptr<WaterFrameBuffer> _fbos;
 
-protected:
-    [[nodiscard]] std::string getShaderName() const override;
 public:
     explicit WaterRenderer(std::shared_ptr<WaterFrameBuffer> fbos);
     void updateUniforms() const override;

@@ -1,18 +1,18 @@
 BASIC FEATURES
-- lights (ambient, specular, diffuse, ..) (Session 5 - LAB 03)
+- ✅lights (ambient, specular, diffuse, ..) (Session 5 - LAB 03)
 - ✅Textures (Session 4 – LAB 02) 
 - ✅Loading (more than one) model (Session 5 - LAB 03)
-- Cubemap (Session 6 - LAB 03)
+- ✅Cubemap (Session 6 - LAB 03)
 - Game logic (Bachelor)
 - Object moving in the scene (Session 4 - LAB02)
 - ✅free navigation within it (camera control) (Session 5 -
 LAB03)
-- ✅Reflection/refraction (Session 6 -LAB03)
+- Reflection/refraction (Session 6 -LAB03)
 
 
 INTERMEDIATE FEATURES
-- Frame buffer object effect (diffusion shader, mirror and co)
-- Particles
+- ✅Frame buffer object effect (diffusion shader, mirror and co)
+- Particles 
 - Instancing
 - Billboarding
 
