@@ -15,10 +15,11 @@
 
 class FireGenerator : public ParticleGenerator
 {
+    int _height;
 
 public:
-    void update(double delta, double currentTime, int height) override;
-    FireGenerator(const std::shared_ptr<Shader> shader);
+    void update(double delta, double currentTime) override;
+    FireGenerator(const std::shared_ptr<Shader> shader, int height);
 };
 
 #endif

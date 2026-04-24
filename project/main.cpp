@@ -34,19 +34,12 @@
 #include "utils/constants.h"
 #include "game_engine/particleGenerator.h"
 #include "game_engine/fireGenerator.h"
+#include "game_engine/game.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
 int PLAN_SIZE_X = 1000;
 int waterHeight = 0;
-
-void renderScene(const std::vector<std::shared_ptr<Renderer>> &renderers)
-{
-	for (const auto &i : renderers)
-	{
-		i->render();
-	}
-}
 
 int main()
 {
@@ -145,10 +138,11 @@ int main()
 
 	char fileVert[128] = PATH_TO_SRC "/../assets/shaders/part.vert";
 	char fileFrag[128] = PATH_TO_SRC "/../assets/shaders/part.frag";
-	FireGenerator *pg = new FireGenerator(std::make_shared<Shader>(fileVert, fileFrag));
+	FireGenerator *pg = new FireGenerator(std::make_shared<Shader>(fileVert, fileFrag), heightMap.getHeight(0.5, 5.0));
 
 	double lastTime = glfwGetTime();
 
+	auto game = Game();
 	while (!dm.shouldClose())
 	{
 		lightManager.updateUBO();
@@ -163,7 +157,7 @@ int main()
 		camera->prepareReflection(waterHeight);
 		camera->updateUBO();
 		fbos->setClipPlane(reflectionPlane);
-		renderScene({treeRenderer, terrainRenderer, skyboxRenderer});
+		game.renderScene({treeRenderer, terrainRenderer, skyboxRenderer});
 		camera->resetCameraAfterReflection(waterHeight);
 		camera->updateUBO();
 
@@ -172,7 +166,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		fbos->setClipPlane(refractionPlane); // One clean call
-		renderScene({treeRenderer, terrainRenderer});
+		game.renderScene({treeRenderer, terrainRenderer});
 
 		fbos->unbindCurrentFrameBuffer();
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
@@ -182,17 +176,17 @@ int main()
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glDisable(GL_CLIP_DISTANCE0);
 
-		renderScene({treeRenderer, waterRenderer, terrainRenderer, skyboxRenderer});
+		game.renderScene({treeRenderer, waterRenderer, terrainRenderer, skyboxRenderer});
 
 		double now = glfwGetTime();
 
 		double currentTime = glfwGetTime();
 		double delta = currentTime - lastTime;
 		lastTime = currentTime;
-		pg->update(delta, currentTime, heightMap.getHeight(0.5, 5.0));
+		pg->update(delta, currentTime);
 		pg->render();
 		sphereRenderer2->render();
-
+		game.checkTerrainCollision(sphere2, heightMap);
 		dm.update();
 	}
 

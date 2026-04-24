@@ -2,11 +2,11 @@
 
 #include "fireGenerator.h"
 
-FireGenerator::FireGenerator(const std::shared_ptr<Shader> shader) : ParticleGenerator(shader)
+FireGenerator::FireGenerator(const std::shared_ptr<Shader> shader, int height) : ParticleGenerator(shader), _height(height)
 {
 }
 
-void FireGenerator::update(double delta, double currentTime, int height)
+void FireGenerator::update(double delta, double currentTime)
 {
     particleCount = 0;
     int newParticle = delta * 1000.0f;
@@ -20,14 +20,14 @@ void FireGenerator::update(double delta, double currentTime, int height)
 
         this->particlesContainer[particleIdx].life = initialLife;
         this->particlesContainer[particleIdx].maxLife = initialLife;
-        this->particlesContainer[particleIdx].pos = glm::vec3(0.5, height, -5.0f);
+        this->particlesContainer[particleIdx].pos = glm::vec3(0.5, this->_height, -5.0f);
 
         float spread = 0.2f;
         float range = 0.5f;
         float offsetX = ((rand() % 1000 / 1000.0f) - 0.5f) * range;
         float offsetZ = ((rand() % 1000 / 1000.0f) - 0.5f) * range;
 
-        this->particlesContainer[particleIdx].pos = glm::vec3(0.5f + offsetX, height, -5.0f + offsetZ);
+        this->particlesContainer[particleIdx].pos = glm::vec3(0.5f + offsetX, this->_height, -5.0f + offsetZ);
 
         float vx = ((rand() % 100 - 50) / 250.0f);
         float vz = ((rand() % 100 - 50) / 250.0f);

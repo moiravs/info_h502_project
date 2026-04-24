@@ -47,7 +47,7 @@ protected:
     Particle particlesContainer[MaxParticles];
 
 public:
-    virtual void update(double delta, double currentTime, int height) = 0;
+    virtual void update(double delta, double currentTime) = 0;
     int findUnusedParticle();
     void sortParticles();
     void render();
