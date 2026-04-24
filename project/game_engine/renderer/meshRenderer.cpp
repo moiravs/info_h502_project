@@ -1,7 +1,7 @@
 
 #include "meshRenderer.h"
 
-MeshRenderer::MeshRenderer(std::shared_ptr<Shader> shader): Renderer(std::move(shader)) {}
+MeshRenderer::MeshRenderer(const std::string& shaderName): Renderer(generateShader(shaderName)) {}
 
 void MeshRenderer::updateUniforms() const
 {}

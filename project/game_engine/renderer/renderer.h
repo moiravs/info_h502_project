@@ -1,13 +1,14 @@
 
 #ifndef Renderer_H
 #define Renderer_H
+#include "../renderable.h"
 #include "../entity/object.h"
 #include "../shader.h"
 #include "glad/glad.h"
 
 class Object;
 
-class Renderer
+class Renderer : public Renderable
 {
 protected:
     std::shared_ptr<Object> _object = nullptr;
@@ -29,7 +30,7 @@ public:
     virtual void registerObject(std::shared_ptr<Object> object);
     // this method should eventually be protected/removed
     std::shared_ptr<Shader> getShader();
-    virtual void render();
+    void render() override;
 };
 
 #endif

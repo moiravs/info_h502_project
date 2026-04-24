@@ -2,7 +2,7 @@
 
 #include "../manager/displaymanager.h"
 
-ObjectRenderer::ObjectRenderer() : MeshRenderer(this->generateShader("solid")) {}
+ObjectRenderer::ObjectRenderer(const std::string& shaderName) : MeshRenderer(shaderName) {}
 
 void ObjectRenderer::updateUniforms() const
 {

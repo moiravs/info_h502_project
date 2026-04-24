@@ -21,6 +21,7 @@
 #include "game_engine/terrainGeneration.h"
 #include "game_engine/manager/displaymanager.h"
 #include "game_engine/mainCamera.h"
+#include "game_engine/renderable.h"
 #include "game_engine/renderer/objectRenderer.h"
 #include "game_engine/renderer/terrainRenderer.h"
 #include "game_engine/waterFrameBuffer.h"
@@ -37,10 +38,7 @@
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
-int PLAN_SIZE_X = 1000;
-int waterHeight = 0;
-
-void renderScene(const std::vector<std::shared_ptr<Renderer>> &renderers)
+void renderScene(const std::vector<std::shared_ptr<Renderable>> &renderers)
 {
 	for (const auto &i : renderers)
 	{
@@ -85,41 +83,16 @@ int main()
 	// Water
 	auto fbos = std::make_shared<WaterFrameBuffer>();
 
-	std::vector<glm::mat4> treeMatrices;
-
-	int maxRandom = PLAN_SIZE_X / 2;
-	int minRandom = -PLAN_SIZE_X / 2;
-	for (int i = 0; i < 200; i++)
-	{
-		glm::mat4 model = glm::mat4(1.0f);
-		float x = rand() % (maxRandom - minRandom) + minRandom;
-		float z = rand() % (maxRandom - minRandom) + minRandom;
-		float y = heightMap.getHeight(x, z);
-		if (y <= waterHeight)
-		{
-			i--;
-			continue;
-		}
-		model = glm::translate(model, glm::vec3(x, y, z));
-		model = glm::rotate(model, static_cast<float>(rand() % 360), glm::vec3(0, 1, 0));
-
-		treeMatrices.push_back(model);
-	}
-
-	auto reflectionPlane = glm::vec4(0, 1, 0, waterHeight);
-	auto refractionPlane = glm::vec4(0, -1, 0, waterHeight);
+	auto reflectionPlane = glm::vec4(0, 1, 0, WATER_HEIGHT);
+	auto refractionPlane = glm::vec4(0, -1, 0, WATER_HEIGHT);
 
 	// Renderer
 	auto terrainRenderer = std::make_shared<TerrainRenderer>(heightMap);
 	auto waterRenderer = std::make_shared<WaterRenderer>(fbos);
-	auto treeRenderer = std::make_shared<InstancedRenderer>();
 	auto skyboxRenderer = std::make_shared<SkyboxRenderer>(&skybox);
 
-	auto tree = Object::make(PATH_TO_SRC "/../assets/models/Tree_V10_OBJ/Tree.obj", treeRenderer);
-	treeRenderer->setInstanceMatrices(treeMatrices);
-
 	// Objects
-	auto water = Object::make(PLAN_SIZE_X / 2, waterHeight, waterRenderer);
+	auto water = Object::make(PLAN_SIZE_X / 2, WATER_HEIGHT, waterRenderer);
 
 	auto whiteLight = PropMaker::makeLamp(
 		glm::vec3(1.0, 15.0, 1.5), 1, glm::vec3(1, 1, 1),
@@ -130,6 +103,11 @@ int main()
 		glm::vec3(1.0, 15.0, 1.5), 1, glm::vec3(1, 0, 0),
 		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0)
 	);
+
+	std::cout << heightMap.getHeight(-100, -100) << std::endl;
+	std::cout << heightMap.getHeight(0, 0) << std::endl;
+
+	auto trees = PropMaker::makeTrees(heightMap);
 
 	// the white light is fixed to the camera (it's not rendered)
 	camera->attach(whiteLight->getMainObject(), glm::vec3(0, 0, 0));
@@ -153,6 +131,7 @@ int main()
 		double currentTime = glfwGetTime();
 		double delta = currentTime - lastTime;
 		lastTime = currentTime;
+		pg->update(delta);
 
 		lightManager.updateUBO();
 		camera->updateUBO();
@@ -163,11 +142,11 @@ int main()
 		fbos->bindReflectionFrameBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		camera->prepareReflection(waterHeight);
+		camera->prepareReflection(WATER_HEIGHT);
 		camera->updateUBO();
 		fbos->setClipPlane(reflectionPlane);
-		renderScene({treeRenderer, terrainRenderer, skyboxRenderer});
-		camera->resetCameraAfterReflection(waterHeight);
+		renderScene({trees, terrainRenderer, skyboxRenderer});
+		camera->resetCameraAfterReflection(WATER_HEIGHT);
 		camera->updateUBO();
 
 		// 2. Refraction
@@ -175,7 +154,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		fbos->setClipPlane(refractionPlane); // One clean call
-		renderScene({treeRenderer, terrainRenderer});
+		renderScene({trees, terrainRenderer});
 
 		fbos->unbindCurrentFrameBuffer();
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
@@ -185,12 +164,7 @@ int main()
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glDisable(GL_CLIP_DISTANCE0);
 
-		renderScene({treeRenderer, waterRenderer, terrainRenderer, skyboxRenderer});
-
-		pg->update(delta);
-		pg->render();
-
-		redLight->render();
+		renderScene({trees, pg, redLight, waterRenderer, terrainRenderer, skyboxRenderer});
 		dm.update();
 	}
 

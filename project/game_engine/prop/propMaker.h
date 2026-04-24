@@ -4,13 +4,15 @@
 #include <memory>
 
 #include "prop.h"
-
+#include "../terrainGeneration.h"
 
 class PropMaker {
-    PropMaker();
+    PropMaker()=default;
 public:
     static std::shared_ptr<Prop> makeLamp(const glm::vec3& position, float radius, const glm::vec3& color,
         const glm::vec4& lightProperties, const glm::vec3& lightAttenuation);
+
+    static std::shared_ptr<Prop> makeTrees(const TerrainGeneration& heightMap);
 };
 
 
