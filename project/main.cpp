@@ -35,10 +35,14 @@
 #include "utils/constants.h"
 #include "game_engine/renderer/particleRenderer.h"
 #include "game_engine/prop/propMaker.h"
+#include "game_engine/game.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
-void renderScene(const std::vector<std::shared_ptr<Renderable>> &renderers)
+int PLAN_SIZE_X = 1000;
+int waterHeight = 0;
+
+void renderScene(const std::vector<std::shared_ptr<Renderer>> &renderers)
 {
 	for (const auto &i : renderers)
 	{
@@ -96,18 +100,11 @@ int main()
 
 	auto whiteLight = PropMaker::makeLamp(
 		glm::vec3(1.0, 15.0, 1.5), 1, glm::vec3(1, 1, 1),
-		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0)
-	);
+		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0));
 
 	auto redLight = PropMaker::makeLamp(
 		glm::vec3(1.0, 15.0, 1.5), 1, glm::vec3(1, 0, 0),
-		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0)
-	);
-
-	std::cout << heightMap.getHeight(-100, -100) << std::endl;
-	std::cout << heightMap.getHeight(0, 0) << std::endl;
-
-	auto trees = PropMaker::makeTrees(heightMap);
+		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0));
 
 	// the white light is fixed to the camera (it's not rendered)
 	camera->attach(whiteLight->getMainObject(), glm::vec3(0, 0, 0));
@@ -118,14 +115,17 @@ int main()
 
 	auto pg = std::make_shared<ParticleRenderer>(ParticleParams{
 		.spawnPoint = glm::vec3(0.5, heightMap.getHeight(0.5, 5.0), -5),
-		.spread = 0.2, .range = 0.5, .initialSize = 0.1, .maxLife = 2,
+		.spread = 0.2,
+		.range = 0.5,
+		.initialSize = 0.1,
+		.maxLife = 2,
 		.color1 = glm::vec3(1.0f, 1.0f, 0.8f),
 		.color2 = glm::vec3(1.0f, 0.5f, 0.0f),
-		.color3 = glm::vec3(0.5f, 0.0f, 0.0f)
-	});
+		.color3 = glm::vec3(0.5f, 0.0f, 0.0f)});
 
 	double lastTime = glfwGetTime();
 
+	auto game = Game();
 	while (!dm.shouldClose())
 	{
 		double currentTime = glfwGetTime();
@@ -145,8 +145,8 @@ int main()
 		camera->prepareReflection(WATER_HEIGHT);
 		camera->updateUBO();
 		fbos->setClipPlane(reflectionPlane);
-		renderScene({trees, terrainRenderer, skyboxRenderer});
-		camera->resetCameraAfterReflection(WATER_HEIGHT);
+		renderScene({treeRenderer, terrainRenderer, skyboxRenderer});
+		camera->resetCameraAfterReflection(waterHeight);
 		camera->updateUBO();
 
 		// 2. Refraction
@@ -154,7 +154,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		fbos->setClipPlane(refractionPlane); // One clean call
-		renderScene({trees, terrainRenderer});
+		renderScene({treeRenderer, terrainRenderer});
 
 		fbos->unbindCurrentFrameBuffer();
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
@@ -164,7 +164,7 @@ int main()
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glDisable(GL_CLIP_DISTANCE0);
 
-		renderScene({trees, pg, redLight, waterRenderer, terrainRenderer, skyboxRenderer});
+		game.renderScene({trees, pg, redLight, waterRenderer, terrainRenderer, skyboxRenderer});
 		dm.update();
 	}
 
