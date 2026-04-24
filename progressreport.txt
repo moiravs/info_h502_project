@@ -9,6 +9,7 @@ DONE:
     - Instancing trees
 - Lights
     - Add a lamp
+- Assimp (pour load des arbres cool)
 
 EN COURS:
 - Refactor Lights
@@ -19,8 +20,8 @@ TODO:
 - Frustum culling https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
 
 
-- Assimp (pour load des arbres cool)
-- Fire camp (https://learnopengl.com/In-Practice/2D-Game/Particles)
+- Fire camp (https://www.rastertek.com/gl4linuxtut33.html)
+(https://learnopengl.com/In-Practice/2D-Game/Particles)
 
 
 # Features

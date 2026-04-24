@@ -16,8 +16,6 @@ class DisplayManager
     int useWireframe = 0;
     int displayGrayscale = 0;
 
-    double lastX = 800;
-    double lastY = 600;
     bool firstMouse = true;
     double lastTime;
     int nbFrames = 0;
@@ -30,6 +28,8 @@ class DisplayManager
     GLFWwindow *createWindow();
 
 public:
+    double lastX = 800;
+    double lastY = 600;
     DisplayManager();
 
     void resizeViewport(int width, int height) const;
