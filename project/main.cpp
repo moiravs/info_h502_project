@@ -33,39 +33,6 @@
 #include "utils/constants.h"
 #include "game_engine/particleGenerator.h"
 
-const int MaxParticles = 10000;
-Particle particlesContainer[MaxParticles];
-
-int lastUsedParticle = 0;
-
-int findUnusedParticle()
-{
-	for (int i = lastUsedParticle; i < MaxParticles; i++)
-	{
-		if (particlesContainer[i].life < 0)
-		{
-			lastUsedParticle = i;
-			return i;
-		}
-	}
-
-	for (int i = 0; i < lastUsedParticle; i++)
-	{
-		if (particlesContainer[i].life < 0)
-		{
-			lastUsedParticle = i;
-			return i;
-		}
-	}
-
-	return 0;
-}
-
-void sortParticles()
-{
-	std::sort(&particlesContainer[0], &particlesContainer[MaxParticles]);
-}
-
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
 int PLAN_SIZE_X = 1000;
@@ -168,6 +135,8 @@ int main()
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
+	ParticleGenerator *pg = new ParticleGenerator();
+
 	char fileVert[128] = PATH_TO_SRC "/../assets/shaders/part.vert";
 	char fileFrag[128] = PATH_TO_SRC "/../assets/shaders/part.frag";
 	Shader shader(fileVert, fileFrag);
@@ -187,7 +156,7 @@ int main()
 
 	for (int i = 0; i < MaxParticles; i++)
 	{
-		particlesContainer[i].life = -1.0;
+		pg->particlesContainer[i].life = -1.0;
 	}
 
 	// Create the vertex buffer objects for the quad used as a particle,
@@ -298,22 +267,22 @@ int main()
 
 		for (int i = 0; i < newParticle; i++)
 		{
-			int particleIdx = findUnusedParticle();
-			particlesContainer[particleIdx].life = 15.0f + rand() % 10 / 10.0;
-			particlesContainer[particleIdx].pos = glm::vec3(glm::cos(currentTime) * 0.5, 2.0 + rand() % 100 / 1000.0, -5.0f + rand() % 100 / 1000.0);
-			particlesContainer[particleIdx].speed = glm::vec3(rand() % 20 / 30.0, 1.0 - rand() % 10 / 20.0, rand() % 100 / 1000.0);
+			int particleIdx = pg->findUnusedParticle();
+			pg->particlesContainer[particleIdx].life = 15.0f + rand() % 10 / 10.0;
+			pg->particlesContainer[particleIdx].pos = glm::vec3(glm::cos(currentTime) * 0.5, 2.0 + rand() % 100 / 1000.0, -5.0f + rand() % 100 / 1000.0);
+			pg->particlesContainer[particleIdx].speed = glm::vec3(rand() % 20 / 30.0, 1.0 - rand() % 10 / 20.0, rand() % 100 / 1000.0);
 
 			// use hsv color to get pretty results
-			particlesContainer[particleIdx].color = glm::vec4(209.0, 0.07, 0.89, 0.5);
+			pg->particlesContainer[particleIdx].color = glm::vec4(209.0, 0.07, 0.89, 0.5);
 
-			particlesContainer[particleIdx].size = 0.05f;
+			pg->particlesContainer[particleIdx].size = 0.05f;
 		}
 
 		// Simulate the particle
 		int particleCount = 0;
 		for (int i = 0; i < MaxParticles; i++)
 		{
-			Particle &p = particlesContainer[i]; // shortcut
+			Particle &p = pg->particlesContainer[i]; // shortcut
 
 			if (p.life > 0.0)
 			{
@@ -355,7 +324,7 @@ int main()
 			}
 		}
 
-		sortParticles();
+		pg->sortParticles();
 
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO_position);
