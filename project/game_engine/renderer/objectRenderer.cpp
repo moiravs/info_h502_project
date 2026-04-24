@@ -2,7 +2,7 @@
 
 #include "../manager/displaymanager.h"
 
-ObjectRenderer::ObjectRenderer() : Renderer(this->generateShader("lamp")) {}
+ObjectRenderer::ObjectRenderer() : Renderer(this->generateShader("solid")) {}
 
 void ObjectRenderer::registerObject(const std::shared_ptr<Object> object)
 {
@@ -36,7 +36,7 @@ void ObjectRenderer::registerObject(const std::shared_ptr<Object> object)
 
 void ObjectRenderer::updateUniforms() const
 {
-    this->_shader->setVector3f("materialColour", glm::vec3(1.0f, 1.0, 1.0));
+    this->_shader->setVector3f("materialColour", this->_object->getColor());
     this->_shader->setMatrix4("model", this->_object->getModel());
     const glm::mat4 inverseModel = glm::transpose(glm::inverse(this->_object->getModel()));
     this->_shader->setMatrix4("itM", inverseModel);

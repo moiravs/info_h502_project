@@ -34,6 +34,7 @@
 #include "utils/constants.h"
 #include "game_engine/particleGenerator.h"
 #include "game_engine/fireGenerator.h"
+#include "game_engine/prop/propMaker.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
@@ -117,27 +118,22 @@ int main()
 	auto waterRenderer = std::make_shared<WaterRenderer>(fbos);
 	auto treeRenderer = std::make_shared<InstancedRenderer>(tree, nullptr, treeMatrices);
 	auto skyboxRenderer = std::make_shared<SkyboxRenderer>(&skybox);
-	auto sphereRenderer2 = std::make_shared<ObjectRenderer>();
 
 	// Objects
 	auto water = Object::make(PLAN_SIZE_X / 2, waterHeight, waterRenderer);
-	auto sphere1 = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", sphereRenderer);
-	auto sphere2 = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", sphereRenderer2);
-	sphere1->setPosition(1.0, 15.0, 1.5);
-	sphere2->setPosition(1.0, 15.0, 1.5);
 
-	auto randomLightForSphere = Light::make();
-	randomLightForSphere->setProperties(0.1, 0.9, 1, 32);
-	randomLightForSphere->setAttenuation(0.1, 0.1, 0);
+	auto whiteLight = PropMaker::makeLamp(
+		glm::vec3(1.0, 15.0, 1.5), 1, glm::vec3(1, 1, 1),
+		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0)
+	);
 
-	sphere1->attach(randomLightForSphere);
+	auto redLight = PropMaker::makeLamp(
+		glm::vec3(1.0, 15.0, 1.5), 1, glm::vec3(1, 0, 0),
+		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0)
+	);
 
-	camera->attach(sphere1, glm::vec3(0, 0, 10));
-
-	auto secondLight = Light::make();
-	secondLight->setProperties(0.1, 0.9, 1, 32);
-	secondLight->setAttenuation(0.5, 0.01, 0);
-	sphere2->attach(secondLight);
+	// the white light is fixed to the camera (it's not rendered)
+	camera->attach(whiteLight->getMainObject(), glm::vec3(0, 0, 0));
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
@@ -191,8 +187,8 @@ int main()
 		lastTime = currentTime;
 		pg->update(delta, currentTime, heightMap.getHeight(0.5, 5.0));
 		pg->render();
-		sphereRenderer2->render();
 
+		redLight->render();
 		dm.update();
 	}
 
