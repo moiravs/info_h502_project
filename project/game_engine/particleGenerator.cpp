@@ -48,6 +48,11 @@ ParticleGenerator::ParticleGenerator(Shader shader) : _shader(shader)
     // desactive the buffer
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+
+    for (int i = 0; i < MaxParticles; i++)
+    {
+        this->particlesContainer[i].life = -1.0;
+    }
 }
 
 void ParticleGenerator::update(double delta, double currentTime)
@@ -135,22 +140,15 @@ void ParticleGenerator::render()
 
     const auto camera = MainCamera::get();
 
-    glm::mat4 view = camera->getViewMatrix();
-    glm::mat4 perspective = camera->getProjectionMatrix();
-
     glm::vec3 cameraRight = camera->getRight();
     glm::vec3 cameraUp = camera->getUp();
     glm::vec3 cameraPosition = camera->getPosition();
 
-    view = camera->getViewMatrix();
-    perspective = camera->getProjectionMatrix(45.0, 800 / 600, 0.01, 100.0);
     cameraRight = camera->getRight();
     cameraUp = camera->getUp();
     cameraPosition = camera->getPosition();
 
-    _shader.setMatrix4("V", view);
-    _shader.setMatrix4("P", perspective);
-
+    _shader.updatePos(camera);
     _shader.setVector3f("cameraRight", cameraRight);
     _shader.setVector3f("cameraUp", cameraUp);
 
