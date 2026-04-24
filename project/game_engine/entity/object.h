@@ -21,10 +21,12 @@ class Object : public Entity
     std::vector<Vertex> vertices;
     glm::mat4 model = glm::mat4(1.0);
 
+    glm::vec3 _color;
+
     float height = 0;
     float computeHeight() const;
 
-    Mesh m_mesh;
+    std::shared_ptr<Mesh> m_mesh = nullptr;
 
 public:
     explicit Object(const char *path);
@@ -45,12 +47,16 @@ public:
     using Entity::setPosition;
     void setPosition(const glm::vec3 &position) override;
 
+    void setColor(const glm::vec3 &color);
+
     [[nodiscard]] size_t getNumVertices() const;
 
     [[nodiscard]] float getHeight() const;
 
+    [[nodiscard]] glm::vec3 getColor() const;
+
     [[nodiscard]] const glm::mat4 &getModel() const;
-    const Mesh &getMesh() const { return m_mesh; }
+    std::shared_ptr<Mesh> getMesh() const { return m_mesh; }
 
     void registerRenderer(const std::shared_ptr<Renderer> &renderer);
 };

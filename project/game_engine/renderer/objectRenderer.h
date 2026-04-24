@@ -1,20 +1,15 @@
 #ifndef ObjectRenderer_H
 #define ObjectRenderer_H
 
-#include "../entity/object.h"
-#include "renderer.h"
-#include <memory>
-#include "../shader.h"
+#include "meshRenderer.h"
 
-class ObjectRenderer : public Renderer
+class ObjectRenderer : public MeshRenderer
 {
     bool _transparent{};
-    std::vector<GLuint> _vaos;
 
 public:
     explicit ObjectRenderer();
     void updateUniforms() const override;
-    void registerObject(std::shared_ptr<Object> object) override;
-    void render() override;
+    void drawElements(int numTriangles) override;
 };
 #endif
