@@ -59,7 +59,7 @@ Object::Object(float size, float height) : Entity()
     vertices.push_back({p3, t3, n});
     vertices.push_back({p4, t4, n});
 
-    height = computeHeight();
+    this->height = computeHeight();
 }
 
 std::vector<glm::vec3> Object::getPositions()
@@ -130,4 +130,14 @@ void Object::registerRenderer(const std::shared_ptr<Renderer> &renderer)
     {
         renderer->registerObject(obj);
     }
+}
+
+glm::vec3 Object::getColor() const
+{
+    return this->_color;
+}
+
+void Object::setColor(const glm::vec3& color)
+{
+    this->_color = color;
 }
