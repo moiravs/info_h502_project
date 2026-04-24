@@ -8,7 +8,7 @@ class ObjectRenderer : public MeshRenderer
     bool _transparent{};
 
 public:
-    explicit ObjectRenderer();
+    explicit ObjectRenderer(const std::string& shaderName);
     void updateUniforms() const override;
     void drawElements(int numTriangles) override;
 };

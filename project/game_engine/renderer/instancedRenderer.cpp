@@ -3,8 +3,7 @@
 #include "../manager/displaymanager.h"
 #include "../entity/object.h"
 
-InstancedRenderer::InstancedRenderer()
-    : MeshRenderer(this->generateShader("tree"))
+InstancedRenderer::InstancedRenderer(const std::string& shaderName) : MeshRenderer(shaderName)
 {
     this->createVBOs(1);
 }

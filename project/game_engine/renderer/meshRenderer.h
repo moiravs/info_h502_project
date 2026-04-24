@@ -8,7 +8,7 @@ class MeshRenderer : public Renderer {
 protected:
     void setupVAOs() override;
 public:
-    explicit MeshRenderer(std::shared_ptr<Shader> shader);
+    explicit MeshRenderer(const std::string& shaderName);
     void updateUniforms() const override;
     void registerObject(std::shared_ptr<Object> object) override;
     virtual void drawElements(int numTriangles)=0;
