@@ -3,10 +3,11 @@ out vec4 FragColor;
 
 #define MAX_LIGHTS 128
 layout(std140) uniform Lights {
-    vec4 positions[MAX_LIGHTS];
-    vec4 properties[MAX_LIGHTS];
-    vec4 attenuations[MAX_LIGHTS];
-    int count;
+    vec4 lightPositions[MAX_LIGHTS];
+    vec4 lightProperties[MAX_LIGHTS];
+    vec4 lightAttenuations[MAX_LIGHTS];
+    vec4 lightColors[MAX_LIGHTS];
+    int lightCount;
     int pad1;
     int pad2;
     int pad3;
@@ -16,6 +17,8 @@ layout(std140) uniform CameraInfo {
     mat4 projection;
     mat4 view;
     vec4 camPosition;
+    vec4 camRight;
+    vec4 camUp;
 };
 
 in vec2 v_t; 
@@ -31,19 +34,31 @@ void main() {
         discard;
     }
 
-    vec3 col = vec3(0, 0, 0);
     vec3 norm = normalize(v_normal);
 
-    for (int i = 0; i < count; i++) {
-        vec3 ambient = properties[i].x * vec3(1.0); // Assuming white light
+    // --- 2. Lighting ---
+    vec3 result = vec3(0.0);
 
-        // Diffuse
-        vec3 lightDir = normalize(positions[i].xyz - v_fragPos);
+    for (int i = 0; i < lightCount; i++)
+    {
+        vec3 lightPos = lightPositions[i].xyz;
+        vec3 lightColor = lightColors[i].xyz;
+
+        vec3 ambient = lightProperties[i].x * lightColor;
+
+        vec3 toLight = lightPos - v_fragPos;
+        float dist = length(toLight);
+        vec3 lightDir = toLight / max(dist, 0.0001);
+
         float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = diff * properties[i].y * vec3(1.0);
+        vec3 diffuse = diff * lightProperties[i].y * lightColor;
 
-        // Alpha Discard (Crucial for leaves)
-        col += (ambient + diffuse);
+        vec3 att = lightAttenuations[i].xyz;
+        float attenuation =
+        1.0 / (att.x + att.y * dist + att.z * dist * dist);
+
+        result += (ambient + diffuse) * texColor.rgb * attenuation;
     }
-    FragColor = vec4(col * texColor.rgb, texColor.a);
+
+    FragColor = vec4(result, texColor.a);
 }

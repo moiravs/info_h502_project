@@ -8,6 +8,8 @@ layout(std140) uniform CameraInfo {
     mat4 projection;
     mat4 view;
     vec4 camPosition;
+    vec4 camRight;
+    vec4 camUp;
 };
 
 uniform float time;

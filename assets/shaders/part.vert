@@ -3,15 +3,13 @@ in vec3 vertex;
 in vec4 center;
 in vec4 col;
 
-uniform vec3 cameraRight;
-uniform vec3 cameraUp;
 layout(std140) uniform CameraInfo {
-    mat4 projection;
-    mat4 view;
-    vec4 camPosition;
+	mat4 projection;
+	mat4 view;
+	vec4 camPosition;
+	vec4 camRight;
+	vec4 camUp;
 };
-
-
 
 out vec4 color;
 
@@ -22,7 +20,7 @@ void main(){
 	vec3 particleCenter = center.xyz;
 
 	//replace the usage of model matrice with just a translation for the position 
-	vec3 vertexPosition_worldspace = particleCenter + cameraRight * vertex.x * scale + cameraUp * vertex.y * scale;
+	vec3 vertexPosition_worldspace = particleCenter + camRight.xyz * vertex.x * scale + camUp.xyz * vertex.y * scale;
 	
 
 	gl_Position = projection*view*vec4(vertexPosition_worldspace, 1.0);
