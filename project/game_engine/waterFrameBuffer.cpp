@@ -3,18 +3,13 @@
 #include "../utils/constants.h"
 #include <glm/gtc/type_ptr.hpp>
 
-WaterFrameBuffer::WaterFrameBuffer()
+WaterFrameBuffer::WaterFrameBuffer() : UboProvider("WaterData", sizeof(glm::vec4))
 {
     initialiseReflectionFrameBuffer();
     initialiseRefractionFrameBuffer();
-
-    glGenBuffers(1, &uboWater);
-    glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_UNIFORM_BUFFER, 3, uboWater);
 }
 
-void WaterFrameBuffer::cleanUp() const
+WaterFrameBuffer::~WaterFrameBuffer()
 {
     // call when closing the game
     glDeleteFramebuffers(1, &reflectionFrameBuffer);
@@ -37,19 +32,12 @@ void WaterFrameBuffer::bindRefractionFrameBuffer() const
     bindFrameBuffer(refractionFrameBuffer, REFRACTION_WIDTH, REFRACTION_HEIGHT);
 }
 
-void WaterFrameBuffer::setClipPlane(const glm::vec4 &plane) const
+void WaterFrameBuffer::setClipPlane(const glm::vec4& plane) const
 {
-    glBindBuffer(GL_UNIFORM_BUFFER, uboWater);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec4), glm::value_ptr(plane));
-}
-
-void WaterFrameBuffer::connectShader(const std::shared_ptr<Shader> &shader)
-{
-    const GLuint blockIndex = glGetUniformBlockIndex(shader->getID(), "WaterData");
-    if (blockIndex != GL_INVALID_INDEX)
-    {
-        glUniformBlockBinding(shader->getID(), blockIndex, 3);
-    }
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0,
+                     sizeof(glm::vec4),
+                     glm::value_ptr(plane));
 }
 
 void WaterFrameBuffer::unbindCurrentFrameBuffer()
@@ -59,19 +47,19 @@ void WaterFrameBuffer::unbindCurrentFrameBuffer()
     glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 }
 
-int WaterFrameBuffer::getReflectionTexture() const
+GLuint WaterFrameBuffer::getReflectionTexture() const
 {
     // get the resulting texture
     return reflectionTexture;
 }
 
-int WaterFrameBuffer::getRefractionTexture() const
+GLuint WaterFrameBuffer::getRefractionTexture() const
 {
     // get the resulting texture
     return refractionTexture;
 }
 
-int WaterFrameBuffer::getRefractionDepthTexture() const
+GLuint WaterFrameBuffer::getRefractionDepthTexture() const
 {
     // get the resulting depth texture
     return refractionDepthTexture;
@@ -93,14 +81,14 @@ void WaterFrameBuffer::initialiseRefractionFrameBuffer()
     unbindCurrentFrameBuffer();
 }
 
-void WaterFrameBuffer::bindFrameBuffer(const int frameBuffer, const int width, const int height)
+void WaterFrameBuffer::bindFrameBuffer(const GLuint frameBuffer, const int width, const int height)
 {
     glBindTexture(GL_TEXTURE_2D, 0); // To make sure the texture isn't bound
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
     glViewport(0, 0, width, height);
 }
 
-int WaterFrameBuffer::createFrameBuffer()
+GLuint WaterFrameBuffer::createFrameBuffer()
 {
     GLuint frameBuffer;
     glGenFramebuffers(1, &frameBuffer);
@@ -112,7 +100,7 @@ int WaterFrameBuffer::createFrameBuffer()
     return frameBuffer;
 }
 
-int WaterFrameBuffer::createTextureAttachment(const int width, const int height)
+GLuint WaterFrameBuffer::createTextureAttachment(const int width, const int height)
 {
     GLuint texture;
     glGenTextures(1, &texture);
@@ -126,7 +114,7 @@ int WaterFrameBuffer::createTextureAttachment(const int width, const int height)
     return texture;
 }
 
-int WaterFrameBuffer::createDepthTextureAttachment(const int width, const int height)
+GLuint WaterFrameBuffer::createDepthTextureAttachment(const int width, const int height)
 {
     GLuint texture;
     glGenTextures(1, &texture);
@@ -140,7 +128,7 @@ int WaterFrameBuffer::createDepthTextureAttachment(const int width, const int he
     return texture;
 }
 
-int WaterFrameBuffer::createDepthBufferAttachment(const int width, const int height)
+GLuint WaterFrameBuffer::createDepthBufferAttachment(const int width, const int height)
 {
     GLuint depthBuffer;
     glGenRenderbuffers(1, &depthBuffer);

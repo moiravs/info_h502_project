@@ -4,9 +4,10 @@
 #include <glad/glad.h>
 
 #include <glm/glm.hpp>
-#include "shader.h"
 
-class WaterFrameBuffer
+#include "manager/uboProvider.h"
+
+class WaterFrameBuffer : public UboProvider
 {
     GLuint reflectionFrameBuffer{};
     GLuint reflectionTexture{};
@@ -15,12 +16,9 @@ class WaterFrameBuffer
     GLuint refractionTexture{};
     GLuint refractionDepthTexture{};
 
-    GLuint uboWater{};
-
 public:
     WaterFrameBuffer();
-
-    void cleanUp() const;
+    ~WaterFrameBuffer() override;
 
     void bindReflectionFrameBuffer() const;
 
@@ -28,29 +26,27 @@ public:
 
     void setClipPlane(const glm::vec4 &plane) const;
 
-    static void connectShader(const std::shared_ptr<Shader>& shader);
-
     static void unbindCurrentFrameBuffer();
 
-    [[nodiscard]] int getReflectionTexture() const;
+    [[nodiscard]] GLuint getReflectionTexture() const;
 
-    [[nodiscard]] int getRefractionTexture() const;
+    [[nodiscard]] GLuint getRefractionTexture() const;
 
-    [[nodiscard]] int getRefractionDepthTexture() const;
+    [[nodiscard]] GLuint getRefractionDepthTexture() const;
 
     void initialiseReflectionFrameBuffer();
 
     void initialiseRefractionFrameBuffer();
 
-    static void bindFrameBuffer(int frameBuffer, int width, int height);
+    static void bindFrameBuffer(GLuint frameBuffer, int width, int height);
 
-    static int createFrameBuffer();
+    static GLuint createFrameBuffer();
 
-    static int createTextureAttachment(int width, int height);
+    static GLuint createTextureAttachment(int width, int height);
 
-    static int createDepthTextureAttachment(int width, int height);
+    static GLuint createDepthTextureAttachment(int width, int height);
 
-    static int createDepthBufferAttachment(int width, int height);
+    static GLuint createDepthBufferAttachment(int width, int height);
 };
 
 #endif

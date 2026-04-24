@@ -7,9 +7,13 @@ out vec3 v_frag_coord;
 out vec3 v_normal; 
 
 uniform mat4 model; 
-uniform mat4 itM; 
-uniform mat4 view; 
-uniform mat4 projection; 
+uniform mat4 itM;
+
+ layout(std140) uniform CameraInfo {
+     mat4 projection;
+     mat4 view;
+     vec4 camPosition;
+ };
 
     void main(){ 
 vec4 frag_coord = model*vec4(position, 1.0); 

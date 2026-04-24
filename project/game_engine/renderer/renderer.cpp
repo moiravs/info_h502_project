@@ -40,5 +40,7 @@ std::shared_ptr<Shader> Renderer::getShader()
 
 void Renderer::render()
 {
+    this->getShader()->use();
     this->updateUniforms();
+    this->getShader()->use();
 }

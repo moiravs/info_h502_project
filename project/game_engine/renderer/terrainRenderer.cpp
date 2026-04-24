@@ -32,9 +32,7 @@ TerrainRenderer::TerrainRenderer(TerrainGeneration &terrain_gen)
 }
 
 void TerrainRenderer::updateUniforms() const
-{
-    _shader->updatePos(MainCamera::get());
-}
+{}
 
 void TerrainRenderer::render()
 {

@@ -7,9 +7,11 @@
 
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "manager/uboManager.h"
 #include "../utils/constants.h"
 
-Shader::Shader(std::string vertexPath, std::string fragmentPath)
+Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
 {
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
@@ -40,9 +42,11 @@ Shader::Shader(std::string vertexPath, std::string fragmentPath)
 
     GLuint vertex = compileShader(vertexCode, GL_VERTEX_SHADER);
     GLuint fragment = compileShader(fragmentCode, GL_FRAGMENT_SHADER);
-    ID = compileProgram(vertex, fragment);
+    this->ID = compileProgram(vertex, fragment);
 
-    this->setMatrix4("model", model);
+    this->setMatrix4("model", this->model);
+
+    UboManager::get().registerShader(this);
 }
 
 void Shader::use() const
@@ -50,69 +54,47 @@ void Shader::use() const
     glUseProgram(ID);
 }
 
-void Shader::setLight(const std::shared_ptr<Light> &light) const
-{
-    this->setFloat("shininess", 32.0f);
-    this->setFloat("light.ambient_strength", light->getAmbient());
-    this->setFloat("light.diffuse_strength", light->getDiffuse());
-    this->setFloat("light.specular_strength", light->getSpecular());
-    this->setFloat("light.constant", 1.0);
-    this->setFloat("light.linear", 0.14);
-    this->setFloat("light.quadratic", 0.07);
-    this->setVector3f("light.light_pos", light->getPosition());
-}
-
-void Shader::updatePos(const std::shared_ptr<Camera> &currentCamera) const
-{
-    const glm::mat4 projection = Camera::getProjectionMatrix(glm::radians(currentCamera->getZoom()),
-                                                             static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), 0.1f, 100000.0f);
-    const glm::mat4 view = currentCamera->getViewMatrix();
-
-    this->setMatrix4("projection", projection);
-    this->setMatrix4("view", view);
-}
-
-void Shader::setInteger(const GLchar *name, const GLint value) const
+void Shader::setInteger(const GLchar* name, const GLint value) const
 {
     this->use();
     glUniform1i(glGetUniformLocation(ID, name), value);
 }
 
-void Shader::setFloat(const GLchar *name, const GLfloat value) const
+void Shader::setFloat(const GLchar* name, const GLfloat value) const
 {
     this->use();
 
     glUniform1f(glGetUniformLocation(ID, name), value);
 }
 
-void Shader::setVector2f(const GLchar *name, const GLfloat x, const GLfloat y) const
+void Shader::setVector2f(const GLchar* name, const GLfloat x, const GLfloat y) const
 {
     this->use();
 
     glUniform2f(glGetUniformLocation(ID, name), x, y);
 }
 
-void Shader::setVector3f(const GLchar *name, const GLfloat x, const GLfloat y, const GLfloat z) const
+void Shader::setVector3f(const GLchar* name, const GLfloat x, const GLfloat y, const GLfloat z) const
 {
     this->use();
 
     glUniform3f(glGetUniformLocation(ID, name), x, y, z);
 }
 
-void Shader::setVector3f(const GLchar *name, const glm::vec3 &value) const
+void Shader::setVector3f(const GLchar* name, const glm::vec3& value) const
 {
     this->use();
 
     glUniform3f(glGetUniformLocation(ID, name), value.x, value.y, value.z);
 }
 
-void Shader::setVector4f(const GLchar *name, const glm::vec4 &value) const
+void Shader::setVector4f(const GLchar* name, const glm::vec4& value) const
 {
     this->use();
     glUniform4f(glGetUniformLocation(ID, name), value.x, value.y, value.z, value.w);
 }
 
-void Shader::setMatrix4(const GLchar *name, const glm::mat4 &matrix) const
+void Shader::setMatrix4(const GLchar* name, const glm::mat4& matrix) const
 {
     this->use();
     glUniformMatrix4fv(glGetUniformLocation(ID, name), 1, GL_FALSE, glm::value_ptr(matrix));
@@ -123,7 +105,7 @@ GLuint Shader::getID() const
     return this->ID;
 }
 
-GLuint Shader::compileShader(const std::string &shaderCode, const GLenum shaderType)
+GLuint Shader::compileShader(const std::string& shaderCode, const GLenum shaderType)
 {
     const GLuint shader = glCreateShader(shaderType);
     const char *code = shaderCode.c_str();
