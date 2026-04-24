@@ -2,6 +2,7 @@
 #define INFOH502_CPP_CONSTANTS_H
 
 #include "glm/glm.hpp"
+#include <string>
 
 constexpr auto WORLD_UP = glm::vec3(0.0f, 1.0f, 0.0f);
 
@@ -25,7 +26,6 @@ constexpr int MAX_LIGHTS = 128;
 
 // Bindings
 const std::vector<std::string> UBO_BINDING_NAMES = {
-    "WaterData", "Lights", "CameraInfo"
-};
+    "WaterData", "Lights", "CameraInfo"};
 
-#endif //INFOH502_CPP_CONSTANTS_H
+#endif // INFOH502_CPP_CONSTANTS_H

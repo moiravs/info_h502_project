@@ -5,8 +5,12 @@ in vec4 col;
 
 uniform vec3 cameraRight;
 uniform vec3 cameraUp;
-uniform mat4 view;
-uniform mat4 projection;
+layout(std140) uniform CameraInfo {
+    mat4 projection;
+    mat4 view;
+    vec4 camPosition;
+};
+
 
 
 out vec4 color;

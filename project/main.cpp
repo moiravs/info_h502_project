@@ -186,8 +186,6 @@ int main()
 
 		double now = glfwGetTime();
 
-		sphereRenderer->render();
-
 		double currentTime = glfwGetTime();
 		double delta = currentTime - lastTime;
 		lastTime = currentTime;

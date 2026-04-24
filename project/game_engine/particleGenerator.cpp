@@ -74,13 +74,10 @@ void ParticleGenerator::render()
 
     glm::vec3 cameraRight = camera->getRight();
     glm::vec3 cameraUp = camera->getUp();
-    glm::vec3 cameraPosition = camera->getPosition();
 
     cameraRight = camera->getRight();
     cameraUp = camera->getUp();
-    cameraPosition = camera->getPosition();
 
-    _shader->updatePos(camera);
     _shader->setVector3f("cameraRight", cameraRight);
     _shader->setVector3f("cameraUp", cameraUp);
 
