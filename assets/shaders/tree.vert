@@ -8,8 +8,11 @@ out vec2 v_t;
 out vec3 v_normal;
 out vec3 v_fragPos;
 
-uniform mat4 view;
-uniform mat4 projection;
+layout(std140) uniform CameraInfo {
+    mat4 projection;
+    mat4 view;
+    vec4 camPosition;
+};
 
 void main() { 
     // Calculate world position
