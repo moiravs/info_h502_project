@@ -2,13 +2,6 @@
 #define PARTICLE_H
 
 #include <glad/glad.h>
-#include <glm/gtx/color_space.hpp>
-
-#include <string>
-#include <fstream>
-#include <memory>
-#include "../shader.h"
-#include "../texture.h"
 #include "../entity/object.h"
 #include "../mainCamera.h"
 // Represents a single particle and its state
@@ -54,7 +47,6 @@ protected:
     GLfloat *g_particule_color_data = new GLfloat[MAX_PARTICLES * 4];
     int particleCount = 0;
 
-    GLuint VBO_vertex, VBO_position, VBO_color;
     int lastUsedParticle = 0;
     Particle particlesContainer[MAX_PARTICLES];
     ParticleParams params;
@@ -66,8 +58,8 @@ public:
     void render() override;
     void updateUniforms() const override;
 
-    ParticleRenderer(const ParticleParams& params);
-    ~ParticleRenderer();
+    explicit ParticleRenderer(const ParticleParams& params);
+    ~ParticleRenderer() override;
 };
 
 #endif

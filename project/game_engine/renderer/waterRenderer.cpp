@@ -1,10 +1,10 @@
 #include "waterRenderer.h"
 
-#include "../mainCamera.h"
-
 WaterRenderer::WaterRenderer(std::shared_ptr<WaterFrameBuffer> fbos)
     : Renderer(this->generateShader("water")), transparent(false), _fbos(std::move(fbos))
 {
+    this->createVAOs(1);
+    this->createVBOs(1);
 }
 
 void WaterRenderer::registerObject(const std::shared_ptr<Object> object)
@@ -12,8 +12,8 @@ void WaterRenderer::registerObject(const std::shared_ptr<Object> object)
     this->Renderer::registerObject(object);
 
     // define VBO and VAO as active buffer and active vertex array
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindVertexArray(_VAOs[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, _VBOs[0]);
     glBufferData(GL_ARRAY_BUFFER, static_cast<long>(sizeof(Vertex) * object->getNumVertices()), object->getVertices().data(),
                  GL_STATIC_DRAW);
 
@@ -44,8 +44,6 @@ void WaterRenderer::render()
 {
     Renderer::render();
 
-    this->_shader->use();
-
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _fbos->getReflectionTexture());
 
@@ -57,7 +55,7 @@ void WaterRenderer::render()
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glBindVertexArray(this->VAO);
+    glBindVertexArray(_VAOs[0]);
     glDrawArrays(GL_TRIANGLES, 0, static_cast<int>(this->_object->getNumVertices()));
 }
 

@@ -109,13 +109,14 @@ int main()
 	auto reflectionPlane = glm::vec4(0, 1, 0, waterHeight);
 	auto refractionPlane = glm::vec4(0, -1, 0, waterHeight);
 
-	auto tree = Object::make(PATH_TO_SRC "/../assets/models/Tree_V10_OBJ/Tree.obj");
-
 	// Renderer
 	auto terrainRenderer = std::make_shared<TerrainRenderer>(heightMap);
 	auto waterRenderer = std::make_shared<WaterRenderer>(fbos);
-	auto treeRenderer = std::make_shared<InstancedRenderer>(tree, nullptr, treeMatrices);
+	auto treeRenderer = std::make_shared<InstancedRenderer>();
 	auto skyboxRenderer = std::make_shared<SkyboxRenderer>(&skybox);
+
+	auto tree = Object::make(PATH_TO_SRC "/../assets/models/Tree_V10_OBJ/Tree.obj", treeRenderer);
+	treeRenderer->setInstanceMatrices(treeMatrices);
 
 	// Objects
 	auto water = Object::make(PLAN_SIZE_X / 2, waterHeight, waterRenderer);

@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "../entity/object.h"
-#include "../shader.h"
 #include "../waterFrameBuffer.h"
 #include "renderer.h"
 #include "../texture.h"
