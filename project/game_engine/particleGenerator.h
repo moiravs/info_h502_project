@@ -2,6 +2,7 @@
 #define PARTICLE_H
 
 #include <glad/glad.h>
+#include <glm/gtx/color_space.hpp>
 
 #include <string>
 #include <fstream>
@@ -9,6 +10,7 @@
 #include "shader.h"
 #include "texture.h"
 #include "entity/object.h"
+#include "mainCamera.h"
 // Represents a single particle and its state
 struct Particle
 {
@@ -30,18 +32,24 @@ struct Particle
 // particles by repeatedly spawning and updating particles and killing
 // them after a given amount of time.
 const int MaxParticles = 10000;
-
+static GLfloat *g_particule_position_size_data = new GLfloat[MaxParticles * 4];
+static GLfloat *g_particule_color_data = new GLfloat[MaxParticles * 4];
 class ParticleGenerator
 {
 public:
+    int particleCount = 0;
+    Shader _shader;
+    GLuint VBO_vertex, VBO_position, VBO_color, VAO;
+    void update(double delta, double currentTime);
     int findUnusedParticle();
     void sortParticles();
+    void render();
     Particle particlesContainer[MaxParticles];
 
     int lastUsedParticle = 0;
 
     //     // constructor
-    //     ParticleGenerator(Shader shader, Texture texture, unsigned int amount);
+    ParticleGenerator(Shader shader);
     //     // update all particles
     //     void Update(float dt, Object &object, unsigned int newParticles, glm::vec3 offset = glm::vec3(0.0f, 0.0f, 0.0f));
     //     // render all particles
