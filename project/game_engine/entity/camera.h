@@ -24,6 +24,8 @@ struct CameraInfo
     glm::mat4 projection;
     glm::mat4 view;
     glm::vec4 cameraPos;
+    glm::vec4 cameraRight;
+    glm::vec4 cameraUp;
 };
 
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL

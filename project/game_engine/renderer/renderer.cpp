@@ -27,7 +27,7 @@ Renderer::~Renderer()
     glDeleteBuffers(1, &VBO);
 }
 
-std::shared_ptr<Shader> Renderer::generateShader(std::string shaderName) const
+std::shared_ptr<Shader> Renderer::generateShader(const std::string& shaderName)
 {
     const std::string fullName = PATH_TO_SRC "/../assets/shaders/" + shaderName;
     return std::make_shared<Shader>(fullName + ".vert", fullName + ".frag");

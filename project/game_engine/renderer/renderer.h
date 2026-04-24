@@ -14,7 +14,7 @@ protected:
     std::shared_ptr<Shader> _shader = nullptr;
     GLuint VAO = 0, VBO = 0;
 
-    [[nodiscard]] std::shared_ptr<Shader> generateShader(std::string shaderName) const;
+    [[nodiscard]] static std::shared_ptr<Shader> generateShader(const std::string& shaderName);
 
 public:
     explicit Renderer(std::shared_ptr<Shader> shader);

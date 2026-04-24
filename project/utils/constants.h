@@ -24,6 +24,8 @@ constexpr float ZOOM = 45.0f;
 
 constexpr int MAX_LIGHTS = 128;
 
+constexpr unsigned MAX_PARTICLES = 10000;
+
 // Bindings
 const std::vector<std::string> UBO_BINDING_NAMES = {
     "WaterData", "Lights", "CameraInfo"};

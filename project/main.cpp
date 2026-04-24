@@ -32,8 +32,7 @@
 #include "game_engine/renderer/skyboxRenderer.h"
 
 #include "utils/constants.h"
-#include "game_engine/particleGenerator.h"
-#include "game_engine/fireGenerator.h"
+#include "game_engine/renderer/particleRenderer.h"
 #include "game_engine/prop/propMaker.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
@@ -114,7 +113,6 @@ int main()
 
 	// Renderer
 	auto terrainRenderer = std::make_shared<TerrainRenderer>(heightMap);
-	auto sphereRenderer = std::make_shared<ObjectRenderer>();
 	auto waterRenderer = std::make_shared<WaterRenderer>(fbos);
 	auto treeRenderer = std::make_shared<InstancedRenderer>(tree, nullptr, treeMatrices);
 	auto skyboxRenderer = std::make_shared<SkyboxRenderer>(&skybox);
@@ -139,14 +137,22 @@ int main()
 
 	auto &lightManager = LightManager::get();
 
-	char fileVert[128] = PATH_TO_SRC "/../assets/shaders/part.vert";
-	char fileFrag[128] = PATH_TO_SRC "/../assets/shaders/part.frag";
-	FireGenerator *pg = new FireGenerator(std::make_shared<Shader>(fileVert, fileFrag));
+	auto pg = std::make_shared<ParticleRenderer>(ParticleParams{
+		.spawnPoint = glm::vec3(0.5, heightMap.getHeight(0.5, 5.0), -5),
+		.spread = 0.2, .range = 0.5, .initialSize = 0.1, .maxLife = 2,
+		.color1 = glm::vec3(1.0f, 1.0f, 0.8f),
+		.color2 = glm::vec3(1.0f, 0.5f, 0.0f),
+		.color3 = glm::vec3(0.5f, 0.0f, 0.0f)
+	});
 
 	double lastTime = glfwGetTime();
 
 	while (!dm.shouldClose())
 	{
+		double currentTime = glfwGetTime();
+		double delta = currentTime - lastTime;
+		lastTime = currentTime;
+
 		lightManager.updateUBO();
 		camera->updateUBO();
 
@@ -180,12 +186,7 @@ int main()
 
 		renderScene({treeRenderer, waterRenderer, terrainRenderer, skyboxRenderer});
 
-		double now = glfwGetTime();
-
-		double currentTime = glfwGetTime();
-		double delta = currentTime - lastTime;
-		lastTime = currentTime;
-		pg->update(delta, currentTime, heightMap.getHeight(0.5, 5.0));
+		pg->update(delta);
 		pg->render();
 
 		redLight->render();
