@@ -41,6 +41,7 @@ void LightManager::updateUBO()
             lights[i]->getSpecular(), lights[i]->getShininess());
         g.attenuations[i] = glm::vec4(lights[i]->getConstant(), lights[i]->getLinear(),
             lights[i]->getQuadratic(), 0);
+        g.colors[i] = glm::vec4(lights[i]->getColor(), 0);
     }
 
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
