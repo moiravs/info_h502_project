@@ -5,8 +5,10 @@ SkyboxRenderer::SkyboxRenderer(Skybox *skybox)
 {
     cubemapTexture = skybox->getTextureId();
 
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    this->createVAOs(1);
+    this->createVBOs(1);
+    glBindVertexArray(_VAOs[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, _VBOs[0]);
     glBufferData(GL_ARRAY_BUFFER, skybox->getVertices().size() * sizeof(float), skybox->getVertices().data(),
                  GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
@@ -24,7 +26,7 @@ void SkyboxRenderer::render()
 
     glDepthFunc(GL_LEQUAL); // change depth function so depth test passes when values are equal to depth buffer's content
     // skybox cube
-    glBindVertexArray(VAO);
+    glBindVertexArray(_VAOs[0]);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
     glDrawArrays(GL_TRIANGLES, 0, 36);

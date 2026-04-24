@@ -25,7 +25,9 @@ Object::Object(const char *path) : Entity()
 
     height = computeHeight();
 
-    if (!m_mesh.LoadMesh(path))
+    m_mesh = std::make_shared<Mesh>();
+
+    if (!m_mesh->LoadMesh(path))
     {
         std::cerr << "Assimp failed to load: " << path << std::endl;
     }

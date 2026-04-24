@@ -4,7 +4,6 @@
 
 #include "../terrainGeneration.h"
 #include "renderer.h"
-#include "../shader.h"
 
 class TerrainRenderer : public Renderer
 {

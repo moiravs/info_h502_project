@@ -1,7 +1,5 @@
 #include "terrainRenderer.h"
 
-#include "../mainCamera.h"
-
 TerrainRenderer::TerrainRenderer(TerrainGeneration &terrain_gen)
     : Renderer(this->generateShader("cpu_height")), m_texture(terrain_gen)
 {
@@ -11,8 +9,11 @@ TerrainRenderer::TerrainRenderer(TerrainGeneration &terrain_gen)
     numStrips = (terrain_gen.getHeight() - 1);
     numTrisPerStrip = (terrain_gen.getWidth()) * 2 - 2;
 
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    this->createVAOs(1);
+    this->createVBOs(1);
+
+    glBindVertexArray(_VAOs[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, _VBOs[0]);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
 
     // Inside TerrainRenderer constructor
@@ -38,7 +39,7 @@ void TerrainRenderer::render()
 {
     Renderer::render();
 
-    glBindVertexArray(VAO);
+    glBindVertexArray(_VAOs[0]);
 
     for (unsigned strip = 0; strip < numStrips; strip++)
     {
@@ -51,6 +52,5 @@ void TerrainRenderer::render()
 
 TerrainRenderer::~TerrainRenderer()
 {
-    Renderer::~Renderer();
     glDeleteBuffers(1, &terrainIBO);
 }

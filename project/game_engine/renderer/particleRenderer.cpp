@@ -4,6 +4,10 @@
 
 #include "../../utils/utils.h"
 
+#define VBO_VERTEX 0
+#define VBO_POSITION 1
+#define VBO_COLOR 2
+
 ParticleRenderer::ParticleRenderer(const ParticleParams& params) : Renderer(generateShader("part")), params(params)
 {
     constexpr float vertexData[18] = {
@@ -16,14 +20,13 @@ ParticleRenderer::ParticleRenderer(const ParticleParams& params) : Renderer(gene
         1.0, -1.0, 0.0
     };
 
-    glGenBuffers(1, &VBO_vertex);
-    glGenBuffers(1, &VBO_position);
-    glGenBuffers(1, &VBO_color);
+    this->createVAOs(1);
+    this->createVBOs(3);
 
     // define VBO and VAO as active buffer and active vertex array
-    glBindVertexArray(VAO);
+    glBindVertexArray(_VAOs[0]);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex);
+    glBindBuffer(GL_ARRAY_BUFFER, _VBOs[VBO_VERTEX]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
 
     auto att_vertex = glGetAttribLocation(_shader->getID(), "vertex");
@@ -31,7 +34,7 @@ ParticleRenderer::ParticleRenderer(const ParticleParams& params) : Renderer(gene
     glVertexAttribPointer(att_vertex, 3, GL_FLOAT, false, 0, 0);
     glVertexAttribDivisor(att_vertex, 0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_position);
+    glBindBuffer(GL_ARRAY_BUFFER, _VBOs[VBO_POSITION]);
     glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * 4 * sizeof(GL_FLOAT), nullptr, GL_STREAM_DRAW);
 
     auto att_center = glGetAttribLocation(_shader->getID(), "center");
@@ -39,7 +42,7 @@ ParticleRenderer::ParticleRenderer(const ParticleParams& params) : Renderer(gene
     glVertexAttribPointer(att_center, 4, GL_FLOAT, false, 0, 0);
     glVertexAttribDivisor(att_center, 1);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_color);
+    glBindBuffer(GL_ARRAY_BUFFER, _VBOs[VBO_COLOR]);
     glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * 4 * sizeof(GLfloat), nullptr, GL_STREAM_DRAW);
 
     auto att_col = glGetAttribLocation(_shader->getID(), "col");
@@ -59,13 +62,13 @@ ParticleRenderer::ParticleRenderer(const ParticleParams& params) : Renderer(gene
 
 void ParticleRenderer::updateUniforms() const
 {
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_position);
+    glBindVertexArray(_VAOs[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, _VBOs[VBO_POSITION]);
     glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * 4 * sizeof(GL_FLOAT), nullptr, GL_STREAM_DRAW);
 
     glBufferSubData(GL_ARRAY_BUFFER, 0, particleCount * sizeof(GLfloat) * 4, g_particule_position_size_data);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_color);
+    glBindBuffer(GL_ARRAY_BUFFER, _VBOs[VBO_COLOR]);
     glBufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * 4 * sizeof(GLfloat), nullptr, GL_STREAM_DRAW);
 
     glBufferSubData(GL_ARRAY_BUFFER, 0, particleCount * sizeof(GLfloat) * 4, g_particule_color_data);

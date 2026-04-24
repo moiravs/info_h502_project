@@ -26,7 +26,7 @@ class Object : public Entity
     float height = 0;
     float computeHeight() const;
 
-    Mesh m_mesh;
+    std::shared_ptr<Mesh> m_mesh = nullptr;
 
 public:
     explicit Object(const char *path);
@@ -56,7 +56,7 @@ public:
     [[nodiscard]] glm::vec3 getColor() const;
 
     [[nodiscard]] const glm::mat4 &getModel() const;
-    const Mesh &getMesh() const { return m_mesh; }
+    std::shared_ptr<Mesh> getMesh() const { return m_mesh; }
 
     void registerRenderer(const std::shared_ptr<Renderer> &renderer);
 };
