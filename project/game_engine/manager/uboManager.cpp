@@ -7,7 +7,7 @@ UboManager::UboManager()
 {
     for (GLuint i = 0; i < UBO_BINDING_NAMES.size(); i++)
     {
-        this->bindings.emplace(UBO_BINDING_NAMES.at(i), i + 1);
+        this->bindings.emplace(UBO_BINDING_NAMES.at(i), i);
     }
 }
 

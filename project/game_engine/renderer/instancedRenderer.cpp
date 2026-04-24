@@ -54,9 +54,7 @@ void InstancedRenderer::render()
 }
 
 void InstancedRenderer::updateUniforms() const
-{
-    _shader->updatePos(MainCamera::get());
-}
+{}
 
 InstancedRenderer::~InstancedRenderer()
 {

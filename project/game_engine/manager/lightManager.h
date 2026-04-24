@@ -4,6 +4,7 @@
 
 #include <memory>
 
+#include "uboProvider.h"
 #include "../shader.h"
 
 struct LightBlock
@@ -17,18 +18,15 @@ struct LightBlock
     int pad3;
 };
 
-class LightManager {
+class LightManager : public UboProvider {
     std::vector<std::shared_ptr<Light>> lights {};
-    GLuint ubo{};
     bool needsUpdate = false;
     LightManager();
-    void rewriteBuffer() const;
 public:
     static LightManager& get();
     void notify();
-    void applyChanges();
+    void updateUBO();
     void registerLight(std::shared_ptr<Light> light);
-    ~LightManager();
 };
 
 #endif //INFOH502_CPP_LIGHTMANAGER_H

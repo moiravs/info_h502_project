@@ -22,8 +22,6 @@ public:
 
     [[nodiscard]] GLuint getID() const;
 
-    void updatePos(const std::shared_ptr<Camera>& currentCamera) const;
-
     void setInteger(const GLchar *name, GLint value) const;
 
     void setFloat(const GLchar *name, GLfloat value) const;
