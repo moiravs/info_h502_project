@@ -1,8 +1,6 @@
 #ifndef ObjectRenderer_H
 #define ObjectRenderer_H
 
-#include <glad/glad.h>
-
 #include "../entity/object.h"
 #include "renderer.h"
 #include <memory>

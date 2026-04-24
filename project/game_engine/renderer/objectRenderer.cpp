@@ -1,9 +1,8 @@
 #include "objectRenderer.h"
 
-#include "../displaymanager.h"
-#include "../mainCamera.h"
+#include "../manager/displaymanager.h"
 
-ObjectRenderer::ObjectRenderer() : Renderer(this->generateShader("object")) {}
+ObjectRenderer::ObjectRenderer() : Renderer(this->generateShader("lamp")) {}
 
 void ObjectRenderer::registerObject(const std::shared_ptr<Object> object)
 {
@@ -41,8 +40,6 @@ void ObjectRenderer::updateUniforms() const
     this->_shader->setMatrix4("model", this->_object->getModel());
     const glm::mat4 inverseModel = glm::transpose(glm::inverse(this->_object->getModel()));
     this->_shader->setMatrix4("itM", inverseModel);
-    this->_shader->updatePos(MainCamera::get());
-    this->_shader->setVector3f("u_view_pos", MainCamera::get()->getPosition());
 }
 
 void ObjectRenderer::render()

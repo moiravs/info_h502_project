@@ -18,7 +18,7 @@
 #include "game_engine/entity/light.h"
 #include "game_engine/entity/camera.h"
 #include "game_engine/terrainGeneration.h"
-#include "game_engine/displaymanager.h"
+#include "game_engine/manager/displaymanager.h"
 #include "game_engine/mainCamera.h"
 #include "game_engine/renderer/objectRenderer.h"
 #include "game_engine/renderer/terrainRenderer.h"
@@ -27,6 +27,7 @@
 #include "game_engine/renderer/instancedRenderer.h"
 
 #include "game_engine/skybox.h"
+#include "game_engine/manager/lightManager.h"
 #include "game_engine/renderer/skyboxRenderer.h"
 
 #include "utils/constants.h"
@@ -65,7 +66,7 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);
 
-	const auto camera = MainCamera::get();
+	auto camera = MainCamera::get();
 
 	// Terrain
 	TerrainGeneration heightMap(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
@@ -113,28 +114,37 @@ int main()
 	auto waterRenderer = std::make_shared<WaterRenderer>(fbos);
 	auto treeRenderer = std::make_shared<InstancedRenderer>(tree, nullptr, treeMatrices);
 	auto skyboxRenderer = std::make_shared<SkyboxRenderer>(&skybox);
-
-	WaterFrameBuffer::connectShader(terrainRenderer->getShader());
+	auto sphereRenderer2 = std::make_shared<ObjectRenderer>();
 
 	// Objects
 	auto water = Object::make(PLAN_SIZE_X / 2, waterHeight, waterRenderer);
 	auto sphere1 = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", sphereRenderer);
+	auto sphere2 = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", sphereRenderer2);
 	sphere1->setPosition(1.0, 15.0, 1.5);
+	sphere2->setPosition(1.0, 15.0, 1.5);
 
-	auto randomLightForSphere = std::make_shared<Light>();
-	randomLightForSphere->setProperties(0.1, 0.9, 1);
+	auto randomLightForSphere = Light::make();
+	randomLightForSphere->setProperties(0.1, 0.9, 1, 32);
+	randomLightForSphere->setAttenuation(0.1, 0.1, 0);
 
 	sphere1->attach(randomLightForSphere);
 
-	// Rendering
-	sphereRenderer->getShader()->setLight(randomLightForSphere);
-	treeRenderer->getShader()->setLight(randomLightForSphere);
-	terrainRenderer->getShader()->setLight(randomLightForSphere);
+	camera->attach(sphere1, glm::vec3(0, 0, 10));
+
+	auto secondLight = Light::make();
+	secondLight->setProperties(0.1, 0.9, 1, 32);
+	secondLight->setAttenuation(0.5, 0.01, 0);
+	sphere2->attach(secondLight);
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
+	auto& lightManager = LightManager::get();
+
 	while (!dm.shouldClose())
 	{
+		lightManager.updateUBO();
+		camera->updateUBO();
+
 		// 1. Reflection
 		glEnable(GL_CLIP_DISTANCE0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -142,9 +152,11 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		camera->prepareReflection(waterHeight);
+		camera->updateUBO();
 		fbos->setClipPlane(reflectionPlane);
 		renderScene({treeRenderer, terrainRenderer, skyboxRenderer});
 		camera->resetCameraAfterReflection(waterHeight);
+		camera->updateUBO();
 
 		// 2. Refraction
 		fbos->bindRefractionFrameBuffer();
@@ -165,13 +177,12 @@ int main()
 
 		double now = glfwGetTime();
 
-		sphereRenderer->getShader()->setVector3f("light.light_pos", randomLightForSphere->getPosition());
-
 		sphereRenderer->render();
+		sphereRenderer2->render();
 
 		dm.update();
 	}
-	fbos->cleanUp();
+
 	glfwTerminate();
 	return 0;
 }

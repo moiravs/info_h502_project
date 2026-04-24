@@ -1,12 +1,12 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "entity.h"
 #include "../../utils/constants.h"
+#include "../manager/uboProvider.h"
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum PlayerMovement
@@ -19,11 +19,18 @@ enum PlayerMovement
     JUMP
 };
 
+struct CameraInfo
+{
+    glm::mat4 projection;
+    glm::mat4 view;
+    glm::vec4 cameraPos;
+};
+
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
-class Camera : public Entity
+class Camera : public Entity, public UboProvider
 {
     // camera Attributes
-    glm::vec3 flatFront;
+    glm::vec3 flatFront{};
     // camera options
     float zoom;
 protected:
@@ -46,6 +53,8 @@ public:
 
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
     void processKeyboardMovement(PlayerMovement direction, float deltaTime);
+
+    void updateUBO() const;
 
     void prepareReflection(int height);
 
