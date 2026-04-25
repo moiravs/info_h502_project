@@ -4,19 +4,22 @@
 #include <sstream>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "../manager/octreeManager.h"
 #include "../renderer/objectRenderer.h"
 
-std::shared_ptr<Object> Object::make(const char *path, std::shared_ptr<Renderer> renderer)
+std::shared_ptr<Object> Object::make(const char *path, const std::shared_ptr<Renderer>& renderer)
 {
     const auto ret = std::make_shared<Object>(path);
     ret->registerRenderer(renderer);
+    OctreeManager::get()->put(ret, ret->getPosition());
     return ret;
 }
 
-std::shared_ptr<Object> Object::make(float size, float height, std::shared_ptr<Renderer> renderer)
+std::shared_ptr<Object> Object::make(float size, float height, const std::shared_ptr<Renderer>& renderer)
 {
     const auto ret = std::make_shared<Object>(size, height);
     ret->registerRenderer(renderer);
+    OctreeManager::get()->put(ret, ret->getPosition());
     return ret;
 }
 
@@ -117,6 +120,10 @@ void Object::setPosition(const glm::vec3 &position)
 {
     this->Entity::setPosition(position);
     this->model = glm::translate(glm::mat4(1.0f), position);
+    if (const auto obj = std::dynamic_pointer_cast<Object>(this->shared_from_this()))
+    {
+        this->octreeNode->moveObject(obj, this->getPosition());
+    }
 }
 
 const glm::mat4 &Object::getModel() const
@@ -142,4 +149,9 @@ glm::vec3 Object::getColor() const
 void Object::setColor(const glm::vec3& color)
 {
     this->_color = color;
+}
+
+void Object::setOctreeNode(const std::shared_ptr<Octree>& node)
+{
+    this->octreeNode = node;
 }
