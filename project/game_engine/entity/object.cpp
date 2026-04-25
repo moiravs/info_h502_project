@@ -116,7 +116,14 @@ size_t Object::getNumVertices() const
 void Object::setPosition(const glm::vec3 &position)
 {
     this->Entity::setPosition(position);
-    this->model = glm::translate(glm::mat4(1.0f), position);
+    this->model = glm::scale(glm::translate(glm::mat4(1.0f), position), glm::vec3(this->_scale));
+}
+
+void Object::setScale(int scale)
+{
+    this->_scale = scale;
+    this->model = glm::translate(glm::mat4(1.0f), this->getPosition());
+    this->model = glm::scale(this->model, glm::vec3(scale));
 }
 
 const glm::mat4 &Object::getModel() const
@@ -139,7 +146,7 @@ glm::vec3 Object::getColor() const
     return this->_color;
 }
 
-void Object::setColor(const glm::vec3& color)
+void Object::setColor(const glm::vec3 &color)
 {
     this->_color = color;
 }
