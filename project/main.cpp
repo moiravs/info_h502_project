@@ -112,7 +112,7 @@ int main()
 	auto &lightManager = LightManager::get();
 
 	auto firecampRenderer = std::make_shared<ObjectRenderer>("firecamp");
-	const auto firecamp = Object::make(PATH_TO_SRC "/../assets/models/Campfire/Campfire OBJ.obj", firecampRenderer);
+	const auto firecamp = Object::make(PATH_TO_SRC "/../assets/models/Campfire/Campfire.obj", firecampRenderer);
 
 	firecamp->setPosition(glm::vec3(0.5, heightMap.getHeight(0.5, 5.0), -5));
 

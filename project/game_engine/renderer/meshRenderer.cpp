@@ -23,6 +23,7 @@ void MeshRenderer::setupVAOs()
 
     const auto &mesh = this->_object->getMesh();
     this->createVAOs(mesh->m_Entries.size());
+
     for (unsigned int i = 0; i < mesh->m_Entries.size(); i++)
     {
         glBindVertexArray(_VAOs[i]);
@@ -53,7 +54,7 @@ void MeshRenderer::setupVAOs()
 
         const auto att_model = glGetAttribLocation(_shader->getID(), "model");
 
-        if (att_model >= 0 && !_VBOs.empty())
+        if (att_model >= 0)
         {
             glBindBuffer(GL_ARRAY_BUFFER, _VBOs[0]);
             for (unsigned int j = 0; j < 4; j++)
@@ -63,7 +64,7 @@ void MeshRenderer::setupVAOs()
                 glVertexAttribDivisor(att_model + j, 1);
             }
         }
-        }
+    }
     glBindVertexArray(0);
 }
 
