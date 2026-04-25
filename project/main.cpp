@@ -92,16 +92,9 @@ int main()
 	// Objects
 	auto water = Object::make(PLAN_SIZE_X / 2, WATER_HEIGHT, waterRenderer);
 
-	auto whiteLight = PropMaker::makeLamp(
-		glm::vec3(1.0, 15.0, 1.5), 1, glm::vec3(1, 1, 1),
-		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0));
-
-	auto redLight = PropMaker::makeLamp(
-		glm::vec3(1.0, 15.0, 1.5), 1, glm::vec3(1, 0, 0),
-		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0));
-
-	// the white light is fixed to the camera (it's not rendered)
-	camera->attach(whiteLight->getMainObject(), glm::vec3(0, 0, 0));
+	auto sun = PropMaker::makeLamp(
+		glm::vec3(.0, 100.0, 1.5), 1, glm::vec3(1, 1, 1),
+		glm::vec4(0, 0.9, 1, 32), glm::vec3(0.005, 0.005, 0));
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
@@ -114,6 +107,10 @@ int main()
 		.color1 = glm::vec3(1.0f, 1.0f, 0.8f),
 		.color2 = glm::vec3(1.0f, 0.5f, 0.0f),
 		.color3 = glm::vec3(0.5f, 0.0f, 0.0f)});
+
+	float orbitRadius = PLAN_SIZE_X / 2; // Distance from the center of the scene
+	float orbitSpeed = 0.1f;			 // How fast the sun moves
+	float orbitHeight = 100.0f;			 // Vertical height of the sun
 
 	auto trees = PropMaker::makeTrees(heightMap);
 	auto firecamp = PropMaker::makeFirecamp(heightMap);
@@ -162,7 +159,13 @@ int main()
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glDisable(GL_CLIP_DISTANCE0);
 
-		game.renderScene({trees, pg, redLight, waterRenderer, terrainRenderer, skyboxRenderer, firecamp});
+		float sunX = 0.0f;
+		float sunY = std::sin(currentTime * orbitSpeed) * orbitRadius;
+		float sunZ = std::cos(currentTime * orbitSpeed) * orbitRadius;
+
+		sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
+
+		game.renderScene({trees, pg, waterRenderer, terrainRenderer, skyboxRenderer, firecamp, sun});
 		dm.update();
 	}
 

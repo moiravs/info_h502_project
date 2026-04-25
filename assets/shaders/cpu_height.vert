@@ -6,6 +6,7 @@ layout (std140) uniform WaterData {
     vec4 plane;
 };
 
+
 out float Height;
 out vec3 v_normal;   // Pass to fragment
 out vec3 v_fragPos;  // Pass to fragment
@@ -28,6 +29,7 @@ void main()
 
     Height = aPos.y;
     v_fragPos = vec3(WorldPos);
+    
     // Transform normal to world space
     v_normal = mat3(transpose(inverse(model))) * aNormal;
 

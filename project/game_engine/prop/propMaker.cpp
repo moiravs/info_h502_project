@@ -40,6 +40,15 @@ std::shared_ptr<Prop> PropMaker::makeFirecamp(const TerrainGeneration &heightMap
 
     firecamp->setPosition(glm::vec3(1, heightMap.getHeight(1, -5.0), -5));
     firecamp->setScale(0.2);
+
+    auto prop = std::make_shared<Prop>();
+    auto whiteLight = PropMaker::makeLamp(
+        glm::vec3(1.0, 15.0, 1.5), 1, glm::vec3(1, 0, 0),
+        glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.1, 0));
+
+    firecamp->attach(whiteLight->getMainObject(), glm::vec3(0, 0, 0));
+    prop->addRenderer(firecampRenderer);
+    return prop;
 }
 
 std::shared_ptr<Prop> PropMaker::makeTrees(const TerrainGeneration &heightMap)

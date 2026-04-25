@@ -16,6 +16,8 @@ public:
 
     static std::shared_ptr<Prop> makeFirecamp(const TerrainGeneration &heightMap);
     static std::shared_ptr<Prop> makeTrees(const TerrainGeneration &heightMap);
+
+    static std::shared_ptr<Prop> makeSun(const TerrainGeneration &heightMap);
 };
 
 #endif // INFOH502_CPP_PROPMAKER_H
