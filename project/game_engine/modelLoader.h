@@ -27,6 +27,7 @@ private:
 
 #define INVALID_MATERIAL 0xFFFFFFFF
 
+public:
     struct MeshEntry
     {
         MeshEntry() = default;  // Add this
@@ -40,7 +41,6 @@ private:
         unsigned int MaterialIndex;
     };
 
-public:
     Mesh();
 
     ~Mesh();
