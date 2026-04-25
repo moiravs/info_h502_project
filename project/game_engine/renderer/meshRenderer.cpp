@@ -1,10 +1,11 @@
 
 #include "meshRenderer.h"
 
-MeshRenderer::MeshRenderer(const std::string& shaderName): Renderer(generateShader(shaderName)) {}
+MeshRenderer::MeshRenderer(const std::string &shaderName) : Renderer(generateShader(shaderName)) {}
 
 void MeshRenderer::updateUniforms() const
-{}
+{
+}
 
 void MeshRenderer::registerObject(const std::shared_ptr<Object> object)
 {
@@ -31,28 +32,28 @@ void MeshRenderer::setupVAOs()
         if (att_position >= 0)
         {
             glEnableVertexAttribArray(att_position);
-            glVertexAttribPointer(att_position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, Position)));
+            glVertexAttribPointer(att_position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, Position)));
         }
 
         const auto att_tex = glGetAttribLocation(_shader->getID(), "tex_coord");
         if (att_tex >= 0)
         {
             glEnableVertexAttribArray(att_tex);
-            glVertexAttribPointer(att_tex, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, Texture)));
+            glVertexAttribPointer(att_tex, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, Texture)));
         }
 
         const auto att_normal = glGetAttribLocation(_shader->getID(), "normal");
         if (att_normal >= 0)
         {
             glEnableVertexAttribArray(att_normal);
-            glVertexAttribPointer(att_normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, Normal)));
-
+            glVertexAttribPointer(att_normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, Normal)));
         }
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->m_Entries[i].IB);
 
         const auto att_model = glGetAttribLocation(_shader->getID(), "model");
-        if (att_model >= 0)
+
+        if (att_model >= 0 && !_VBOs.empty())
         {
             glBindBuffer(GL_ARRAY_BUFFER, _VBOs[0]);
             for (unsigned int j = 0; j < 4; j++)
@@ -62,7 +63,7 @@ void MeshRenderer::setupVAOs()
                 glVertexAttribDivisor(att_model + j, 1);
             }
         }
-    }
+        }
     glBindVertexArray(0);
 }
 
@@ -70,7 +71,8 @@ void MeshRenderer::render()
 {
     Renderer::render(); // Updates shader uniforms
 
-    if (!_object->getMesh()) return;
+    if (!_object->getMesh())
+        return;
     const auto mesh = _object->getMesh();
 
     for (unsigned int i = 0; i < _VAOs.size(); i++)
