@@ -32,6 +32,16 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const float
     return prop;
 }
 
+std::shared_ptr<Prop> PropMaker::makeFirecamp(const TerrainGeneration &heightMap)
+{
+
+    auto firecampRenderer = std::make_shared<ObjectRenderer>("firecamp");
+    const auto firecamp = Object::make(PATH_TO_SRC "/../assets/models/Campfire/Campfire OBJ.obj", firecampRenderer);
+
+    firecamp->setPosition(glm::vec3(1, heightMap.getHeight(1, -5.0), -5));
+    firecamp->setScale(0.2);
+}
+
 std::shared_ptr<Prop> PropMaker::makeTrees(const TerrainGeneration &heightMap)
 {
     std::vector<glm::mat4> treeMatrices;

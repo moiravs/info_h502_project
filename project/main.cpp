@@ -105,15 +105,6 @@ int main()
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
-	auto trees = PropMaker::makeTrees(heightMap);
-	auto &lightManager = LightManager::get();
-
-	auto firecampRenderer = std::make_shared<ObjectRenderer>("firecamp");
-	const auto firecamp = Object::make(PATH_TO_SRC "/../assets/models/Campfire/Campfire OBJ.obj", firecampRenderer);
-
-	firecamp->setPosition(glm::vec3(1, heightMap.getHeight(1, -5.0), -5));
-	firecamp->setScale(0.2);
-
 	auto pg = std::make_shared<ParticleRenderer>(ParticleParams{
 		.spawnPoint = glm::vec3(3.5, heightMap.getHeight(3.5, 5.0) - 1.3, -5),
 		.spread = 0.2,
@@ -123,6 +114,10 @@ int main()
 		.color1 = glm::vec3(1.0f, 1.0f, 0.8f),
 		.color2 = glm::vec3(1.0f, 0.5f, 0.0f),
 		.color3 = glm::vec3(0.5f, 0.0f, 0.0f)});
+
+	auto trees = PropMaker::makeTrees(heightMap);
+	auto firecamp = PropMaker::makeFirecamp(heightMap);
+	auto &lightManager = LightManager::get();
 
 	double lastTime = glfwGetTime();
 
@@ -167,7 +162,7 @@ int main()
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glDisable(GL_CLIP_DISTANCE0);
 
-		game.renderScene({trees, pg, redLight, waterRenderer, terrainRenderer, skyboxRenderer, firecampRenderer});
+		game.renderScene({trees, pg, redLight, waterRenderer, terrainRenderer, skyboxRenderer, firecamp});
 		dm.update();
 	}
 
