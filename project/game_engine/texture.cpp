@@ -9,7 +9,7 @@ int Texture::getWidth() const
     return m_Width;
 }
 
-Texture::Texture(const std::string& filePath) : m_Width(0), m_Height(0), m_Channels(0)
+Texture::Texture(const std::string &filePath) : m_Width(0), m_Height(0), m_Channels(0)
 {
     glGenTextures(1, &texture0);
     glBindTexture(GL_TEXTURE_2D, texture0);
@@ -20,7 +20,7 @@ Texture::Texture(const std::string& filePath) : m_Width(0), m_Height(0), m_Chann
     int width, height, nrChannels;
     stbi_set_flip_vertically_on_load(true);
 
-    unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
     if (data)
     {
         GLenum format = GL_RED;
@@ -35,7 +35,8 @@ Texture::Texture(const std::string& filePath) : m_Width(0), m_Height(0), m_Chann
     }
     else
     {
-        ERROR("Unable to load texture from file");
+        std::string errormsg = "Unable to load texture from file";
+        ERROR(errormsg + filePath.c_str());
     }
 }
 
