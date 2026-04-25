@@ -38,7 +38,6 @@ void main() {
 
     // --- 2. Lighting ---
     vec3 result = vec3(0.0);
-
     for (int i = 0; i < lightCount; i++)
     {
         vec3 lightPos = lightPositions[i].xyz;
@@ -58,7 +57,8 @@ void main() {
         1.0 / (att.x + att.y * dist + att.z * dist * dist);
 
         result += (ambient + diffuse) * texColor.rgb * attenuation;
+
     }
 
-    FragColor = vec4(result, texColor.a);
+   FragColor = vec4(texColor.rgb,  texColor.a);
 }

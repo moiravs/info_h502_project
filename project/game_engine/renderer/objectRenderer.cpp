@@ -2,7 +2,10 @@
 
 #include "../manager/displaymanager.h"
 
-ObjectRenderer::ObjectRenderer(const std::string& shaderName) : MeshRenderer(shaderName) {}
+ObjectRenderer::ObjectRenderer(const std::string &shaderName) : MeshRenderer(shaderName)
+{
+    this->createVBOs(1);
+}
 
 void ObjectRenderer::updateUniforms() const
 {
@@ -15,5 +18,4 @@ void ObjectRenderer::updateUniforms() const
 void ObjectRenderer::drawElements(const int numTriangles)
 {
     glDrawElements(GL_TRIANGLES, numTriangles, GL_UNSIGNED_INT, 0);
-
 }

@@ -62,7 +62,7 @@ void Renderer::createVBOs(const size_t nb)
         this->_VBOs.clear();
     }
 
-    this->_VBOs.resize(nb);
+        this->_VBOs.resize(nb);
     glGenBuffers(nb, this->_VBOs.data());
 }
 

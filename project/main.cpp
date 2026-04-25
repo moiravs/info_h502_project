@@ -109,12 +109,13 @@ int main()
 	auto &lightManager = LightManager::get();
 
 	auto firecampRenderer = std::make_shared<ObjectRenderer>("firecamp");
-	const auto firecamp = Object::make(PATH_TO_SRC "/../assets/models/Campfire/Campfire.obj", firecampRenderer);
+	const auto firecamp = Object::make(PATH_TO_SRC "/../assets/models/Campfire/Campfire OBJ.obj", firecampRenderer);
 
-	firecamp->setPosition(glm::vec3(0.5, heightMap.getHeight(0.5, 5.0), -5));
+	firecamp->setPosition(glm::vec3(1, heightMap.getHeight(1, -5.0), -5));
+	firecamp->setScale(0.2);
 
 	auto pg = std::make_shared<ParticleRenderer>(ParticleParams{
-		.spawnPoint = glm::vec3(0.5, heightMap.getHeight(0.5, 5.0), -5),
+		.spawnPoint = glm::vec3(3.5, heightMap.getHeight(3.5, 5.0) - 1.3, -5),
 		.spread = 0.2,
 		.range = 0.5,
 		.initialSize = 0.1,
@@ -129,6 +130,7 @@ int main()
 
 	while (!dm.shouldClose())
 	{
+		glEnable(GL_DEPTH_TEST);
 		double currentTime = glfwGetTime();
 		double delta = currentTime - lastTime;
 		lastTime = currentTime;
