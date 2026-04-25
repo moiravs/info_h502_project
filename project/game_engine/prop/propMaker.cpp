@@ -5,15 +5,18 @@
 #include "../../utils/constants.h"
 #include "../renderer/instancedRenderer.h"
 
-std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3& position, float radius, const glm::vec3& color,
-    const glm::vec4& lightProperties, const glm::vec3& lightAttenuation)
+std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, float radius, const glm::vec3 &color,
+                                          const glm::vec4 &lightProperties, const glm::vec3 &lightAttenuation)
 {
-    const auto renderer = std::make_shared<ObjectRenderer>("solid");
-    const auto sphere = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", renderer);
-    const auto light = Light::make();
+    auto renderer = std::make_shared<ObjectRenderer>("solid");
+    auto sphere = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", renderer);
+    auto light = Light::make();
+    sphere->setScale(radius);
+
     sphere->attach(light);
     sphere->setColor(color);
     light->setColor(color);
+
     light->setAttenuation(lightAttenuation.x, lightAttenuation.y, lightAttenuation.z);
     light->setProperties(lightProperties.x, lightProperties.y, lightProperties.z, lightProperties.w);
     sphere->setPosition(position);
@@ -28,7 +31,7 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3& position, float radiu
     return prop;
 }
 
-std::shared_ptr<Prop> PropMaker::makeTrees(const TerrainGeneration& heightMap)
+std::shared_ptr<Prop> PropMaker::makeTrees(const TerrainGeneration &heightMap)
 {
     std::vector<glm::mat4> treeMatrices;
 
