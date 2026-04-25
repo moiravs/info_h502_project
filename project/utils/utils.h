@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include <glad/glad.h>
+#include <glm/glm.hpp>
 
 #define ERROR(msg)                                         \
     std::cerr << "[ERROR] " << __FILE__ << ":" << __LINE__ \
@@ -17,6 +18,14 @@
                   << " (" << __func__ << ") - " << msg << std::endl; \
         std::exit(EXIT_FAILURE);                                     \
     } while (0)
+
+inline bool isInVolume(const glm::vec3& point, const glm::vec3& lower, const glm::vec3& upper)
+{
+    return
+        point.x <= upper.x && point.x >= lower.x &&
+        point.y <= upper.y && point.y >= lower.y &&
+        point.z <= upper.z && point.z >= lower.z;
+}
 
 #ifndef NDEBUG
 inline void APIENTRY glDebugOutput(const GLenum source,
