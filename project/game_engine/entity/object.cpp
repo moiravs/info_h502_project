@@ -109,7 +109,7 @@ void Object::setPosition(const glm::vec3 &position)
     this->model = glm::scale(glm::translate(glm::mat4(1.0f), position), glm::vec3(this->_scale));
 }
 
-void Object::setScale(int scale)
+void Object::setScale(const int scale)
 {
     this->_scale = scale;
     this->model = glm::translate(glm::mat4(1.0f), this->getPosition());

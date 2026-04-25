@@ -5,13 +5,13 @@
 #include "../../utils/constants.h"
 #include "../renderer/instancedRenderer.h"
 
-std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, float radius, const glm::vec3 &color,
+std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const float scale, const glm::vec3 &color,
                                           const glm::vec4 &lightProperties, const glm::vec3 &lightAttenuation)
 {
-    auto renderer = std::make_shared<ObjectRenderer>("solid");
-    auto sphere = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", renderer);
-    auto light = Light::make();
-    sphere->setScale(radius);
+    const auto renderer = std::make_shared<ObjectRenderer>("solid");
+    const auto sphere = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", renderer);
+    const auto light = Light::make();
+    sphere->setScale(scale);
 
     sphere->attach(light);
     sphere->setColor(color);
