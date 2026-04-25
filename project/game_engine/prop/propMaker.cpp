@@ -11,7 +11,6 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, float radiu
     auto renderer = std::make_shared<ObjectRenderer>("solid");
     auto sphere = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", renderer);
     auto light = Light::make();
-    sphere->setScale(4);
 
     sphere->attach(light);
     sphere->setColor(color);
@@ -20,6 +19,7 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, float radiu
     light->setAttenuation(lightAttenuation.x, lightAttenuation.y, lightAttenuation.z);
     light->setProperties(lightProperties.x, lightProperties.y, lightProperties.z, lightProperties.w);
     sphere->setPosition(position);
+    sphere->setScale(4);
 
     auto prop = std::make_shared<Prop>();
 

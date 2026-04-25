@@ -1,7 +1,4 @@
-#version 330 core
-
-
-// Uniforms sent from ObjectRenderer::updateUniforms
+#version 410 core
 in vec3 position;
 in vec2 tex_coord;
 in vec3 normal;
@@ -19,11 +16,14 @@ layout(std140) uniform CameraInfo {
     vec4 camUp;
 };
 
-void main()
-{
-    v_fragPos = vec3(model * vec4(position, 1.0));
+void main() { 
+    // Calculate world position
+    vec4 worldPos = model * vec4(position, 1.0);
+    v_fragPos = vec3(worldPos);
+    
+    // Transform normal to world space (remove scaling/translation influence)
     v_normal = mat3(transpose(inverse(model))) * normal;
-    v_t = tex_coord;
-
-    gl_Position = projection * view * vec4(v_fragPos, 1.0);
+    
+    v_t = tex_coord; 
+    gl_Position = projection * view * worldPos;
 }
