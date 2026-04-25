@@ -8,9 +8,9 @@
 std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3& position, float radius, const glm::vec3& color,
     const glm::vec4& lightProperties, const glm::vec3& lightAttenuation)
 {
-    auto renderer = std::make_shared<ObjectRenderer>("solid");
-    auto sphere = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", renderer);
-    auto light = Light::make();
+    const auto renderer = std::make_shared<ObjectRenderer>("solid");
+    const auto sphere = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", renderer);
+    const auto light = Light::make();
     sphere->attach(light);
     sphere->setColor(color);
     light->setColor(color);
@@ -32,15 +32,15 @@ std::shared_ptr<Prop> PropMaker::makeTrees(const TerrainGeneration& heightMap)
 {
     std::vector<glm::mat4> treeMatrices;
 
-    int maxRandom = PLAN_SIZE_X / 2;
-    int minRandom = -PLAN_SIZE_X / 2;
+    constexpr int maxRandom = PLAN_SIZE_X / 2;
+    constexpr int minRandom = -PLAN_SIZE_X / 2;
 
     for (int i = 0; i < 200; i++)
     {
         auto model = glm::mat4(1.0f);
-        float x = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
-        float z = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
-        float y = heightMap.getHeight(x, z);
+        const float x = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
+        const float z = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
+        const float y = heightMap.getHeight(x, z);
 
         if (y <= WATER_HEIGHT)
         {

@@ -7,10 +7,12 @@
 
 #include "entity.h"
 #include "../renderer/renderer.h"
+#include "../culling/octree.h"
 #include <memory>
 #include "../modelLoader.h"
 #include "vertex.h"
 
+class Octree;
 class Renderer;
 
 class Object : public Entity
@@ -27,13 +29,14 @@ class Object : public Entity
     float computeHeight() const;
 
     std::shared_ptr<Mesh> m_mesh = nullptr;
+    std::shared_ptr<Octree> octreeNode = nullptr;
 
 public:
     explicit Object(const char *path);
     Object(float size, float height);
 
-    static std::shared_ptr<Object> make(const char *path, std::shared_ptr<Renderer> renderer = nullptr);
-    static std::shared_ptr<Object> make(float size, float height, std::shared_ptr<Renderer> renderer = nullptr);
+    static std::shared_ptr<Object> make(const char *path, const std::shared_ptr<Renderer>& renderer = nullptr);
+    static std::shared_ptr<Object> make(float size, float height, const std::shared_ptr<Renderer>& renderer = nullptr);
 
     std::vector<glm::vec3> getPositions();
 
@@ -48,6 +51,8 @@ public:
     void setPosition(const glm::vec3 &position) override;
 
     void setColor(const glm::vec3 &color);
+
+    void setOctreeNode(const std::shared_ptr<Octree>& node);
 
     [[nodiscard]] size_t getNumVertices() const;
 
