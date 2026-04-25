@@ -1,7 +1,13 @@
 
 #include "meshRenderer.h"
 
-MeshRenderer::MeshRenderer(const std::string &shaderName) : Renderer(generateShader(shaderName)) {}
+MeshRenderer::MeshRenderer(const std::string &shaderName) : Renderer(generateShader(shaderName))
+{
+    glGenTextures(1, &emptyTexture);
+    glBindTexture(GL_TEXTURE_2D, emptyTexture);
+    unsigned int transparent = 0x00000000; // Alpha is 00
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &transparent);
+}
 
 void MeshRenderer::updateUniforms() const
 {
@@ -84,6 +90,10 @@ void MeshRenderer::render()
         if (entry.MaterialIndex < mesh->m_Textures.size() && mesh->m_Textures[entry.MaterialIndex])
         {
             mesh->m_Textures[entry.MaterialIndex]->bind();
+        }
+        else
+        {
+            glBindTexture(GL_TEXTURE_2D, emptyTexture); // Bind the "Invisible" texture
         }
 
         glBindVertexArray(_VAOs[i]);

@@ -3,17 +3,16 @@
 #include "../manager/displaymanager.h"
 #include "../entity/object.h"
 
-InstancedRenderer::InstancedRenderer(const std::string& shaderName) : MeshRenderer(shaderName)
+InstancedRenderer::InstancedRenderer(const std::string &shaderName) : MeshRenderer(shaderName)
 {
     this->createVBOs(1);
 }
-
 
 void InstancedRenderer::updateUniforms() const
 {
 }
 
-void InstancedRenderer::setInstanceMatrices(const std::vector<glm::mat4>& matrices)
+void InstancedRenderer::setInstanceMatrices(const std::vector<glm::mat4> &matrices)
 {
     _instanceCount = matrices.size();
     glBindBuffer(GL_ARRAY_BUFFER, _VBOs[0]);
