@@ -24,6 +24,7 @@ class Object : public Entity
     glm::vec3 _color;
 
     float height = 0;
+    int _scale = 1;
     float computeHeight() const;
 
     std::shared_ptr<Mesh> m_mesh = nullptr;
@@ -35,21 +36,13 @@ public:
     static std::shared_ptr<Object> make(const char *path, std::shared_ptr<Renderer> renderer = nullptr);
     static std::shared_ptr<Object> make(float size, float height, std::shared_ptr<Renderer> renderer = nullptr);
 
-    std::vector<glm::vec3> getPositions();
-
-    std::vector<glm::vec2> getTextures();
-
-    std::vector<glm::vec3> getNormals();
-
-    std::vector<Vertex> getVertices();
-
     // this weird line is there so that the overloads of Entity::setPosition stay despite the override
     using Entity::setPosition;
     void setPosition(const glm::vec3 &position) override;
 
     void setColor(const glm::vec3 &color);
 
-    [[nodiscard]] size_t getNumVertices() const;
+    void setScale(int scale);
 
     [[nodiscard]] float getHeight() const;
 
