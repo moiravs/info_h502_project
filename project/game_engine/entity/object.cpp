@@ -36,52 +36,39 @@ Object::Object(const char *path) : Entity()
 
 Object::Object(float size, float height) : Entity()
 {
-    // 4 corners of the plane
+    m_mesh = std::make_shared<Mesh>();
+
+    std::vector<Vertex> planeVertices;
+    std::vector<unsigned int> planeIndices;
+
     glm::vec3 p1(-size, height, -size);
     glm::vec3 p2(size, height, -size);
     glm::vec3 p3(size, height, size);
     glm::vec3 p4(-size, height, size);
 
-    // Texture coordinates
     glm::vec2 t1(0.0f, size);
     glm::vec2 t2(size, size);
     glm::vec2 t3(size, 0.0f);
     glm::vec2 t4(0.0f, 0.0f);
 
-    // Normal (pointing straight up)
     glm::vec3 n(0.0f, size, 0.0f);
 
-    // Triangle 1
-    vertices.push_back({p1, t1, n});
-    vertices.push_back({p2, t2, n});
-    vertices.push_back({p3, t3, n});
+    planeVertices.push_back({p1, t1, n});
+    planeVertices.push_back({p2, t2, n});
+    planeVertices.push_back({p3, t3, n});
+    planeVertices.push_back({p4, t4, n});
 
-    // Triangle 2
-    vertices.push_back({p1, t1, n});
-    vertices.push_back({p3, t3, n});
-    vertices.push_back({p4, t4, n});
+    planeIndices = {
+        0, 1, 2,
+        0, 2, 3};
+
+    Mesh::MeshEntry entry;
+    entry.Init(planeVertices, planeIndices);
+    entry.MaterialIndex = 0;
+
+    m_mesh->m_Entries.push_back(entry);
 
     this->height = computeHeight();
-}
-
-std::vector<glm::vec3> Object::getPositions()
-{
-    return positions;
-}
-
-std::vector<glm::vec2> Object::getTextures()
-{
-    return textures;
-}
-
-std::vector<glm::vec3> Object::getNormals()
-{
-    return normals;
-}
-
-std::vector<Vertex> Object::getVertices()
-{
-    return vertices;
 }
 
 float Object::computeHeight() const
@@ -108,15 +95,17 @@ float Object::getHeight() const
     return height;
 }
 
-size_t Object::getNumVertices() const
-{
-    return this->vertices.size();
-}
-
 void Object::setPosition(const glm::vec3 &position)
 {
     this->Entity::setPosition(position);
-    this->model = glm::translate(glm::mat4(1.0f), position);
+    this->model = glm::scale(glm::translate(glm::mat4(1.0f), position), glm::vec3(this->_scale));
+}
+
+void Object::setScale(int scale)
+{
+    this->_scale = scale;
+    this->model = glm::translate(glm::mat4(1.0f), this->getPosition());
+    this->model = glm::scale(this->model, glm::vec3(scale));
 }
 
 const glm::mat4 &Object::getModel() const
@@ -139,7 +128,7 @@ glm::vec3 Object::getColor() const
     return this->_color;
 }
 
-void Object::setColor(const glm::vec3& color)
+void Object::setColor(const glm::vec3 &color)
 {
     this->_color = color;
 }
