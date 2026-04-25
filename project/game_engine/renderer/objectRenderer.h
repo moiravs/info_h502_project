@@ -6,7 +6,6 @@
 class ObjectRenderer : public MeshRenderer
 {
     bool _transparent{};
-
 public:
     explicit ObjectRenderer(const std::string& shaderName);
     void updateUniforms() const override;

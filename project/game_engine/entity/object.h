@@ -9,35 +9,36 @@
 #include "../renderer/renderer.h"
 #include "../culling/octree.h"
 #include <memory>
+
+#include "renderableEntity.h"
 #include "../modelLoader.h"
 #include "vertex.h"
 
 class Octree;
 class Renderer;
 
-class Object : public Entity
+class Object : public RenderableEntity
 {
     std::vector<glm::vec3> positions;
     std::vector<glm::vec2> textures;
     std::vector<glm::vec3> normals;
     std::vector<Vertex> vertices;
-    glm::mat4 model = glm::mat4(1.0);
 
     glm::vec3 _color;
 
     float height = 0;
-    int _scale = 1;
+    glm::vec3 _scale;
     float computeHeight() const;
 
     std::shared_ptr<Mesh> m_mesh = nullptr;
     std::shared_ptr<Octree> octreeNode = nullptr;
 
 public:
-    explicit Object(const char *path);
-    Object(float size, float height);
+    explicit Object(const char *path, const std::shared_ptr<Renderer>& renderer);
+    Object(float size, float height, const std::shared_ptr<Renderer>& renderer);
 
-    static std::shared_ptr<Object> make(const char *path, const std::shared_ptr<Renderer>& renderer = nullptr);
-    static std::shared_ptr<Object> make(float size, float height, const std::shared_ptr<Renderer>& renderer = nullptr);
+    static std::shared_ptr<Object> make(const char *path, const std::string &shader);
+    static std::shared_ptr<Object> make(float size, float height, const std::string &shader);
 
     // this weird line is there so that the overloads of Entity::setPosition stay despite the override
     using Entity::setPosition;
@@ -45,17 +46,18 @@ public:
 
     void setColor(const glm::vec3 &color);
 
-    void setScale(int scale);
+    void setScale(const glm::vec3 &scale);
 
     void setOctreeNode(const std::shared_ptr<Octree>& node);
+
+    void render() override;
 
     [[nodiscard]] float getHeight() const;
 
     [[nodiscard]] glm::vec3 getColor() const;
 
-    [[nodiscard]] const glm::mat4 &getModel() const;
-    std::shared_ptr<Mesh> getMesh() const { return m_mesh; }
+    [[nodiscard]] glm::mat4 getModel() const override;
 
-    void registerRenderer(const std::shared_ptr<Renderer> &renderer);
+    std::shared_ptr<Mesh> getMesh() const;
 };
 #endif

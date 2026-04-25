@@ -6,21 +6,22 @@
 
 Renderer::Renderer(std::shared_ptr<Shader> shader) : _shader(std::move(shader)) {}
 
-void Renderer::registerObject(std::shared_ptr<Object> object)
-{
-    if (this->_object)
-    {
-        ERROR("An object is already assigned to this renderer.");
-        return;
-    }
-
-    this->_object = std::move(object);
-}
-
 Renderer::~Renderer()
 {
     this->clearVAOs();
     this->clearVBOs();
+}
+
+void Renderer::registerEntity(const std::shared_ptr<RenderableEntity>& entity)
+{
+    if (this->_entity)
+    {
+        ERROR("An entity is already assigned to this renderer.");
+        return;
+    }
+
+    this->_entity = entity;
+    this->setupVAOs();
 }
 
 std::shared_ptr<Shader> Renderer::generateShader(const std::string& shaderName)
@@ -70,6 +71,3 @@ void Renderer::render()
     this->updateUniforms();
     this->getShader()->use();
 }
-
-void Renderer::setupVAOs()
-{}
