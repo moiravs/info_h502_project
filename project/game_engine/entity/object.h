@@ -24,6 +24,7 @@ class Object : public Entity
     glm::vec3 _color;
 
     float height = 0;
+    int _scale = 1;
     float computeHeight() const;
 
     std::shared_ptr<Mesh> m_mesh = nullptr;
@@ -48,6 +49,8 @@ public:
     void setPosition(const glm::vec3 &position) override;
 
     void setColor(const glm::vec3 &color);
+
+    void setScale(int scale);
 
     [[nodiscard]] size_t getNumVertices() const;
 

@@ -6,15 +6,15 @@
 
 #include "../../utils/constants.h"
 
-Entity::Attachment::Attachment(const std::shared_ptr<Entity>& entity, const glm::vec3& offset)
+Entity::Attachment::Attachment(const std::shared_ptr<Entity> &entity, const glm::vec3 &offset)
 {
     this->entity = entity;
     this->offset = offset;
 }
 
-Entity::Entity(glm::vec3 pos, glm::vec3 up): Entity(pos, 0, 0, up) {}
+Entity::Entity(glm::vec3 pos, glm::vec3 up) : Entity(pos, 0, 0, up) {}
 
-Entity::Entity(glm::vec3 pos, float yaw, float pitch, glm::vec3 up): _pos(pos), _up(up), _yaw(yaw), _pitch(pitch)
+Entity::Entity(glm::vec3 pos, float yaw, float pitch, glm::vec3 up) : _pos(pos), _up(up), _yaw(yaw), _pitch(pitch)
 {
     this->Entity::updateRotation();
 }
@@ -34,14 +34,14 @@ float Entity::getYaw() const
     return this->_yaw;
 }
 
-void Entity::attach(const std::shared_ptr<Entity>& entity, const glm::vec3 offset)
+void Entity::attach(const std::shared_ptr<Entity> &entity, const glm::vec3 offset)
 {
     const auto a = Attachment(entity, offset);
     this->_attached.push_back(a);
     this->updatePositionAttached(a);
 }
 
-void Entity::updatePositionAttached(const Attachment& attachment) const
+void Entity::updatePositionAttached(const Attachment &attachment) const
 {
     const glm::mat3 rotation(this->_right, this->_up, this->_front);
 
@@ -55,11 +55,11 @@ void Entity::setPosition(const float x, const float y, const float z)
     this->setPosition(glm::vec3(x, y, z));
 }
 
-void Entity::setPosition(const glm::vec3& position)
+void Entity::setPosition(const glm::vec3 &position)
 {
     this->_pos = position;
 
-    for (const auto& a: this->_attached)
+    for (const auto &a : this->_attached)
         this->updatePositionAttached(a);
 }
 
@@ -98,15 +98,15 @@ void Entity::updateRotation()
 
 void Entity::updateRotationAttached() const
 {
-    for (const auto &a: _attached)
+    for (const auto &a : _attached)
     {
         a.entity->forceSetRotation(_front, _up, _right, _yaw, _pitch);
         this->updatePositionAttached(a);
     }
 }
 
-void Entity::forceSetRotation(const glm::vec3& front, const glm::vec3& up, const glm::vec3& right,
-    const float yaw, const float pitch)
+void Entity::forceSetRotation(const glm::vec3 &front, const glm::vec3 &up, const glm::vec3 &right,
+                              const float yaw, const float pitch)
 {
     this->_front = front;
     this->_up = up;
