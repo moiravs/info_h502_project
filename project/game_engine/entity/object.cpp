@@ -7,25 +7,24 @@
 #include "../manager/octreeManager.h"
 #include "../renderer/objectRenderer.h"
 
-std::shared_ptr<Object> Object::make(const char *path, const std::shared_ptr<Renderer>& renderer)
+std::shared_ptr<Object> Object::make(const char *path, const std::string &shader)
 {
-    const auto ret = std::make_shared<Object>(path);
-    ret->registerRenderer(renderer);
+    const auto renderer = std::make_shared<ObjectRenderer>(shader);
+    const auto ret = std::make_shared<Object>(path, renderer);
     OctreeManager::get()->put(ret, ret->getPosition());
     return ret;
 }
 
-std::shared_ptr<Object> Object::make(float size, float height, const std::shared_ptr<Renderer>& renderer)
+std::shared_ptr<Object> Object::make(float size, float height, const std::string &shader)
 {
-    const auto ret = std::make_shared<Object>(size, height);
-    ret->registerRenderer(renderer);
+    const auto renderer = std::make_shared<ObjectRenderer>(shader);
+    const auto ret = std::make_shared<Object>(size, height, renderer);
     OctreeManager::get()->put(ret, ret->getPosition());
     return ret;
 }
 
-Object::Object(const char *path) : Entity()
+Object::Object(const char *path, const std::shared_ptr<Renderer>& renderer) : RenderableEntity(renderer)
 {
-
     height = computeHeight();
 
     m_mesh = std::make_shared<Mesh>();
@@ -37,7 +36,7 @@ Object::Object(const char *path) : Entity()
     // computeHeight can now iterate through m_mesh.m_Entries
 }
 
-Object::Object(float size, float height) : Entity()
+Object::Object(float size, float height, const std::shared_ptr<Renderer>& renderer) : RenderableEntity(renderer)
 {
     m_mesh = std::make_shared<Mesh>();
 
@@ -100,35 +99,22 @@ float Object::getHeight() const
 
 void Object::setPosition(const glm::vec3 &position)
 {
-    this->Entity::setPosition(position);
-    this->model = glm::translate(glm::mat4(1.0f), position);
+    this->RenderableEntity::setPosition(position);
     if (const auto obj = std::dynamic_pointer_cast<Object>(this->shared_from_this()))
     {
         this->octreeNode->moveObject(obj, this->getPosition());
     }
-    this->model = glm::scale(glm::translate(glm::mat4(1.0f), position), glm::vec3(this->_scale));
 }
 
-void Object::setScale(const int scale)
+void Object::setScale(const glm::vec3 &scale)
 {
     this->_scale = scale;
-    this->model = glm::translate(glm::mat4(1.0f), this->getPosition());
-    this->model = glm::scale(this->model, glm::vec3(scale));
+    this->dirty();
 }
 
-const glm::mat4 &Object::getModel() const
+glm::mat4 Object::getModel() const
 {
-    return this->model;
-}
-
-void Object::registerRenderer(const std::shared_ptr<Renderer> &renderer)
-{
-    if (!renderer)
-        return;
-    if (const auto obj = std::dynamic_pointer_cast<Object>(this->shared_from_this()))
-    {
-        renderer->registerObject(obj);
-    }
+    return glm::scale(RenderableEntity::getModel(), this->_scale);
 }
 
 glm::vec3 Object::getColor() const
@@ -139,9 +125,15 @@ glm::vec3 Object::getColor() const
 void Object::setColor(const glm::vec3 &color)
 {
     this->_color = color;
+    this->dirty();
 }
 
 void Object::setOctreeNode(const std::shared_ptr<Octree>& node)
 {
     this->octreeNode = node;
+}
+
+std::shared_ptr<Mesh> Object::getMesh() const
+{
+    return this->m_mesh;
 }

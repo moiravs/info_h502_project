@@ -49,7 +49,7 @@ public:
     [[nodiscard]] float getPitch() const;
 
     void rotate(float dyaw, float dpitch);
-    void setRotation(float yaw, float pitch);
+    virtual void setRotation(float yaw, float pitch);
 
     bool operator==(const Entity &other) const;
 };

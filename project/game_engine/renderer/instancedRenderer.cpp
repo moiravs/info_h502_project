@@ -4,10 +4,7 @@
 #include "../entity/object.h"
 
 InstancedRenderer::InstancedRenderer(const std::string& shaderName) : MeshRenderer(shaderName)
-{
-    this->createVBOs(1);
-}
-
+{}
 
 void InstancedRenderer::updateUniforms() const
 {

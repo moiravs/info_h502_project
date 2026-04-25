@@ -1,27 +1,32 @@
 
 #include "meshRenderer.h"
 
+#include "../../utils/utils.h"
+
 MeshRenderer::MeshRenderer(const std::string& shaderName): Renderer(generateShader(shaderName)) {}
 
 void MeshRenderer::updateUniforms() const
 {}
 
-void MeshRenderer::registerObject(const std::shared_ptr<Object> object)
+std::shared_ptr<Object> MeshRenderer::getObject() const
 {
-    Renderer::registerObject(object);
-
-    if (!this->_object->getMesh())
-        return;
-    this->setupVAOs();
+    const auto obj = std::dynamic_pointer_cast<Object>(this->_entity);
+    if (!obj)
+    {
+        ERROR("The entity linked to this renderer is not of the correct type");
+    }
+    return obj;
 }
 
 void MeshRenderer::setupVAOs()
 {
-    if (!this->_object || !this->_object->getMesh())
+    if (!this->getObject() || !this->getObject()->getMesh())
         return;
 
-    const auto &mesh = this->_object->getMesh();
+    const auto &mesh = this->getObject()->getMesh();
     this->createVAOs(mesh->m_Entries.size());
+    this->createVBOs(1);
+
     for (unsigned int i = 0; i < mesh->m_Entries.size(); i++)
     {
         glBindVertexArray(_VAOs[i]);
@@ -46,7 +51,6 @@ void MeshRenderer::setupVAOs()
         {
             glEnableVertexAttribArray(att_normal);
             glVertexAttribPointer(att_normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, Normal)));
-
         }
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->m_Entries[i].IB);
@@ -62,6 +66,13 @@ void MeshRenderer::setupVAOs()
                 glVertexAttribDivisor(att_model + j, 1);
             }
         }
+
+        const auto att_color = glGetAttribLocation(_shader->getID(), "materialColor");
+        if (att_color >= 0)
+        {
+            glEnableVertexAttribArray(att_color);
+            glVertexAttribPointer(att_color, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), nullptr);
+        }
     }
     glBindVertexArray(0);
 }
@@ -70,8 +81,8 @@ void MeshRenderer::render()
 {
     Renderer::render(); // Updates shader uniforms
 
-    if (!_object->getMesh()) return;
-    const auto mesh = _object->getMesh();
+    if (!getObject()->getMesh()) return;
+    const auto mesh = getObject()->getMesh();
 
     for (unsigned int i = 0; i < _VAOs.size(); i++)
     {
