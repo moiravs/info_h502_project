@@ -4,6 +4,13 @@ out vec4 FragColor;
 
 #define MAX_LIGHTS 128
 
+uniform vec3 mistColor;
+uniform float mistDensity;
+uniform vec3 cameraPos;
+uniform float fogMaxHeight;  
+uniform float fogMinHeight;   
+uniform float fogDensity;  
+
 layout(std140) uniform Lights {
     vec4 lightPositions[MAX_LIGHTS];
     vec4 lightProperties[MAX_LIGHTS];
@@ -58,6 +65,17 @@ void main()
 
         result += (ambient + diffuse) * baseColor * attenuation;
     }
+    float dist = length(v_fragPos - cameraPos.xyz);
 
-    FragColor = vec4(result, 1.0);
+    float heightFactor = clamp((fogMaxHeight - v_fragPos.y) / (fogMaxHeight - fogMinHeight), 0.0, 1.0);
+    
+    float effectiveDensity = fogDensity * heightFactor;
+    
+    float mistFactor = exp(-effectiveDensity * dist);
+    mistFactor = clamp(mistFactor, 0.0, 1.0);
+
+    vec3 outColor = mix(mistColor, result, mistFactor);
+
+    FragColor = vec4(outColor, 1);
+
 }

@@ -1,4 +1,5 @@
 #include "terrainRenderer.h"
+#include "../mainCamera.h"
 
 TerrainRenderer::TerrainRenderer(TerrainGeneration &terrain_gen)
     : Renderer(this->generateShader("cpu_height")), m_texture(terrain_gen)
@@ -33,7 +34,24 @@ TerrainRenderer::TerrainRenderer(TerrainGeneration &terrain_gen)
 }
 
 void TerrainRenderer::updateUniforms() const
-{}
+{
+    auto mistColLoc = glGetUniformLocation(_shader->getID(), "mistColor");
+    auto mistDenLoc = glGetUniformLocation(_shader->getID(), "mistDensity");
+    auto camPosLoc = glGetUniformLocation(_shader->getID(), "cameraPos");
+    auto fogMaxHeight = glGetUniformLocation(_shader->getID(), "fogMaxHeight");
+    auto fogMinHeight = glGetUniformLocation(_shader->getID(), "fogMinHeight");
+    auto fogDensity = glGetUniformLocation(_shader->getID(), "fogDensity");
+
+    _shader->use();
+    glUniform3f(mistColLoc, 0.5f, 0.6f, 0.7f);
+    glUniform1f(mistDenLoc, 0.0f);
+    glUniform1f(fogDensity, 0.001);
+    glUniform1f(fogMaxHeight, 40);
+    glUniform1f(fogMinHeight, 1);
+
+    auto camera = MainCamera::get();
+    glUniform3f(camPosLoc, camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
+}
 
 void TerrainRenderer::render()
 {
