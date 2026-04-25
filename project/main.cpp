@@ -7,7 +7,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "utils/utils.h"
-#include <glm/gtx/color_space.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 // the include below must NOT be removed
@@ -21,12 +20,9 @@
 #include "game_engine/terrainGeneration.h"
 #include "game_engine/manager/displaymanager.h"
 #include "game_engine/mainCamera.h"
-#include "game_engine/renderable.h"
-#include "game_engine/renderer/objectRenderer.h"
 #include "game_engine/renderer/terrainRenderer.h"
 #include "game_engine/waterFrameBuffer.h"
 #include "game_engine/renderer/waterRenderer.h"
-#include "game_engine/renderer/instancedRenderer.h"
 
 #include "game_engine/skybox.h"
 #include "game_engine/manager/lightManager.h"
@@ -36,6 +32,7 @@
 #include "game_engine/renderer/particleRenderer.h"
 #include "game_engine/prop/propMaker.h"
 #include "game_engine/game.h"
+#include "game_engine/culling/octree.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 

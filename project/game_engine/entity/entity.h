@@ -16,6 +16,7 @@ class Entity : public std::enable_shared_from_this<Entity>
         Attachment(const std::shared_ptr<Entity> &entity, const glm::vec3 &offset);
     };
 
+    size_t id;
     std::vector<Attachment> _attached = {};
     glm::vec3 _pos = glm::vec3(0, 0, 0);
     glm::vec3 _front = glm::vec3(1, 0, 0);
@@ -49,6 +50,8 @@ public:
 
     void rotate(float dyaw, float dpitch);
     void setRotation(float yaw, float pitch);
+
+    bool operator==(const Entity &other) const;
 };
 
 #endif // INFOH502_CPP_ENTITY_H
