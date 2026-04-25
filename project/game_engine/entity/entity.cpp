@@ -5,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "../../utils/constants.h"
+#include "../manager/idmanager.h"
 
 Entity::Attachment::Attachment(const std::shared_ptr<Entity> &entity, const glm::vec3 &offset)
 {
@@ -14,7 +15,8 @@ Entity::Attachment::Attachment(const std::shared_ptr<Entity> &entity, const glm:
 
 Entity::Entity(glm::vec3 pos, glm::vec3 up) : Entity(pos, 0, 0, up) {}
 
-Entity::Entity(glm::vec3 pos, float yaw, float pitch, glm::vec3 up) : _pos(pos), _up(up), _yaw(yaw), _pitch(pitch)
+Entity::Entity(glm::vec3 pos, float yaw, float pitch, glm::vec3 up)
+: id(IDManager::generateID()), _pos(pos), _up(up), _yaw(yaw), _pitch(pitch)
 {
     this->Entity::updateRotation();
 }
@@ -128,4 +130,9 @@ void Entity::setRotation(const float yaw, const float pitch)
     this->_pitch = pitch;
 
     this->updateRotation();
+}
+
+bool Entity::operator==(const Entity& other) const
+{
+    return this->id == other.id;
 }
