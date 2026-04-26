@@ -10,7 +10,7 @@
 
 class WaterRenderer : public Renderer
 {
-    Texture dudvMap = Texture(PATH_TO_SRC "/../assets/textures/waterdudv.png");
+    // Texture dudvMap = Texture(PATH_TO_SRC "/../assets/textures/waterdudv.png");
 
     bool transparent;
     std::shared_ptr<WaterFrameBuffer> _fbos;
