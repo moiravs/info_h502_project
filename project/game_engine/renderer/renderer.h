@@ -1,14 +1,12 @@
 
 #ifndef Renderer_H
 #define Renderer_H
-#include "../renderable.h"
-#include "../entity/object.h"
 #include "../shader.h"
 #include "glad/glad.h"
 
-class Object;
+class RenderableEntity;
 
-class Renderer : public Renderable
+class Renderer
 {
 protected:
     std::shared_ptr<Shader> _shader = nullptr;
@@ -26,11 +24,11 @@ protected:
 public:
     explicit Renderer(std::shared_ptr<Shader> shader);
     virtual void updateUniforms() const = 0;
-    ~Renderer() override;
+    virtual ~Renderer();
     virtual void registerEntity(const std::shared_ptr<RenderableEntity> &entity);
     // this method should eventually be protected/removed
     std::shared_ptr<Shader> getShader();
-    void render() override;
+    virtual void render();
 };
 
 #endif

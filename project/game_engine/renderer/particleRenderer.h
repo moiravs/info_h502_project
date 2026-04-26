@@ -2,8 +2,13 @@
 #define PARTICLE_H
 
 #include <glad/glad.h>
-#include "../entity/object.h"
-#include "../mainCamera.h"
+#include <glm/glm.hpp>
+
+#include "renderer.h"
+#include "../../utils/constants.h"
+
+class ParticleGenerator;
+
 // Represents a single particle and its state
 struct Particle
 {
@@ -25,18 +30,6 @@ struct Particle
     }
 };
 
-struct ParticleParams
-{
-    glm::vec3 spawnPoint;
-    float spread;
-    float range;
-    float initialSize;
-    float maxLife = 1.f;
-    glm::vec3 color1;
-    glm::vec3 color2;
-    glm::vec3 color3;
-};
-
 // ParticleGenerator acts as a container for rendering a large number of
 // particles by repeatedly spawning and updating particles and killing
 // them after a given amount of time.
@@ -50,16 +43,17 @@ protected:
 
     int lastUsedParticle = 0;
     Particle particlesContainer[MAX_PARTICLES];
-    ParticleParams params;
 
+    void setupVAOs() override;
 public:
     virtual void update(double delta);
     int findUnusedParticle();
     void sortParticles();
     void render() override;
     void updateUniforms() const override;
+    std::shared_ptr<ParticleGenerator> getGenerator() const;
 
-    explicit ParticleRenderer(const ParticleParams &params);
+    explicit ParticleRenderer(const std::string &shader);
     ~ParticleRenderer() override;
 };
 

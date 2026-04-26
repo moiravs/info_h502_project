@@ -136,3 +136,7 @@ bool Entity::operator==(const Entity& other) const
 {
     return this->id == other.id;
 }
+
+void Entity::update(const float delta)
+{
+}

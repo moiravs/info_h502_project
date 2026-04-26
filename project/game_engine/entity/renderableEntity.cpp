@@ -1,12 +1,14 @@
 
 #include "renderableEntity.h"
 
+#include "../renderer/renderer.h"
+#include "../culling/octree.h"
+
 RenderableEntity::RenderableEntity(const std::shared_ptr<Renderer> &renderer)
 : Entity(), _renderer(renderer), _dirty(true)
-{
-}
+{}
 
-std::shared_ptr<Renderer> RenderableEntity::getRenderer()
+std::shared_ptr<Renderer> RenderableEntity::getRenderer() const
 {
     return this->_renderer;
 }
@@ -31,6 +33,10 @@ void RenderableEntity::dirty()
 void RenderableEntity::setPosition(const glm::vec3& position)
 {
     Entity::setPosition(position);
+    if (const auto obj = std::dynamic_pointer_cast<RenderableEntity>(this->shared_from_this()))
+    {
+        this->octreeNode->moveObject(obj, this->getPosition());
+    }
     this->dirty();
 }
 
@@ -38,4 +44,33 @@ void RenderableEntity::setRotation(const float yaw, const float pitch)
 {
     Entity::setRotation(yaw, pitch);
     this->dirty();
+}
+
+bool RenderableEntity::isDirty() const
+{
+    return this->_dirty;
+}
+
+void RenderableEntity::render(const float delta)
+{
+    if (this->shouldUpdate())
+        this->update(delta);
+
+    this->_dirty = false;
+    this->_renderer->render();
+}
+
+void RenderableEntity::setOctreeNode(const std::shared_ptr<Octree>& node)
+{
+    this->octreeNode = node;
+}
+
+void RenderableEntity::update(const float delta)
+{
+    this->_renderer->updateUniforms();
+}
+
+bool RenderableEntity::shouldUpdate() const
+{
+    return this->isDirty();
 }

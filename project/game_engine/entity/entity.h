@@ -24,6 +24,7 @@ class Entity : public std::enable_shared_from_this<Entity>
     glm::vec3 _right = glm::vec3(0, 0, 0);
     float _yaw;
     float _pitch;
+    float _lastTime;
 
     void forceSetRotation(const glm::vec3 &front, const glm::vec3 &up, const glm::vec3 &right, float yaw, float pitch);
     inline void updateRotationAttached() const;
@@ -50,6 +51,7 @@ public:
 
     void rotate(float dyaw, float dpitch);
     virtual void setRotation(float yaw, float pitch);
+    virtual void update(float delta);
 
     bool operator==(const Entity &other) const;
 };

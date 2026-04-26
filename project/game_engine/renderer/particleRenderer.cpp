@@ -3,12 +3,13 @@
 #include "particleRenderer.h"
 
 #include "../../utils/utils.h"
+#include "../entity/particleGenerator.h"
 
 #define VBO_VERTEX 0
 #define VBO_POSITION 1
 #define VBO_COLOR 2
 
-ParticleRenderer::ParticleRenderer(const ParticleParams& params) : Renderer(generateShader("part")), params(params)
+void ParticleRenderer::setupVAOs()
 {
     constexpr float vertexData[18] = {
         // vertices
@@ -59,6 +60,9 @@ ParticleRenderer::ParticleRenderer(const ParticleParams& params) : Renderer(gene
         this->particlesContainer[i].life = -1.0;
     }
 }
+
+ParticleRenderer::ParticleRenderer(const std::string &shader) : Renderer(generateShader(shader))
+{}
 
 void ParticleRenderer::updateUniforms() const
 {
@@ -111,6 +115,8 @@ void ParticleRenderer::sortParticles()
 
 void ParticleRenderer::update(const double delta)
 {
+    const auto& params = this->getGenerator()->getParams();
+    const auto& position = this->getGenerator()->getPosition();
     particleCount = 0;
     int newParticle = delta * 1000.0f;
     if (newParticle > static_cast<int>(0.032f * 1000.0))
@@ -128,9 +134,9 @@ void ParticleRenderer::update(const double delta)
         const float offsetZ = ((rand() % 1000 / 1000.0f) - 0.5f) * params.range;
 
         this->particlesContainer[particleIdx].pos = glm::vec3(
-            params.spawnPoint.x + offsetX,
-            params.spawnPoint.y,
-            params.spawnPoint.z + offsetZ);
+            position.x + offsetX,
+            position.y,
+            position.z + offsetZ);
 
         const float vx = ((rand() % 100 - 50) / 250.0f);
         const float vz = ((rand() % 100 - 50) / 250.0f);
@@ -193,4 +199,14 @@ ParticleRenderer::~ParticleRenderer()
 {
     delete[] this->g_particule_color_data;
     delete[] this->g_particule_position_size_data;
+}
+
+std::shared_ptr<ParticleGenerator> ParticleRenderer::getGenerator() const
+{
+    const auto obj = std::dynamic_pointer_cast<ParticleGenerator>(this->_entity);
+    if (!obj)
+    {
+        ERROR("The entity linked to this renderer is of the wrong type.");
+    }
+    return obj;
 }

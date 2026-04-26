@@ -31,13 +31,13 @@ short Octree::getSubOctreeContaining(const glm::vec3& point) const
     return oct;
 }
 
-void Octree::put(const std::shared_ptr<Object>& object, const glm::vec3& position)
+void Octree::put(const std::shared_ptr<RenderableEntity>& object, const glm::vec3& position)
 {
     const std::vector toPut = {object};
     this->put(toPut, position);
 }
 
-void Octree::put(const std::vector<std::shared_ptr<Object>>& objects, const glm::vec3& position)
+void Octree::put(const std::vector<std::shared_ptr<RenderableEntity>>& objects, const glm::vec3& position)
 {
     const short subOctreeIndexNew = this->getSubOctreeContaining(position);
     if (subOctreeIndexNew < 0)
@@ -81,7 +81,7 @@ void Octree::put(const std::vector<std::shared_ptr<Object>>& objects, const glm:
     this->data = {};
 }
 
-void Octree::moveObject(const std::shared_ptr<Object>& object, const glm::vec3& newPosition)
+void Octree::moveObject(const std::shared_ptr<RenderableEntity>& object, const glm::vec3& newPosition)
 {
     auto it = this->data.begin();
     for (; it != this->data.end(); ++it)
@@ -101,7 +101,7 @@ void Octree::moveObject(const std::shared_ptr<Object>& object, const glm::vec3& 
     this->moveObjectUp(object, newPosition);
 }
 
-void Octree::moveObjectUp(const std::shared_ptr<Object>& object, const glm::vec3& position)
+void Octree::moveObjectUp(const std::shared_ptr<RenderableEntity>& object, const glm::vec3& position)
 {
     auto [shouldSmash, childData] = this->childrenAllLeafAndSmashable();
     if (shouldSmash)
@@ -120,20 +120,20 @@ void Octree::moveObjectUp(const std::shared_ptr<Object>& object, const glm::vec3
         ERROR("No parent.");
 }
 
-std::pair<bool, std::vector<std::shared_ptr<Object>>> Octree::childrenAllLeafAndSmashable() const
+std::pair<bool, std::vector<std::shared_ptr<RenderableEntity>>> Octree::childrenAllLeafAndSmashable() const
 {
-    std::vector<std::shared_ptr<Object>> objects = {};
+    std::vector<std::shared_ptr<RenderableEntity>> objects = {};
     for (const auto& c : this->children)
     {
         // a node is not a leaf: it's not smashable
-        if (c != nullptr && !c->isLeaf()) return std::make_pair<bool, std::vector<std::shared_ptr<Object>>>(false, {});
+        if (c != nullptr && !c->isLeaf()) return std::make_pair<bool, std::vector<std::shared_ptr<RenderableEntity>>>(false, {});
 
         // a node is a leaf, and it has objects
         // if we already found one like that, we can't squash the structure
         if (c != nullptr && c->data.size() > 0)
         {
             if (objects.size() == 0) objects = c->getData();
-            else return std::make_pair<bool, std::vector<std::shared_ptr<Object>>>(false, {});
+            else return std::make_pair<bool, std::vector<std::shared_ptr<RenderableEntity>>>(false, {});
         }
     }
 
@@ -145,7 +145,7 @@ std::array<std::shared_ptr<Octree>, 8> Octree::getChildren()
     return this->children;
 }
 
-std::vector<std::shared_ptr<Object>> Octree::getData()
+std::vector<std::shared_ptr<RenderableEntity>> Octree::getData()
 {
     return this->data;
 }

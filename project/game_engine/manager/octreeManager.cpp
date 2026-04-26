@@ -1,6 +1,8 @@
 
 #include "octreeManager.h"
 
+#include "../culling/octree.h"
+
 std::shared_ptr<Octree> OctreeManager::_instance = nullptr;
 
 std::shared_ptr<Octree> OctreeManager::get()

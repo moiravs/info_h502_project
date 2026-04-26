@@ -14,7 +14,7 @@ class InstancedRenderer : public MeshRenderer
     unsigned int _instanceCount;
 
 public:
-    InstancedRenderer(const std::string& shaderName);
+    explicit InstancedRenderer(const std::string& shaderName);
     void setInstanceMatrices(const std::vector<glm::mat4> &matrices);
     void updateUniforms() const override;
     void drawElements(int numTriangles) override;

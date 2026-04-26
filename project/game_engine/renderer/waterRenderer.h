@@ -3,12 +3,13 @@
 
 #include <vector>
 
+#include "meshRenderer.h"
 #include "../entity/object.h"
 #include "../waterFrameBuffer.h"
 #include "renderer.h"
 #include "../texture.h"
 
-class WaterRenderer : public Renderer
+class WaterRenderer : public MeshRenderer
 {
     Texture dudvMap = Texture(PATH_TO_SRC "/../assets/textures/waterdudv.png");
 
@@ -18,7 +19,8 @@ class WaterRenderer : public Renderer
 public:
     explicit WaterRenderer(std::shared_ptr<WaterFrameBuffer> fbos);
     void updateUniforms() const override;
-    void registerObject(std::shared_ptr<Object> object) override;
+    void setupVAOs() override;
+    void registerEntity(const std::shared_ptr<RenderableEntity>& entity) override;
     void render() override;
 };
 #endif

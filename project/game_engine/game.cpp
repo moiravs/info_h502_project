@@ -3,15 +3,15 @@
 Game::Game()
 {
 }
-void Game::renderScene(const std::vector<std::shared_ptr<Renderable>> &renderers)
+void Game::renderScene(const float delta, const std::vector<std::shared_ptr<Renderable>> &renderers)
 {
     for (const auto &i : renderers)
     {
-        i->render();
+        i->render(delta);
     }
 }
 
-void Game::checkTerrainCollision(std::shared_ptr<Entity> entity, TerrainGeneration terrain)
+void Game::checkTerrainCollision(const std::shared_ptr<Entity>& entity, const TerrainGeneration& terrain)
 {
     glm::vec3 pos = entity->getPosition();
 

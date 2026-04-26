@@ -3,10 +3,10 @@
 
 #include "../../utils/utils.h"
 
-void Prop::render()
+void Prop::render(const float delta)
 {
-    for (const auto& r: this->_renderers)
-        r->render();
+    for (const auto& r: this->_renderables)
+        r->render(delta);
 }
 
 void Prop::addEntity(const std::shared_ptr<Entity>& entity)
@@ -14,9 +14,9 @@ void Prop::addEntity(const std::shared_ptr<Entity>& entity)
     this->_entities.push_back(entity);
 }
 
-void Prop::addRenderer(const std::shared_ptr<Renderer>& renderer)
+void Prop::addRenderable(const std::shared_ptr<Renderable>& renderer)
 {
-    this->_renderers.push_back(renderer);
+    this->_renderables.push_back(renderer);
 }
 
 void Prop::setPosition(const glm::vec3& position) const

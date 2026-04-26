@@ -1,12 +1,10 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include <iostream>
 #include <vector>
 #include <glm/glm.hpp>
 
 #include "entity.h"
-#include "../renderer/renderer.h"
 #include "../culling/octree.h"
 #include <memory>
 
@@ -31,8 +29,6 @@ class Object : public RenderableEntity
     float computeHeight() const;
 
     std::shared_ptr<Mesh> m_mesh = nullptr;
-    std::shared_ptr<Octree> octreeNode = nullptr;
-
 public:
     explicit Object(const char *path, const std::shared_ptr<Renderer>& renderer);
     Object(float size, float height, const std::shared_ptr<Renderer>& renderer);
@@ -47,10 +43,6 @@ public:
     void setColor(const glm::vec3 &color);
 
     void setScale(const glm::vec3 &scale);
-
-    void setOctreeNode(const std::shared_ptr<Octree>& node);
-
-    void render() override;
 
     [[nodiscard]] float getHeight() const;
 
