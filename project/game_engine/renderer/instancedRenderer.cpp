@@ -3,8 +3,9 @@
 #include "../manager/displaymanager.h"
 #include "../entity/object.h"
 
-InstancedRenderer::InstancedRenderer(const std::string& shaderName) : MeshRenderer(shaderName)
-{}
+InstancedRenderer::InstancedRenderer(const std::string& shaderName) : MeshRenderer(shaderName), _instanceCount(0)
+{
+}
 
 void InstancedRenderer::updateUniforms() const
 {

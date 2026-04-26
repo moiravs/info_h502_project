@@ -3,7 +3,7 @@
 #define INFOH502_CPP_OCTREEMANAGER_H
 #include <memory>
 
-#include "../culling/octree.h"
+class Octree;
 
 class OctreeManager {
     OctreeManager()=default;

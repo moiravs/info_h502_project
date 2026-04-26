@@ -5,20 +5,20 @@
 #include <vector>
 
 #include "../renderable.h"
-#include "../renderer/renderer.h"
+#include "../entity/object.h"
 
 class Prop : public Renderable {
-    std::vector<std::shared_ptr<Renderer>> _renderers{};
+    std::vector<std::shared_ptr<Renderable>> _renderables{};
     std::vector<std::shared_ptr<Entity>> _entities{};
     std::shared_ptr<Object> _mainObject = nullptr;
 public:
     Prop()=default;
-    void addRenderer(const std::shared_ptr<Renderer>& renderer);
+    void addRenderable(const std::shared_ptr<Renderable>& renderable);
     void addEntity(const std::shared_ptr<Entity>& entity);
     void setMainObject(const std::shared_ptr<Object>& mainObject);
     [[nodiscard]] std::shared_ptr<Object> getMainObject();
     void setPosition(const glm::vec3& position) const;
-    void render() override;
+    void render(float delta) override;
 };
 
 #endif //INFOH502_CPP_PROPBUILDER_H

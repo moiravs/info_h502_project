@@ -6,7 +6,7 @@ class Renderable
 {
 public:
     virtual ~Renderable() = default;
-    virtual void render()=0;
+    virtual void render(float delta)=0;
 };
 
 #endif //INFOH502_CPP_RENDERABLE_H

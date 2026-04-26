@@ -1,21 +1,28 @@
 #include "waterRenderer.h"
 
 WaterRenderer::WaterRenderer(std::shared_ptr<WaterFrameBuffer> fbos)
-    : Renderer(this->generateShader("water")), transparent(false), _fbos(std::move(fbos))
+    : MeshRenderer("water"), transparent(false), _fbos(std::move(fbos))
+{}
+
+void WaterRenderer::registerEntity(const std::shared_ptr<RenderableEntity>& entity)
 {
-    this->createVAOs(1);
-    this->createVBOs(1);
+    this->MeshRenderer::registerEntity(entity);
+
+    this->_shader->setInteger("reflectionTexture", 0);
+    this->_shader->setInteger("refractionTexture", 1);
+    this->_shader->setInteger("dudvMap", 2);
 }
 
-void WaterRenderer::registerObject(const std::shared_ptr<Object> object)
+void WaterRenderer::setupVAOs()
 {
-    this->Renderer::registerObject(object);
-
     // define VBO and VAO as active buffer and active vertex array
-    const auto &mesh = object->getMesh();
+    const auto &mesh = this->getObject()->getMesh();
 
     if (mesh->m_Entries.empty())
         return;
+
+    this->createVAOs(1);
+    this->createVBOs(1);
 
     glBindVertexArray(_VAOs[0]);
 
@@ -46,15 +53,11 @@ void WaterRenderer::registerObject(const std::shared_ptr<Object> object)
     // desactive the buffer
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-
-    this->_shader->setInteger("reflectionTexture", 0);
-    this->_shader->setInteger("refractionTexture", 1);
-    this->_shader->setInteger("dudvMap", 2);
 }
 
 void WaterRenderer::render()
 {
-    if (!this->_object || !this->_object->getMesh() || this->_object->getMesh()->m_Entries.empty())
+    if (!this->getObject() || !this->getObject()->getMesh() || this->getObject()->getMesh()->m_Entries.empty())
         return;
 
     Renderer::render();
@@ -71,7 +74,7 @@ void WaterRenderer::render()
 
     glBindVertexArray(_VAOs[0]);
 
-    const auto &entry = this->_object->getMesh()->m_Entries[0];
+    const auto &entry = this->getObject()->getMesh()->m_Entries[0];
 
     glDrawElements(GL_TRIANGLES, entry.NumIndices, GL_UNSIGNED_INT, 0);
 

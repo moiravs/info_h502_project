@@ -2,6 +2,7 @@
 
 #include "../../utils/utils.h"
 #include "../manager/displaymanager.h"
+#include "../entity/object.h"
 
 ObjectRenderer::ObjectRenderer(const std::string& shaderName) : MeshRenderer(shaderName) {}
 

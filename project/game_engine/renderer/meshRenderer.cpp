@@ -2,14 +2,24 @@
 #include "meshRenderer.h"
 
 #include "../../utils/utils.h"
+#include "../entity/object.h"
 
 MeshRenderer::MeshRenderer(const std::string& shaderName): Renderer(generateShader(shaderName)) {}
 
 void MeshRenderer::updateUniforms() const
 {}
 
+void MeshRenderer::registerEntity(const std::shared_ptr<RenderableEntity>& entity)
+{
+    this->Renderer::registerEntity(entity);
+}
+
 std::shared_ptr<Object> MeshRenderer::getObject() const
 {
+    if (!this->_entity)
+    {
+        ERROR("There is no linked entity.");
+    }
     const auto obj = std::dynamic_pointer_cast<Object>(this->_entity);
     if (!obj)
     {
@@ -65,13 +75,6 @@ void MeshRenderer::setupVAOs()
                 glVertexAttribPointer(att_model + j, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4) * j));
                 glVertexAttribDivisor(att_model + j, 1);
             }
-        }
-
-        const auto att_color = glGetAttribLocation(_shader->getID(), "materialColor");
-        if (att_color >= 0)
-        {
-            glEnableVertexAttribArray(att_color);
-            glVertexAttribPointer(att_color, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), nullptr);
         }
     }
     glBindVertexArray(0);

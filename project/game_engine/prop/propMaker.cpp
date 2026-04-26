@@ -3,13 +3,13 @@
 
 #include "../renderer/objectRenderer.h"
 #include "../../utils/constants.h"
+#include "../entity/instancedObject.h"
 #include "../renderer/instancedRenderer.h"
 
-std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const float scale, const glm::vec3 &color,
+std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::vec3& scale, const glm::vec3 &color,
                                           const glm::vec4 &lightProperties, const glm::vec3 &lightAttenuation)
 {
-    const auto renderer = std::make_shared<ObjectRenderer>("solid");
-    const auto sphere = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", renderer);
+    const auto sphere = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", "solid");
     const auto light = Light::make();
     sphere->setScale(scale);
 
@@ -23,9 +23,9 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const float
 
     auto prop = std::make_shared<Prop>();
 
+    prop->addRenderable(sphere);
     prop->addEntity(sphere);
     prop->addEntity(light);
-    prop->addRenderer(renderer);
     prop->setMainObject(sphere);
 
     return prop;
@@ -56,13 +56,12 @@ std::shared_ptr<Prop> PropMaker::makeTrees(const TerrainGeneration &heightMap)
         treeMatrices.push_back(model);
     }
 
-    const auto treeRenderer = std::make_shared<InstancedRenderer>("tree");
-    const auto tree = Object::make(PATH_TO_SRC "/../assets/models/Tree_V10_OBJ/Tree.obj", treeRenderer);
-    treeRenderer->setInstanceMatrices(treeMatrices);
+    const auto tree =
+        InstancedObject::make(PATH_TO_SRC "/../assets/models/Tree_V10_OBJ/Tree.obj", "tree", treeMatrices);
 
     auto prop = std::make_shared<Prop>();
 
     prop->addEntity(tree);
-    prop->addRenderer(treeRenderer);
+    prop->addRenderable(tree);
     return prop;
 }
