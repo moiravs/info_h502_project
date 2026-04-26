@@ -5,12 +5,14 @@
 #include <string>
 #include <vector>
 
-class Cubemap
+#include "entity/renderableEntity.h"
+
+class Cubemap : public RenderableEntity
 {
     unsigned int textureID{};
 
 public:
-    explicit Cubemap(const std::vector<std::string>& faces);
+    explicit Cubemap(const std::vector<std::string>& faces, const std::shared_ptr<Renderer>& renderer);
 
     [[nodiscard]] unsigned int getTextureId() const;
 };

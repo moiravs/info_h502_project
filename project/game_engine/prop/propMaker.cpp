@@ -9,7 +9,9 @@
 std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::vec3& scale, const glm::vec3 &color,
                                           const glm::vec4 &lightProperties, const glm::vec3 &lightAttenuation)
 {
-    const auto sphere = Object::make(PATH_TO_SRC "/../assets/models/sphere_smooth.obj", "solid");
+    const auto sphere = Object::make(
+        std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/sphere_smooth.obj"),
+        "solid");
     const auto light = Light::make();
     sphere->setScale(scale);
 
@@ -57,7 +59,9 @@ std::shared_ptr<Prop> PropMaker::makeTrees(const TerrainGeneration &heightMap)
     }
 
     const auto tree =
-        InstancedObject::make(PATH_TO_SRC "/../assets/models/Tree_V10_OBJ/Tree.obj", "tree", treeMatrices);
+        InstancedObject::make(
+            std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/Tree_V10_OBJ/Tree.obj"),
+            "tree", treeMatrices);
 
     auto prop = std::make_shared<Prop>();
 

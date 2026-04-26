@@ -9,7 +9,7 @@
 #include <memory>
 
 #include "renderableEntity.h"
-#include "../modelLoader.h"
+#include "../mesh.h"
 #include "vertex.h"
 
 class Octree;
@@ -30,11 +30,9 @@ class Object : public RenderableEntity
 
     std::shared_ptr<Mesh> m_mesh = nullptr;
 public:
-    explicit Object(const char *path, const std::shared_ptr<Renderer>& renderer);
-    Object(float size, float height, const std::shared_ptr<Renderer>& renderer);
+    explicit Object(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Renderer>& renderer);
 
-    static std::shared_ptr<Object> make(const char *path, const std::string &shader);
-    static std::shared_ptr<Object> make(float size, float height, const std::string &shader);
+    static std::shared_ptr<Object> make(const std::shared_ptr<Mesh> &mesh, const std::string &shader);
 
     // this weird line is there so that the overloads of Entity::setPosition stay despite the override
     using Entity::setPosition;

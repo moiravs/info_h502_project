@@ -15,11 +15,11 @@ class WaterRenderer : public MeshRenderer
 
     bool transparent;
     std::shared_ptr<WaterFrameBuffer> _fbos;
-
+protected:
+    void setupVAOs() override;
 public:
     explicit WaterRenderer(std::shared_ptr<WaterFrameBuffer> fbos);
     void updateUniforms() const override;
-    void setupVAOs() override;
     void registerEntity(const std::shared_ptr<RenderableEntity>& entity) override;
     void render() override;
 };
