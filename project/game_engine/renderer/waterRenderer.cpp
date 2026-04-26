@@ -49,7 +49,7 @@ void WaterRenderer::registerObject(const std::shared_ptr<Object> object)
 
     this->_shader->setInteger("reflectionTexture", 0);
     this->_shader->setInteger("refractionTexture", 1);
-    this->_shader->setInteger("dudvMap", 2);
+    // this->_shader->setInteger("dudvMap", 2);
 }
 
 void WaterRenderer::render()
@@ -63,8 +63,8 @@ void WaterRenderer::render()
     glBindTexture(GL_TEXTURE_2D, _fbos->getReflectionTexture());
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, _fbos->getRefractionTexture());
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, dudvMap.getTexture());
+    // glActiveTexture(GL_TEXTURE2);
+    // glBindTexture(GL_TEXTURE_2D, dudvMap.getTexture());
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

@@ -18,7 +18,8 @@ SkyboxRenderer::SkyboxRenderer(Skybox *skybox)
 }
 
 void SkyboxRenderer::updateUniforms() const
-{}
+{
+}
 
 void SkyboxRenderer::render()
 {
@@ -31,5 +32,6 @@ void SkyboxRenderer::render()
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
+
     glDepthFunc(GL_LESS); // set depth function back to default
 }

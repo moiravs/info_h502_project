@@ -12,6 +12,7 @@ out vec3 v_normal;   // Pass to fragment
 out vec3 v_fragPos;  // Pass to fragment
 out vec4 WorldPos;
 
+out vec2 v_texCoord; // New output
 uniform mat4 model;
 
 layout(std140) uniform CameraInfo {
@@ -29,7 +30,7 @@ void main()
 
     Height = aPos.y;
     v_fragPos = vec3(WorldPos);
-    
+    v_texCoord = aPos.xz / 50.0;
     // Transform normal to world space
     v_normal = mat3(transpose(inverse(model))) * aNormal;
 

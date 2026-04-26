@@ -2,7 +2,7 @@
 #include "../mainCamera.h"
 
 TerrainRenderer::TerrainRenderer(TerrainGeneration &terrain_gen)
-    : Renderer(this->generateShader("cpu_height")), m_texture(terrain_gen)
+    : Renderer(this->generateShader("cpu_height")), m_texture(terrain_gen), UboProvider("Mist", sizeof(Mist))
 {
     const std::vector<float> &vertices = terrain_gen.getVertices();
     const std::vector<unsigned> &indices = terrain_gen.getIndices();
@@ -33,28 +33,50 @@ TerrainRenderer::TerrainRenderer(TerrainGeneration &terrain_gen)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STATIC_DRAW);
 }
 
+void TerrainRenderer::updateUBO()
+{
+
+    Mist mist{};
+
+    mist.mistColor = glm::vec3(0.5f, 0.6f, 0.7f);
+    mist.fogDensity = 0.001;
+    mist.fogMaxHeight = 40;
+    mist.fogMinHeight = 1;
+    auto camera = MainCamera::get();
+
+    mist.cameraPos = camera->getPosition();
+    mist.mistDensity = 0;
+
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0,
+                    sizeof(Mist),
+                    &mist);
+}
+
 void TerrainRenderer::updateUniforms() const
 {
-    auto mistColLoc = glGetUniformLocation(_shader->getID(), "mistColor");
-    auto mistDenLoc = glGetUniformLocation(_shader->getID(), "mistDensity");
-    auto camPosLoc = glGetUniformLocation(_shader->getID(), "cameraPos");
-    auto fogMaxHeight = glGetUniformLocation(_shader->getID(), "fogMaxHeight");
-    auto fogMinHeight = glGetUniformLocation(_shader->getID(), "fogMinHeight");
-    auto fogDensity = glGetUniformLocation(_shader->getID(), "fogDensity");
-
     _shader->use();
-    glUniform3f(mistColLoc, 0.5f, 0.6f, 0.7f);
-    glUniform1f(mistDenLoc, 0.0f);
-    glUniform1f(fogDensity, 0.001);
-    glUniform1f(fogMaxHeight, 40);
-    glUniform1f(fogMinHeight, 1);
+    glUniform1i(glGetUniformLocation(_shader->getID(), "grassTex"), 1);
+    glUniform1i(glGetUniformLocation(_shader->getID(), "rockTex"), 2);
+    glUniform1i(glGetUniformLocation(_shader->getID(), "snowTex"), 3);
 
-    auto camera = MainCamera::get();
-    glUniform3f(camPosLoc, camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, grassTex.getTexture());
+
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, rockTex.getTexture());
+
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, snowTex.getTexture());
+
+    // 3. Reset Active Texture to 0 so other code doesn't get confused
+    glActiveTexture(GL_TEXTURE0);
 }
 
 void TerrainRenderer::render()
 {
+    this->updateUBO();
+
     Renderer::render();
 
     glBindVertexArray(_VAOs[0]);
