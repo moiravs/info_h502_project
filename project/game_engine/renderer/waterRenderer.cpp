@@ -16,7 +16,7 @@ void WaterRenderer::registerEntity(const std::shared_ptr<RenderableEntity>& enti
 void WaterRenderer::setupVAOs()
 {
     // define VBO and VAO as active buffer and active vertex array
-    const auto &mesh = this->getObject()->getMesh();
+    const auto &mesh = this->getEntity<Object>()->getMesh();
 
     if (mesh->m_Entries.empty())
         return;
@@ -57,7 +57,8 @@ void WaterRenderer::setupVAOs()
 
 void WaterRenderer::render()
 {
-    if (!this->getObject() || !this->getObject()->getMesh() || this->getObject()->getMesh()->m_Entries.empty())
+    const auto o = this->getEntity<Object>();
+    if (!o || !o->getMesh() || o->getMesh()->m_Entries.empty())
         return;
 
     Renderer::render();
@@ -74,7 +75,7 @@ void WaterRenderer::render()
 
     glBindVertexArray(_VAOs[0]);
 
-    const auto &entry = this->getObject()->getMesh()->m_Entries[0];
+    const auto &entry = o->getMesh()->m_Entries[0];
 
     glDrawElements(GL_TRIANGLES, entry.NumIndices, GL_UNSIGNED_INT, 0);
 

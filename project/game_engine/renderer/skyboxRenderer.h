@@ -10,14 +10,10 @@
 
 class SkyboxRenderer : public Renderer
 {
-    bool _transparent;
-    std::vector<glm::mat4> _models;
-    Skybox *_skybox;
-    glm::mat4 model = glm::mat4(1.0);
-    unsigned int cubemapTexture;
-
+protected:
+    void setupVAOs() override;
 public:
-    explicit SkyboxRenderer(Skybox *skybox);
+    explicit SkyboxRenderer(const std::string& shader);
     void updateUniforms() const override;
     void render() override;
 };

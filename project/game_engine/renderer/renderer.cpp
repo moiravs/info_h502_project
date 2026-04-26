@@ -30,11 +30,6 @@ std::shared_ptr<Shader> Renderer::generateShader(const std::string& shaderName)
     return std::make_shared<Shader>(fullName + ".vert", fullName + ".frag");
 }
 
-std::shared_ptr<Shader> Renderer::getShader()
-{
-    return this->_shader;
-}
-
 void Renderer::createVAOs(const size_t nb)
 {
     if (!this->_VAOs.empty())
@@ -67,7 +62,7 @@ void Renderer::clearVBOs() const
 
 void Renderer::render()
 {
-    this->getShader()->use();
+    this->_shader->use();
     this->updateUniforms();
-    this->getShader()->use();
+    this->_shader->use();
 }

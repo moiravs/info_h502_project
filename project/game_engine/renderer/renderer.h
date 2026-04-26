@@ -3,6 +3,7 @@
 #define Renderer_H
 #include "../shader.h"
 #include "glad/glad.h"
+#include "../../utils/utils.h"
 
 class RenderableEntity;
 
@@ -21,13 +22,22 @@ protected:
     void clearVBOs() const;
 
     virtual void setupVAOs() = 0;
+
+    template <typename T>
+    std::shared_ptr<T> getEntity() const
+    {
+        const auto obj = std::dynamic_pointer_cast<T>(this->_entity);
+        if (!obj)
+        {
+            ERROR("The entity linked to this renderer is not of the correct type");
+        }
+        return obj;
+    }
 public:
     explicit Renderer(std::shared_ptr<Shader> shader);
     virtual void updateUniforms() const = 0;
     virtual ~Renderer();
     virtual void registerEntity(const std::shared_ptr<RenderableEntity> &entity);
-    // this method should eventually be protected/removed
-    std::shared_ptr<Shader> getShader();
     virtual void render();
 };
 

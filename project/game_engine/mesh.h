@@ -18,12 +18,10 @@
 
 class Mesh
 {
-
-private:
-    bool InitFromScene(const aiScene *pScene, const std::string &Filename);
-    void InitMesh(unsigned int Index, const aiMesh *paiMesh);
-    bool InitMaterials(const aiScene *pScene, const std::string &Filename);
-    void Clear();
+    void initFromScene(const aiScene *pScene, const std::string &Filename);
+    void initMesh(unsigned int Index, const aiMesh *paiMesh);
+    void initMaterials(const aiScene *pScene, const std::string &Filename);
+    void clear();
 
 #define INVALID_MATERIAL 0xFFFFFFFF
 
@@ -32,7 +30,7 @@ public:
     {
         MeshEntry() = default;  // Add this
         ~MeshEntry() = default; // Add this
-        bool Init(const std::vector<Vertex> &Vertices,
+        void init(const std::vector<Vertex> &Vertices,
                   const std::vector<unsigned int> &Indices);
 
         GLuint VB;
@@ -40,14 +38,11 @@ public:
         unsigned int NumIndices;
         unsigned int MaterialIndex;
     };
-
-    Mesh();
-
+    Mesh()=default;
+    explicit Mesh(const std::string &filename);
     ~Mesh();
 
-    bool LoadMesh(const std::string &Filename);
-
-    void Render();
+    static std::shared_ptr<Mesh> createPlane(float size, float height);
 
     std::vector<MeshEntry> m_Entries; // One for each sub-mesh
     std::vector<Texture *> m_Textures;

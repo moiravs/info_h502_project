@@ -14,26 +14,12 @@ void MeshRenderer::registerEntity(const std::shared_ptr<RenderableEntity>& entit
     this->Renderer::registerEntity(entity);
 }
 
-std::shared_ptr<Object> MeshRenderer::getObject() const
-{
-    if (!this->_entity)
-    {
-        ERROR("There is no linked entity.");
-    }
-    const auto obj = std::dynamic_pointer_cast<Object>(this->_entity);
-    if (!obj)
-    {
-        ERROR("The entity linked to this renderer is not of the correct type");
-    }
-    return obj;
-}
-
 void MeshRenderer::setupVAOs()
 {
-    if (!this->getObject() || !this->getObject()->getMesh())
+    if (!this->getEntity<Object>() || !this->getEntity<Object>()->getMesh())
         return;
 
-    const auto &mesh = this->getObject()->getMesh();
+    const auto &mesh = this->getEntity<Object>()->getMesh();
     this->createVAOs(mesh->m_Entries.size());
     this->createVBOs(1);
 
@@ -84,8 +70,8 @@ void MeshRenderer::render()
 {
     Renderer::render(); // Updates shader uniforms
 
-    if (!getObject()->getMesh()) return;
-    const auto mesh = getObject()->getMesh();
+    if (!this->getEntity<Object>()->getMesh()) return;
+    const auto mesh = this->getEntity<Object>()->getMesh();
 
     for (unsigned int i = 0; i < _VAOs.size(); i++)
     {
@@ -102,4 +88,9 @@ void MeshRenderer::render()
     }
 
     glBindVertexArray(0);
+}
+
+void MeshRenderer::drawElements(const int numTriangles)
+{
+    glDrawElements(GL_TRIANGLES, numTriangles, GL_UNSIGNED_INT, 0);
 }

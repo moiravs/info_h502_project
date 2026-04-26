@@ -3,7 +3,8 @@
 #include <glad/glad.h>
 #include <stb_image.h>
 
-Cubemap::Cubemap(const std::vector<std::string>& faces)
+Cubemap::Cubemap(const std::vector<std::string>& faces, const std::shared_ptr<Renderer>& renderer)
+: RenderableEntity(renderer)
 {
     stbi_set_flip_vertically_on_load(false);
     glGenTextures(1, &textureID);

@@ -9,6 +9,5 @@ class ObjectRenderer : public MeshRenderer
 public:
     explicit ObjectRenderer(const std::string& shaderName);
     void updateUniforms() const override;
-    void drawElements(int numTriangles) override;
 };
 #endif

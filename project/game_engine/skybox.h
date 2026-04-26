@@ -12,7 +12,7 @@ class Skybox : public Cubemap
     std::vector<float> skyboxVertices;
 
 public:
-    explicit Skybox(const std::vector<std::string>& faces);
+    explicit Skybox(const std::vector<std::string>& faces, const std::shared_ptr<Renderer>& renderer);
 
     [[nodiscard]] const std::vector<float>& getVertices() const;
 };

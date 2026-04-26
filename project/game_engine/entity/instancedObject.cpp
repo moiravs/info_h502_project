@@ -3,19 +3,18 @@
 
 #include "renderableEntityMaker.h"
 #include "../renderer/instancedRenderer.h"
-#include "../manager/octreeManager.h"
 #include "../../utils/utils.h"
 
-std::shared_ptr<InstancedObject> InstancedObject::make(const char* path, const std::string& shader,
+std::shared_ptr<InstancedObject> InstancedObject::make(const std::shared_ptr<Mesh> &mesh, const std::string& shader,
     const std::vector<glm::mat4>& models)
 {
-    auto r = RenderableEntityMaker::makeRenderable<InstancedObject, InstancedRenderer>(shader, path);
+    auto r = RenderableEntityMaker::makeRenderable<InstancedObject, InstancedRenderer>(shader, mesh);
     r->setModels(models);
     return r;
 }
 
-InstancedObject::InstancedObject(const char* path, const std::shared_ptr<Renderer>& renderer)
-: Object(path, renderer)
+InstancedObject::InstancedObject(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Renderer>& renderer)
+: Object(mesh, renderer)
 {}
 
 std::shared_ptr<InstancedRenderer> InstancedObject::getInstancedRenderer() const
