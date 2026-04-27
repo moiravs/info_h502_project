@@ -25,7 +25,7 @@ class Object : public RenderableEntity
     glm::vec3 _color{};
 
     float height = 0;
-    glm::vec3 _scale{};
+    glm::vec3 _scale = glm::vec3(1);
     float computeHeight() const;
 
     std::shared_ptr<Mesh> m_mesh = nullptr;
