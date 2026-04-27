@@ -33,7 +33,7 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
     return prop;
 }
 
-std::shared_ptr<Prop> PropMaker::makeTrees(const TerrainGeneration &heightMap)
+std::shared_ptr<Prop> PropMaker::makeTrees(const std::shared_ptr<TerrainMesh> &heightMap)
 {
     std::vector<glm::mat4> treeMatrices;
 
@@ -45,7 +45,7 @@ std::shared_ptr<Prop> PropMaker::makeTrees(const TerrainGeneration &heightMap)
         auto model = glm::mat4(1.0f);
         const float x = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
         const float z = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
-        const float y = heightMap.getHeight(x, z);
+        const float y = heightMap->getHeight(x, z);
 
         if (y <= WATER_HEIGHT)
         {

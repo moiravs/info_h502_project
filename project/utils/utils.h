@@ -22,9 +22,9 @@
 inline bool isInVolume(const glm::vec3& point, const glm::vec3& lower, const glm::vec3& upper)
 {
     return
-        point.x <= upper.x && point.x >= lower.x &&
-        point.y <= upper.y && point.y >= lower.y &&
-        point.z <= upper.z && point.z >= lower.z;
+        point.x < upper.x && point.x >= lower.x &&
+        point.y < upper.y && point.y >= lower.y &&
+        point.z < upper.z && point.z >= lower.z;
 }
 
 #ifndef NDEBUG

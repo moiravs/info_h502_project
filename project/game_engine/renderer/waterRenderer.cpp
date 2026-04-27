@@ -34,21 +34,21 @@ void WaterRenderer::setupVAOs()
     if (att_pos >= 0)
     {
         glEnableVertexAttribArray(att_pos);
-        glVertexAttribPointer(att_pos, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, Position));
+        glVertexAttribPointer(att_pos, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, position));
     }
 
     auto att_nor = glGetAttribLocation(_shader->getID(), "normal");
     if (att_nor >= 0)
     {
         glEnableVertexAttribArray(att_nor);
-        glVertexAttribPointer(att_nor, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, Normal));
+        glVertexAttribPointer(att_nor, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, normal));
     }
 
     auto att_tex = glGetAttribLocation(_shader->getID(), "tex_coord");
     if (att_tex >= 0)
     {
         glEnableVertexAttribArray(att_tex);
-        glVertexAttribPointer(att_tex, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, Texture));
+        glVertexAttribPointer(att_tex, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, texture));
     }
     // desactive the buffer
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -77,7 +77,7 @@ void WaterRenderer::render()
 
     const auto &entry = o->getMesh()->m_Entries[0];
 
-    glDrawElements(GL_TRIANGLES, entry.NumIndices, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, entry.numIndices, GL_UNSIGNED_INT, 0);
 
     glBindVertexArray(0);
     glDisable(GL_BLEND);

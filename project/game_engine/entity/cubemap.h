@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "entity/renderableEntity.h"
+#include "renderableEntity.h"
 
 class Cubemap : public RenderableEntity
 {

@@ -35,8 +35,8 @@ protected:
 
 public:
     virtual ~Entity() = default;
-    explicit Entity(glm::vec3 pos = glm::vec3(0, 0, 0), glm::vec3 up = WORLD_UP);
-    Entity(glm::vec3 pos, float yaw, float pitch, glm::vec3 up = WORLD_UP);
+    explicit Entity(glm::vec3 up = WORLD_UP);
+    Entity(float yaw, float pitch, glm::vec3 up = WORLD_UP);
 
     void attach(const std::shared_ptr<Entity> &entity, glm::vec3 offset = glm::vec3(0, 0, 0));
     [[nodiscard]] glm::vec3 getPosition() const;

@@ -41,7 +41,7 @@ protected:
 public:
 
     // constructor with vectors
-    explicit Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = WORLD_UP,
+    explicit Camera(glm::vec3 up = WORLD_UP,
                     float yaw = YAW, float pitch = PITCH);
 
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix

@@ -9,7 +9,7 @@
 #include <memory>
 
 #include "renderableEntity.h"
-#include "../mesh.h"
+#include "../mesh/mesh.h"
 #include "vertex.h"
 
 class Octree;

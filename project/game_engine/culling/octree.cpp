@@ -91,7 +91,7 @@ void Octree::moveObject(const std::shared_ptr<RenderableEntity>& object, const g
 
     if (it == this->data.end())
     {
-        ERROR("Object not found!"); return;
+        FATAL("Object not found!"); return;
     }
 
     // Move found element to the end, then remove it
@@ -106,7 +106,7 @@ void Octree::moveObjectUp(const std::shared_ptr<RenderableEntity>& object, const
     auto [shouldSmash, childData] = this->childrenAllLeafAndSmashable();
     if (shouldSmash)
     {
-        this->children = {};
+        for (auto& c : this->children) c = nullptr;
         this->data = childData;
         for (const auto &c : this->data)
             c->setOctreeNode(this->shared_from_this());
@@ -122,22 +122,27 @@ void Octree::moveObjectUp(const std::shared_ptr<RenderableEntity>& object, const
 
 std::pair<bool, std::vector<std::shared_ptr<RenderableEntity>>> Octree::childrenAllLeafAndSmashable() const
 {
-    std::vector<std::shared_ptr<RenderableEntity>> objects = {};
+    if (this->isLeaf()) return {false, {}};
+
+    bool foundData = false;
+    std::vector<std::shared_ptr<RenderableEntity>> objects;
+
     for (const auto& c : this->children)
     {
-        // a node is not a leaf: it's not smashable
-        if (c != nullptr && !c->isLeaf()) return std::make_pair<bool, std::vector<std::shared_ptr<RenderableEntity>>>(false, {});
+        if (c != nullptr && !c->isLeaf())
+            return {false, {}};
 
-        // a node is a leaf, and it has objects
-        // if we already found one like that, we can't squash the structure
-        if (c != nullptr && c->data.size() > 0)
+        if (c != nullptr && !c->data.empty())
         {
-            if (objects.size() == 0) objects = c->getData();
-            else return std::make_pair<bool, std::vector<std::shared_ptr<RenderableEntity>>>(false, {});
+            if (foundData)
+                return {false, {}};
+
+            objects = c->data;
+            foundData = true;
         }
     }
 
-    return std::make_pair(true, objects);
+    return {true, objects};
 }
 
 std::array<std::shared_ptr<Octree>, 8> Octree::getChildren()
@@ -158,4 +163,41 @@ glm::vec3 Octree::getMaxBound() const
 glm::vec3 Octree::getMinBound() const
 {
     return this->minBound;
+}
+
+void Octree::print(const int depth) const
+{
+    // indentation
+    std::string indent(depth * 2, ' ');
+
+    // node info
+    std::cout << indent
+              << "[Node] "
+              << (isLeaf() ? "Leaf" : "Internal")
+              << " | Objects: " << data.size()
+              << " | Min: (" << minBound.x << ", " << minBound.y << ", " << minBound.z << ")"
+              << " | Max: (" << maxBound.x << ", " << maxBound.y << ", " << maxBound.z << ")"
+              << std::endl;
+
+    // print objects (optional but useful)
+    for (const auto& obj : data)
+    {
+        const auto& pos = obj->getPosition();
+        std::cout << indent << "  - Obj @ ("
+                  << pos.x << ", " << pos.y << ", " << pos.z << ")"
+                  << std::endl;
+    }
+
+    // recurse into children
+    if (!isLeaf())
+    {
+        for (int i = 0; i < 8; ++i)
+        {
+            if (children[i])
+            {
+                std::cout << indent << " Child[" << i << "]:" << std::endl;
+                children[i]->print(depth + 1);
+            }
+        }
+    }
 }

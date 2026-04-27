@@ -2,7 +2,7 @@
 
 void Mesh::MeshEntry::init(const std::vector<Vertex> &Vertices, const std::vector<unsigned int> &Indices)
 {
-    NumIndices = Indices.size();
+    numIndices = Indices.size();
 
     glGenBuffers(1, &VB);
     glBindBuffer(GL_ARRAY_BUFFER, VB);
@@ -10,7 +10,7 @@ void Mesh::MeshEntry::init(const std::vector<Vertex> &Vertices, const std::vecto
 
     glGenBuffers(1, &IB);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * NumIndices, Indices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * numIndices, Indices.data(), GL_STATIC_DRAW);
 }
 
 Mesh::Mesh(const std::string &filename)
@@ -40,7 +40,7 @@ Mesh::~Mesh()
 
 void Mesh::initMesh(const unsigned int Index, const aiMesh *paiMesh)
 {
-    m_Entries[Index].MaterialIndex = paiMesh->mMaterialIndex;
+    m_Entries[Index].materialIndex = paiMesh->mMaterialIndex;
 
     std::vector<Vertex> Vertices;
     std::vector<unsigned int> Indices;
@@ -48,16 +48,16 @@ void Mesh::initMesh(const unsigned int Index, const aiMesh *paiMesh)
     for (unsigned int i = 0; i < paiMesh->mNumVertices; i++)
     {
         Vertex v;
-        v.Position = {paiMesh->mVertices[i].x, paiMesh->mVertices[i].y, paiMesh->mVertices[i].z};
-        v.Normal = {paiMesh->mNormals[i].x, paiMesh->mNormals[i].y, paiMesh->mNormals[i].z};
+        v.position = {paiMesh->mVertices[i].x, paiMesh->mVertices[i].y, paiMesh->mVertices[i].z};
+        v.normal = {paiMesh->mNormals[i].x, paiMesh->mNormals[i].y, paiMesh->mNormals[i].z};
 
         if (paiMesh->HasTextureCoords(0))
         {
-            v.Texture = {paiMesh->mTextureCoords[0][i].x, paiMesh->mTextureCoords[0][i].y};
+            v.texture = {paiMesh->mTextureCoords[0][i].x, paiMesh->mTextureCoords[0][i].y};
         }
         else
         {
-            v.Texture = {0.0f, 0.0f};
+            v.texture = {0.0f, 0.0f};
         }
         Vertices.push_back(v);
     }
@@ -132,7 +132,7 @@ std::shared_ptr<Mesh> Mesh::createPlane(const float size, const float height)
     glm::vec2 t3(size, 0.0f);
     glm::vec2 t4(0.0f, 0.0f);
 
-    glm::vec3 n(0.0f, size, 0.0f);
+    glm::vec3 n(0.0f, 1, 0.0f);
 
     planeVertices.push_back({p1, t1, n});
     planeVertices.push_back({p2, t2, n});
@@ -145,7 +145,7 @@ std::shared_ptr<Mesh> Mesh::createPlane(const float size, const float height)
 
     Mesh::MeshEntry entry;
     entry.init(planeVertices, planeIndices);
-    entry.MaterialIndex = 0;
+    entry.materialIndex = 0;
 
     mesh->m_Entries.push_back(entry);
 

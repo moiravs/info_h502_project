@@ -32,21 +32,21 @@ void MeshRenderer::setupVAOs()
         if (att_position >= 0)
         {
             glEnableVertexAttribArray(att_position);
-            glVertexAttribPointer(att_position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, Position)));
+            glVertexAttribPointer(att_position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, position)));
         }
 
         const auto att_tex = glGetAttribLocation(_shader->getID(), "tex_coord");
         if (att_tex >= 0)
         {
             glEnableVertexAttribArray(att_tex);
-            glVertexAttribPointer(att_tex, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, Texture)));
+            glVertexAttribPointer(att_tex, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, texture)));
         }
 
         const auto att_normal = glGetAttribLocation(_shader->getID(), "normal");
         if (att_normal >= 0)
         {
             glEnableVertexAttribArray(att_normal);
-            glVertexAttribPointer(att_normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, Normal)));
+            glVertexAttribPointer(att_normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, normal)));
         }
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->m_Entries[i].IB);
@@ -78,13 +78,13 @@ void MeshRenderer::render()
         const auto &entry = mesh->m_Entries[i];
 
         // Use texture from Assimp material, fallback to constructor texture if null
-        if (entry.MaterialIndex < mesh->m_Textures.size() && mesh->m_Textures[entry.MaterialIndex])
+        if (entry.materialIndex < mesh->m_Textures.size() && mesh->m_Textures[entry.materialIndex])
         {
-            mesh->m_Textures[entry.MaterialIndex]->bind();
+            mesh->m_Textures[entry.materialIndex]->bind();
         }
 
         glBindVertexArray(_VAOs[i]);
-        this->drawElements(entry.NumIndices);
+        this->drawElements(entry.numIndices);
     }
 
     glBindVertexArray(0);

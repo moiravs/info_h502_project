@@ -26,6 +26,8 @@ public:
     void put(const std::shared_ptr<RenderableEntity>& object, const glm::vec3& position);
     void moveObject(const std::shared_ptr<RenderableEntity>& object, const glm::vec3& newPosition);
 
+    void print(int depth = 0) const;
+
     std::array<std::shared_ptr<Octree>, 8> getChildren();
     std::vector<std::shared_ptr<RenderableEntity>> getData();
     glm::vec3 getMinBound() const;
