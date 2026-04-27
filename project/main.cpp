@@ -19,7 +19,6 @@
 #include "game_engine/entity/camera.h"
 #include "game_engine/manager/displaymanager.h"
 #include "game_engine/mainCamera.h"
-#include "game_engine/renderer/terrainRenderer.h"
 #include "game_engine/waterFrameBuffer.h"
 #include "game_engine/renderer/waterRenderer.h"
 
@@ -28,12 +27,10 @@
 #include "game_engine/renderer/skyboxRenderer.h"
 
 #include "utils/constants.h"
-#include "game_engine/renderer/particleRenderer.h"
 #include "game_engine/prop/propMaker.h"
 #include "game_engine/game.h"
 #include "game_engine/entity/particleGenerator.h"
 #include "game_engine/entity/renderableEntityMaker.h"
-#include "game_engine/renderer/objectRenderer.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
@@ -120,7 +117,7 @@ int main()
 		.color2 = glm::vec3(1.0f, 0.5f, 0.0f),
 		.color3 = glm::vec3(0.5f, 0.0f, 0.0f)});
 	pg->setPosition(glm::vec3(0.5, heightMap->getHeight(0.5, -5.0), -5));
-	
+
 	double lastTime = glfwGetTime();
 
 	while (!dm.shouldClose())
