@@ -34,7 +34,7 @@ public:
 
         GLuint VB;
         GLuint IB;
-        unsigned int numIndices;
+        int numIndices;
         unsigned int materialIndex;
     };
     Mesh()=default;
