@@ -19,9 +19,7 @@
 #include "game_engine/entity/camera.h"
 #include "game_engine/manager/displaymanager.h"
 #include "game_engine/mainCamera.h"
-#include "game_engine/renderer/terrainRenderer.h"
 #include "game_engine/waterFrameBuffer.h"
-#include "game_engine/renderer/waterRenderer.h"
 
 #include "game_engine/entity/skybox.h"
 #include "game_engine/manager/lightManager.h"
@@ -34,6 +32,7 @@
 #include "game_engine/entity/particleGenerator.h"
 #include "game_engine/entity/renderableEntityMaker.h"
 #include "game_engine/renderer/objectRenderer.h"
+#include "game_engine/renderer/waterRenderer.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
@@ -74,11 +73,11 @@ int main()
 	// Skybox
 	auto skybox = RenderableEntityMaker::makeRenderable<Skybox, SkyboxRenderer>(
 		"skybox", std::vector<std::string>{PATH_TO_SRC "/../assets/textures/cubemaps/skybox/right.jpg",
-		   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/left.jpg",
-		   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/top.jpg",
-		   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/bottom.jpg",
-		   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/front.jpg",
-		   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/back.jpg"});
+										   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/left.jpg",
+										   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/top.jpg",
+										   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/bottom.jpg",
+										   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/front.jpg",
+										   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/back.jpg"});
 
 	// Water
 	auto fbos = std::make_shared<WaterFrameBuffer>();
@@ -93,10 +92,6 @@ int main()
 	auto water = RenderableEntityMaker::makeRenderable<Object, WaterRenderer>(
 		fbos, Mesh::createPlane(PLAN_SIZE_X / 2, WATER_HEIGHT));
 
-	auto whiteLight = PropMaker::makeLamp(
-		glm::vec3(1.0, 15.0, 1.5), glm::vec3(1), glm::vec3(1, 1, 1),
-		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0));
-
 	auto redLight = PropMaker::makeLamp(
 		glm::vec3(1.0, 15.0, 1.5), glm::vec3(1), glm::vec3(1, 0, 0),
 		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0));
@@ -104,13 +99,16 @@ int main()
 	auto terrain = Object::make(heightMap, "cpu_height");
 
 	// the white light is fixed to the camera (it's not rendered)
-	camera->attach(whiteLight->getMainObject(), glm::vec3(0, 0, 0));
+	// camera->attach(whiteLight->getMainObject(), glm::vec3(0, 0, 0));
+	auto sun = PropMaker::makeLamp(
+		glm::vec3(.0, 100.0, 1.5), glm::vec3(1, 1, 1), glm::vec3(1, 1, 1),
+		glm::vec4(0, 0.9, 1, 32), glm::vec3(0.005, 0.005, 0));
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
 	auto trees = PropMaker::makeTrees(heightMap);
 	auto &lightManager = LightManager::get();
-	
+
 	auto pg = ParticleGenerator::make(ParticleParams{
 		.spread = 0.2,
 		.range = 0.5,
@@ -120,13 +118,22 @@ int main()
 		.color2 = glm::vec3(1.0f, 0.5f, 0.0f),
 		.color3 = glm::vec3(0.5f, 0.0f, 0.0f)});
 	pg->setPosition(glm::vec3(0.5, heightMap->getHeight(0.5, -5.0), -5));
-	
+
+	float orbitRadius = PLAN_SIZE_X / 2; // Distance from the center of the scene
+	float orbitSpeed = 0.1f;			 // How fast the sun moves
+	float orbitHeight = 100.0f;			 // Vertical height of the sun
+
+	auto firecamp = PropMaker::makeFirecamp(heightMap);
+
 	double lastTime = glfwGetTime();
+
+	auto game = Game();
 
 	while (!dm.shouldClose())
 	{
 		const double currentTime = glfwGetTime();
 		const double delta = currentTime - lastTime;
+		glEnable(GL_DEPTH_TEST);
 		lastTime = currentTime;
 
 		lightManager.updateUBO();
@@ -161,7 +168,13 @@ int main()
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glDisable(GL_CLIP_DISTANCE0);
 
-		Game::renderScene(delta, {pg, trees, redLight, water, skybox, terrain});
+		float sunX = 0.0f;
+		float sunY = std::sin(currentTime * orbitSpeed) * orbitRadius;
+		float sunZ = std::cos(currentTime * orbitSpeed) * orbitRadius;
+
+		sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
+
+		Game::renderScene(delta, {pg, trees, redLight, water, skybox, terrain, sun, firecamp});
 		dm.update();
 	}
 

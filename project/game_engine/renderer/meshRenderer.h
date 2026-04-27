@@ -5,15 +5,19 @@
 
 class Object;
 
-class MeshRenderer : public Renderer {
+class MeshRenderer : public Renderer
+{
+
 protected:
     void setupVAOs() override;
+    GLuint emptyTexture;
+
 public:
-    explicit MeshRenderer(const std::string& shaderName);
+    explicit MeshRenderer(const std::string &shaderName);
     void updateUniforms() const override;
-    void registerEntity(const std::shared_ptr<RenderableEntity>& entity) override;
+    void registerEntity(const std::shared_ptr<RenderableEntity> &entity) override;
     virtual void drawElements(int numTriangles);
     void render() override;
 };
 
-#endif //INFOH502_CPP_MESHRENDERER_H
+#endif // INFOH502_CPP_MESHRENDERER_H

@@ -13,7 +13,7 @@ std::shared_ptr<Object> Object::make(const std::shared_ptr<Mesh> &mesh, const st
     return RenderableEntityMaker::makeRenderable<Object, ObjectRenderer>(shader, mesh);
 }
 
-Object::Object(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Renderer>& renderer) : RenderableEntity(renderer)
+Object::Object(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Renderer> &renderer) : RenderableEntity(renderer)
 {
     m_mesh = mesh;
     height = computeHeight();

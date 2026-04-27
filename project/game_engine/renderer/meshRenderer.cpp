@@ -4,12 +4,22 @@
 #include "../../utils/utils.h"
 #include "../entity/object.h"
 
-MeshRenderer::MeshRenderer(const std::string& shaderName): Renderer(generateShader(shaderName)) {}
+#include "../../utils/utils.h"
+#include "../entity/object.h"
+
+MeshRenderer::MeshRenderer(const std::string &shaderName) : Renderer(generateShader(shaderName))
+{
+    glGenTextures(1, &emptyTexture);
+    glBindTexture(GL_TEXTURE_2D, emptyTexture);
+    unsigned int transparent = 0x00000000; // Alpha is 00
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &transparent);
+}
 
 void MeshRenderer::updateUniforms() const
-{}
+{
+}
 
-void MeshRenderer::registerEntity(const std::shared_ptr<RenderableEntity>& entity)
+void MeshRenderer::registerEntity(const std::shared_ptr<RenderableEntity> &entity)
 {
     this->Renderer::registerEntity(entity);
 }
@@ -32,26 +42,29 @@ void MeshRenderer::setupVAOs()
         if (att_position >= 0)
         {
             glEnableVertexAttribArray(att_position);
-            glVertexAttribPointer(att_position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, position)));
+
+            glVertexAttribPointer(att_position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, position)));
         }
 
         const auto att_tex = glGetAttribLocation(_shader->getID(), "tex_coord");
         if (att_tex >= 0)
         {
             glEnableVertexAttribArray(att_tex);
-            glVertexAttribPointer(att_tex, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, texture)));
+            glVertexAttribPointer(att_tex, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, texture)));
         }
 
         const auto att_normal = glGetAttribLocation(_shader->getID(), "normal");
         if (att_normal >= 0)
         {
             glEnableVertexAttribArray(att_normal);
-            glVertexAttribPointer(att_normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, normal)));
+
+            glVertexAttribPointer(att_normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, normal)));
         }
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->m_Entries[i].IB);
 
         const auto att_model = glGetAttribLocation(_shader->getID(), "model");
+
         if (att_model >= 0)
         {
             glBindBuffer(GL_ARRAY_BUFFER, _VBOs[0]);
@@ -70,7 +83,6 @@ void MeshRenderer::render()
 {
     Renderer::render(); // Updates shader uniforms
 
-    if (!this->getEntity<Object>()->getMesh()) return;
     const auto mesh = this->getEntity<Object>()->getMesh();
 
     for (unsigned int i = 0; i < _VAOs.size(); i++)
@@ -81,6 +93,10 @@ void MeshRenderer::render()
         if (entry.materialIndex < mesh->m_Textures.size() && mesh->m_Textures[entry.materialIndex])
         {
             mesh->m_Textures[entry.materialIndex]->bind();
+        }
+        else
+        {
+            glBindTexture(GL_TEXTURE_2D, emptyTexture); // Bind the "Invisible" texture
         }
 
         glBindVertexArray(_VAOs[i]);

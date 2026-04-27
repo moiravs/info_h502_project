@@ -10,34 +10,41 @@ DONE:
 - Lights
     - Add a lamp
 - Assimp (pour load des arbres cool)
+- Fire camp (https://www.rastertek.com/gl4linuxtut33.html)
+(https://learnopengl.com/In-Practice/2D-Game/Particles)
+- Refactor Lights
+
 
 EN COURS:
-- Refactor Lights
 
 
 TODO:
 
 - Frustum culling https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
 
-
-- Fire camp (https://www.rastertek.com/gl4linuxtut33.html)
-(https://learnopengl.com/In-Practice/2D-Game/Particles)
-
-
-# Features
-
-
 - Object moving in the scene
     - Water (physics simulation)
-    - FISHHHH
+    - (FISHHHH)
 
-    
+- Bigger map maybe
 
-    
-# Améliorer les performances
+- Shadows
+
+- Player plane
+
+- Add music
+    - Background music of motor ?
+    - sound when hitting a circle correctly
+
 - Implement Billboarding to just render the trees far away as a 2D image
 
 - Tessalation for the height terrain https://learnopengl.com/Guest-Articles/2021/Tessellation/Tessellation
+
+- Atmospheric models:
+    - BEER’SLAW AND HOMOGENEOUS FOG
+    - EXPONENTIAL MIST
+        - Fix current mist which is weird
+    - A MINIMAL RAYLEIGH SCATTERING APPROXIMATION
 
 
 

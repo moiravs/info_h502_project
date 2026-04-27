@@ -6,7 +6,7 @@
 #include "../entity/instancedObject.h"
 #include "../renderer/instancedRenderer.h"
 
-std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::vec3& scale, const glm::vec3 &color,
+std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &color,
                                           const glm::vec4 &lightProperties, const glm::vec3 &lightAttenuation)
 {
     const auto sphere = Object::make(
@@ -22,6 +22,7 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
     light->setAttenuation(lightAttenuation.x, lightAttenuation.y, lightAttenuation.z);
     light->setProperties(lightProperties.x, lightProperties.y, lightProperties.z, lightProperties.w);
     sphere->setPosition(position);
+    sphere->setScale(glm::vec3(4, 4, 4));
 
     auto prop = std::make_shared<Prop>();
 
@@ -30,6 +31,26 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
     prop->addEntity(light);
     prop->setMainObject(sphere);
 
+    return prop;
+}
+
+std::shared_ptr<Prop> PropMaker::makeFirecamp(const std::shared_ptr<TerrainMesh> &heightMap)
+{
+
+    const auto firecamp = Object::make(
+        std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/Campfire/Campfire OBJ.obj"),
+        "firecamp");
+
+    firecamp->setPosition(glm::vec3(1, heightMap->getHeight(1, -5.0), -5));
+    firecamp->setScale(glm::vec3(0.2, 0.2, 0.2));
+
+    auto prop = std::make_shared<Prop>();
+    auto whiteLight = PropMaker::makeLamp(
+        glm::vec3(1.0, 15.0, 1.5), glm::vec3(1, 1, 1), glm::vec3(1, 0, 0),
+        glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.1, 0));
+
+    firecamp->attach(whiteLight->getMainObject(), glm::vec3(0, 0, 0));
+    prop->addRenderable(firecamp);
     return prop;
 }
 
