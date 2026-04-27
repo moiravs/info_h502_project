@@ -22,10 +22,10 @@ class Object : public RenderableEntity
     std::vector<glm::vec3> normals;
     std::vector<Vertex> vertices;
 
-    glm::vec3 _color;
+    glm::vec3 _color{};
 
     float height = 0;
-    glm::vec3 _scale;
+    glm::vec3 _scale{};
     float computeHeight() const;
 
     std::shared_ptr<Mesh> m_mesh = nullptr;

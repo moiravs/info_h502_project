@@ -119,9 +119,7 @@ int main()
 		.color1 = glm::vec3(1.0f, 1.0f, 0.8f),
 		.color2 = glm::vec3(1.0f, 0.5f, 0.0f),
 		.color3 = glm::vec3(0.5f, 0.0f, 0.0f)});
-	pg->setPosition(glm::vec3(0.5, heightMap->getHeight(0.5, 5.0), -5));
-
-	OctreeManager::get()->print();
+	pg->setPosition(glm::vec3(0.5, heightMap->getHeight(0.5, -5.0), -5));
 
 	double lastTime = glfwGetTime();
 
@@ -144,7 +142,7 @@ int main()
 		camera->updateUBO();
 		fbos->setClipPlane(reflectionPlane);
 
-		Game::renderScene(delta, {trees, skybox});
+		Game::renderScene(delta, {trees, skybox, terrain});
 		camera->resetCameraAfterReflection(WATER_HEIGHT);
 		camera->updateUBO();
 
@@ -153,7 +151,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		fbos->setClipPlane(refractionPlane); // One clean call
-		Game::renderScene(delta, {trees});
+		Game::renderScene(delta, {trees, terrain});
 
 		fbos->unbindCurrentFrameBuffer();
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
@@ -163,7 +161,7 @@ int main()
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glDisable(GL_CLIP_DISTANCE0);
 
-		Game::renderScene(delta, {pg, trees, redLight, water, skybox});
+		Game::renderScene(delta, {pg, trees, redLight, water, skybox, terrain});
 		dm.update();
 	}
 

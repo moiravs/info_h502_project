@@ -1,6 +1,6 @@
 #version 410 core
-layout (location = 0) in vec3 aPos;
-layout (location = 2) in vec3 aNormal; // Added normal input
+in vec3 position;
+in vec3 normal; // Added normal input
 
 layout (std140) uniform WaterData {
     vec4 plane;
@@ -23,13 +23,13 @@ layout(std140) uniform CameraInfo {
 
 void main()
 {
-    WorldPos = model * vec4(aPos, 1.0);
+    WorldPos = model * vec4(position, 1.0);
     gl_ClipDistance[0] = dot(WorldPos, plane);
 
-    Height = aPos.y;
+    Height = position.y;
     v_fragPos = vec3(WorldPos);
     // Transform normal to world space
-    v_normal = mat3(transpose(inverse(model))) * aNormal;
+    v_normal = mat3(transpose(inverse(model))) * normal;
 
     //gl_Position = color;
     gl_Position = projection * view * WorldPos;
