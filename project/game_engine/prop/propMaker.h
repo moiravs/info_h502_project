@@ -17,6 +17,8 @@ public:
     static std::shared_ptr<Prop> makeTrees(const std::shared_ptr<TerrainMesh> &heightMap);
 
     static std::shared_ptr<Prop> makeFirecamp(const std::shared_ptr<TerrainMesh> &heightMap);
+
+    static std::shared_ptr<Prop> makePlane(const std::shared_ptr<TerrainMesh> &heightMap);
 };
 
 #endif // INFOH502_CPP_PROPMAKER_H

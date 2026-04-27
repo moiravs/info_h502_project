@@ -102,6 +102,8 @@ int main()
 		glm::vec3(.0, 100.0, 1.5), glm::vec3(1, 1, 1), glm::vec3(1, 1, 1),
 		glm::vec4(0, 0.9, 1, 32), glm::vec3(0.005, 0.005, 0));
 
+	auto plane = PropMaker::makePlane(heightMap);
+
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
 	auto trees = PropMaker::makeTrees(heightMap);
@@ -172,7 +174,7 @@ int main()
 
 		sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
 
-		Game::renderScene(delta, {pg, trees, redLight, water, skybox, terrain, sun, firecamp});
+		Game::renderScene(delta, {pg, trees, redLight, water, skybox, terrain, sun, firecamp, plane});
 		dm.update();
 	}
 
