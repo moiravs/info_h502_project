@@ -26,12 +26,10 @@
 #include "game_engine/renderer/skyboxRenderer.h"
 
 #include "utils/constants.h"
-#include "game_engine/renderer/particleRenderer.h"
 #include "game_engine/prop/propMaker.h"
 #include "game_engine/game.h"
 #include "game_engine/entity/particleGenerator.h"
 #include "game_engine/entity/renderableEntityMaker.h"
-#include "game_engine/renderer/objectRenderer.h"
 #include "game_engine/renderer/waterRenderer.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
