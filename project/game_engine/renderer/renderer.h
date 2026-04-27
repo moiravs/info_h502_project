@@ -12,9 +12,9 @@ class Renderer
 protected:
     std::shared_ptr<Shader> _shader = nullptr;
     std::shared_ptr<RenderableEntity> _entity = nullptr;
-    std::vector<GLuint> _VAOs {}, _VBOs {};
+    std::vector<GLuint> _VAOs{}, _VBOs{};
 
-    [[nodiscard]] static std::shared_ptr<Shader> generateShader(const std::string& shaderName);
+    [[nodiscard]] static std::shared_ptr<Shader> generateShader(const std::string &shaderName);
 
     void createVAOs(size_t nb);
     void createVBOs(size_t nb);
@@ -33,6 +33,7 @@ protected:
         }
         return obj;
     }
+
 public:
     explicit Renderer(std::shared_ptr<Shader> shader);
     virtual void updateUniforms() const = 0;

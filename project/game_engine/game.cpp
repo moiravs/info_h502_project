@@ -11,7 +11,7 @@ void Game::renderScene(const float delta, const std::vector<std::shared_ptr<Rend
     }
 }
 
-void Game::checkTerrainCollision(const std::shared_ptr<Entity>& entity, const std::shared_ptr<TerrainMesh>& terrain)
+void Game::checkTerrainCollision(const std::shared_ptr<Entity> &entity, const std::shared_ptr<TerrainMesh> &terrain)
 {
     glm::vec3 pos = entity->getPosition();
 

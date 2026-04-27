@@ -29,9 +29,12 @@ class Object : public RenderableEntity
     float computeHeight() const;
 
     std::shared_ptr<Mesh> m_mesh = nullptr;
-public:
-    explicit Object(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Renderer>& renderer);
 
+public:
+    explicit Object(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Renderer> &renderer);
+
+    static std::shared_ptr<Object> make(const char *path, const std::shared_ptr<Renderer> &renderer = nullptr);
+    static std::shared_ptr<Object> make(float size, float height, const std::shared_ptr<Renderer> &renderer = nullptr);
     static std::shared_ptr<Object> make(const std::shared_ptr<Mesh> &mesh, const std::string &shader);
 
     // this weird line is there so that the overloads of Entity::setPosition stay despite the override

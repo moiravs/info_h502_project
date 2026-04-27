@@ -2,9 +2,10 @@
 
 WaterRenderer::WaterRenderer(std::shared_ptr<WaterFrameBuffer> fbos)
     : MeshRenderer("water"), transparent(false), _fbos(std::move(fbos))
-{}
+{
+}
 
-void WaterRenderer::registerEntity(const std::shared_ptr<RenderableEntity>& entity)
+void WaterRenderer::registerEntity(const std::shared_ptr<RenderableEntity> &entity)
 {
     this->MeshRenderer::registerEntity(entity);
 
