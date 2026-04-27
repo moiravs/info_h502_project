@@ -2,15 +2,16 @@
 #include "terrainMesh.h"
 #include <stb_image.h>
 
-TerrainMesh::TerrainMesh(const float width, const float depth): Mesh(), _width(width), _depth(depth)
-{}
+TerrainMesh::TerrainMesh(const float width, const float depth) : Mesh(), _width(width), _depth(depth)
+{
+}
 
-std::shared_ptr<TerrainMesh> TerrainMesh::terrainFromTexture(const std::string& texturePath,
-    const float width, const float depth)
+std::shared_ptr<TerrainMesh> TerrainMesh::terrainFromTexture(const std::string &texturePath,
+                                                             const float width, const float depth)
 {
     auto ret = std::make_shared<TerrainMesh>(width, depth);
 
-    std::vector<unsigned> indices {};
+    std::vector<unsigned> indices{};
     stbi_set_flip_vertically_on_load(true);
     int nrChannels;
     unsigned char *data = stbi_load(texturePath.c_str(), &ret->_imageWidth, &ret->_imageHeight, &nrChannels, 0);
@@ -33,7 +34,7 @@ std::shared_ptr<TerrainMesh> TerrainMesh::terrainFromTexture(const std::string& 
         for (int x = 0; x < ret->_imageWidth; x++)
         {
             constexpr float yShift = 16.0f;
-            const unsigned char* pixel = data + (x + ret->_imageWidth * z) * nrChannels;
+            const unsigned char *pixel = data + (x + ret->_imageWidth * z) * nrChannels;
             const float h = pixel[0] * yScale - yShift;
 
             heights[idx(x, z)] = h;
@@ -96,7 +97,7 @@ std::shared_ptr<TerrainMesh> TerrainMesh::terrainFromTexture(const std::string& 
 }
 
 glm::vec3 TerrainMesh::calculateNormal(const int x, const int z, const int imageWidth, const int imageHeight,
-    const std::vector<float>& heights)
+                                       const std::vector<float> &heights)
 {
     auto idx = [&](const int _x, const int _z)
     {
@@ -104,9 +105,9 @@ glm::vec3 TerrainMesh::calculateNormal(const int x, const int z, const int image
     };
     // Get heights of neighbors (with bounds checking)
     const float hL = (x > 0) ? heights[idx((x - 1), z)] : heights[idx(x, z)];
-    const float hR = (x < imageHeight - 1) ? heights[idx(x + 1, z)] : heights[idx(x, z)];
+    const float hR = (x < imageWidth - 1) ? heights[idx(x + 1, z)] : heights[idx(x, z)];
     const float hD = (z > 0) ? heights[idx(x, z - 1)] : heights[idx(x, z)];
-    const float hU = (z < imageWidth - 1) ? heights[idx(x, z + 1)] : heights[idx(x, z)];
+    const float hU = (z < imageHeight - 1) ? heights[idx(x, z + 1)] : heights[idx(x, z)];
 
     // Deduce normal from height difference
     // The constant (2.0) should match your grid spacing for perfect accuracy
@@ -144,7 +145,7 @@ float TerrainMesh::getWidth() const
     return this->_width;
 }
 
-const std::vector<Vertex>& TerrainMesh::getVertices() const
+const std::vector<Vertex> &TerrainMesh::getVertices() const
 {
     return this->_vertices;
 }

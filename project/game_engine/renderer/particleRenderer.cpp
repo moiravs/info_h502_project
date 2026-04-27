@@ -4,6 +4,7 @@
 
 #include "../../utils/utils.h"
 #include "../entity/particleGenerator.h"
+#include <algorithm>
 
 #define VBO_VERTEX 0
 #define VBO_POSITION 1
@@ -18,8 +19,7 @@ void ParticleRenderer::setupVAOs()
         -1.0, 1.0, 0.0,
         1.0, 1.0, 0.0,
         -1.0, 1.0, 0.0,
-        1.0, -1.0, 0.0
-    };
+        1.0, -1.0, 0.0};
 
     this->createVAOs(1);
     this->createVBOs(3);
@@ -62,7 +62,8 @@ void ParticleRenderer::setupVAOs()
 }
 
 ParticleRenderer::ParticleRenderer(const std::string &shader) : Renderer(generateShader(shader))
-{}
+{
+}
 
 void ParticleRenderer::updateUniforms() const
 {
@@ -115,8 +116,8 @@ void ParticleRenderer::sortParticles()
 
 void ParticleRenderer::update(const double delta)
 {
-    const auto& params = this->getGenerator()->getParams();
-    const auto& position = this->getGenerator()->getPosition();
+    const auto &params = this->getGenerator()->getParams();
+    const auto &position = this->getGenerator()->getPosition();
     particleCount = 0;
     int newParticle = delta * 1000.0f;
     if (newParticle > static_cast<int>(0.032f * 1000.0))
