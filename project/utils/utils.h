@@ -6,6 +6,7 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <iomanip>
 
 #define ERROR(msg)                                         \
     std::cerr << "[ERROR] " << __FILE__ << ":" << __LINE__ \
@@ -18,6 +19,19 @@
                   << " (" << __func__ << ") - " << msg << std::endl; \
         std::exit(EXIT_FAILURE);                                     \
     } while (0)
+
+
+inline void printMat4(const glm::mat4& m)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            std::cout << std::setw(10) << std::setprecision(4) << m[j][i] << " ";
+        }
+        std::cout << "\n";
+    }
+}
 
 inline bool isInVolume(const glm::vec3& point, const glm::vec3& lower, const glm::vec3& upper)
 {

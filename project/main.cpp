@@ -72,13 +72,13 @@ int main()
 		TerrainMesh::terrainFromTexture(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
 
 	// Skybox
-	auto skybox = RenderableEntityMaker::makeRenderable<Skybox, SkyboxRenderer>(
-		"skybox", std::vector<std::string>{PATH_TO_SRC "/../assets/textures/cubemaps/skybox/right.jpg",
-		   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/left.jpg",
-		   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/top.jpg",
-		   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/bottom.jpg",
-		   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/front.jpg",
-		   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/back.jpg"});
+	// auto skybox = RenderableEntityMaker::makeRenderable<Skybox, SkyboxRenderer>(
+	// 	"skybox", std::vector<std::string>{PATH_TO_SRC "/../assets/textures/cubemaps/skybox/right.jpg",
+	// 	   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/left.jpg",
+	// 	   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/top.jpg",
+	// 	   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/bottom.jpg",
+	// 	   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/front.jpg",
+	// 	   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/back.jpg"});
 
 	// Water
 	auto fbos = std::make_shared<WaterFrameBuffer>();
@@ -90,36 +90,36 @@ int main()
 	// auto skyboxRenderer = std::make_shared<SkyboxRenderer>(&skybox);
 
 	// Objects
-	auto water = RenderableEntityMaker::makeRenderable<Object, WaterRenderer>(
-		fbos, Mesh::createPlane(PLAN_SIZE_X / 2, WATER_HEIGHT));
-
-	auto whiteLight = PropMaker::makeLamp(
-		glm::vec3(1.0, 15.0, 1.5), glm::vec3(1), glm::vec3(1, 1, 1),
-		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0));
-
-	auto redLight = PropMaker::makeLamp(
-		glm::vec3(1.0, 15.0, 1.5), glm::vec3(1), glm::vec3(1, 0, 0),
-		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0));
-
+	// auto water = RenderableEntityMaker::makeRenderable<Object, WaterRenderer>(
+	// 	fbos, Mesh::createPlane(PLAN_SIZE_X / 2, WATER_HEIGHT));
+	//
+	// auto whiteLight = PropMaker::makeLamp(
+	// 	glm::vec3(1.0, 15.0, 1.5), glm::vec3(1), glm::vec3(1, 1, 1),
+	// 	glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0));
+	//
+	// auto redLight = PropMaker::makeLamp(
+	// 	glm::vec3(1.0, 15.0, 1.5), glm::vec3(1), glm::vec3(1, 0, 0),
+	// 	glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0));
+	//
 	auto terrain = Object::make(heightMap, "cpu_height");
 
 	// the white light is fixed to the camera (it's not rendered)
-	camera->attach(whiteLight->getMainObject(), glm::vec3(0, 0, 0));
+	// camera->attach(whiteLight->getMainObject(), glm::vec3(0, 0, 0));
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
-	auto trees = PropMaker::makeTrees(heightMap);
+	// auto trees = PropMaker::makeTrees(heightMap);
 	auto &lightManager = LightManager::get();
 	
-	auto pg = ParticleGenerator::make(ParticleParams{
-		.spread = 0.2,
-		.range = 0.5,
-		.initialSize = 0.1,
-		.maxLife = 2,
-		.color1 = glm::vec3(1.0f, 1.0f, 0.8f),
-		.color2 = glm::vec3(1.0f, 0.5f, 0.0f),
-		.color3 = glm::vec3(0.5f, 0.0f, 0.0f)});
-	pg->setPosition(glm::vec3(0.5, heightMap->getHeight(0.5, -5.0), -5));
+	// auto pg = ParticleGenerator::make(ParticleParams{
+	// 	.spread = 0.2,
+	// 	.range = 0.5,
+	// 	.initialSize = 0.1,
+	// 	.maxLife = 2,
+	// 	.color1 = glm::vec3(1.0f, 1.0f, 0.8f),
+	// 	.color2 = glm::vec3(1.0f, 0.5f, 0.0f),
+	// 	.color3 = glm::vec3(0.5f, 0.0f, 0.0f)});
+	// pg->setPosition(glm::vec3(0.5, heightMap->getHeight(0.5, -5.0), -5));
 
 	double lastTime = glfwGetTime();
 
@@ -142,7 +142,7 @@ int main()
 		camera->updateUBO();
 		fbos->setClipPlane(reflectionPlane);
 
-		Game::renderScene(delta, {trees, skybox, terrain});
+		Game::renderScene(delta, {terrain});
 		camera->resetCameraAfterReflection(WATER_HEIGHT);
 		camera->updateUBO();
 
@@ -151,7 +151,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		fbos->setClipPlane(refractionPlane); // One clean call
-		Game::renderScene(delta, {trees, terrain});
+		Game::renderScene(delta, {terrain});
 
 		fbos->unbindCurrentFrameBuffer();
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
@@ -161,7 +161,7 @@ int main()
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glDisable(GL_CLIP_DISTANCE0);
 
-		Game::renderScene(delta, {pg, trees, redLight, water, skybox, terrain});
+		Game::renderScene(delta, {terrain});
 		dm.update();
 	}
 
