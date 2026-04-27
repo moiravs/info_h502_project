@@ -35,7 +35,7 @@ void RenderableEntity::setPosition(const glm::vec3& position)
     Entity::setPosition(position);
     if (const auto obj = std::dynamic_pointer_cast<RenderableEntity>(this->shared_from_this()))
     {
-        this->octreeNode->moveObject(obj, this->getPosition());
+        this->octreeNode->moveObject(obj, position);
     }
     this->dirty();
 }

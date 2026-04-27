@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 #include "renderer.h"
 #include "../shader.h"
-#include "../skybox.h"
+#include "../entity/skybox.h"
 
 class SkyboxRenderer : public Renderer
 {

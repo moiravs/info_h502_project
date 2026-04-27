@@ -4,8 +4,8 @@
 
 #include "glm/gtc/type_ptr.hpp"
 
-Camera::Camera(const glm::vec3 position, const glm::vec3 up, const float yaw, const float pitch)
-    : Entity(position, yaw, pitch, up), UboProvider("CameraInfo", sizeof(CameraInfo)), zoom(ZOOM)
+Camera::Camera(const glm::vec3 up, const float yaw, const float pitch)
+    : Entity(yaw, pitch, up), UboProvider("CameraInfo", sizeof(CameraInfo)), zoom(ZOOM)
 {
     this->Camera::updateRotation();
 }

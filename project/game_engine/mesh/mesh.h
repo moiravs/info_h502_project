@@ -11,10 +11,10 @@
 #include <assimp/postprocess.h>
 #include <vector>
 
-#include "entity/camera.h"
-#include "entity/light.h"
-#include "entity/vertex.h"
-#include "texture.h"
+#include "../entity/camera.h"
+#include "../entity/light.h"
+#include "../entity/vertex.h"
+#include "../texture.h"
 
 class Mesh
 {
@@ -22,7 +22,6 @@ class Mesh
     void initMesh(unsigned int Index, const aiMesh *paiMesh);
     void initMaterials(const aiScene *pScene, const std::string &Filename);
     void clear();
-
 #define INVALID_MATERIAL 0xFFFFFFFF
 
 public:
@@ -35,8 +34,8 @@ public:
 
         GLuint VB;
         GLuint IB;
-        unsigned int NumIndices;
-        unsigned int MaterialIndex;
+        unsigned int numIndices;
+        unsigned int materialIndex;
     };
     Mesh()=default;
     explicit Mesh(const std::string &filename);

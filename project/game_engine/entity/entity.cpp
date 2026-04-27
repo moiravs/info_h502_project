@@ -13,10 +13,10 @@ Entity::Attachment::Attachment(const std::shared_ptr<Entity> &entity, const glm:
     this->offset = offset;
 }
 
-Entity::Entity(glm::vec3 pos, glm::vec3 up) : Entity(pos, 0, 0, up) {}
+Entity::Entity(glm::vec3 up) : Entity(0, 0, up) {}
 
-Entity::Entity(glm::vec3 pos, float yaw, float pitch, glm::vec3 up)
-: id(IDManager::generateID()), _pos(pos), _up(up), _yaw(yaw), _pitch(pitch)
+Entity::Entity(float yaw, float pitch, glm::vec3 up)
+: id(IDManager::generateID()), _up(up), _yaw(yaw), _pitch(pitch)
 {
     this->Entity::updateRotation();
 }

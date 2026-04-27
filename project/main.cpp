@@ -17,14 +17,13 @@
 #include "game_engine/shader.h"
 #include "game_engine/entity/light.h"
 #include "game_engine/entity/camera.h"
-#include "game_engine/terrainGeneration.h"
 #include "game_engine/manager/displaymanager.h"
 #include "game_engine/mainCamera.h"
 #include "game_engine/renderer/terrainRenderer.h"
 #include "game_engine/waterFrameBuffer.h"
 #include "game_engine/renderer/waterRenderer.h"
 
-#include "game_engine/skybox.h"
+#include "game_engine/entity/skybox.h"
 #include "game_engine/manager/lightManager.h"
 #include "game_engine/renderer/skyboxRenderer.h"
 
@@ -34,6 +33,7 @@
 #include "game_engine/game.h"
 #include "game_engine/entity/particleGenerator.h"
 #include "game_engine/entity/renderableEntityMaker.h"
+#include "game_engine/renderer/objectRenderer.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
@@ -67,9 +67,9 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 	auto camera = MainCamera::get();
-
 	// Terrain
-	TerrainGeneration heightMap(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
+	auto heightMap =
+		TerrainMesh::terrainFromTexture(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
 
 	// Skybox
 	auto skybox = RenderableEntityMaker::makeRenderable<Skybox, SkyboxRenderer>(
@@ -80,7 +80,6 @@ int main()
 		   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/front.jpg",
 		   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/back.jpg"});
 
-
 	// Water
 	auto fbos = std::make_shared<WaterFrameBuffer>();
 
@@ -88,7 +87,6 @@ int main()
 	auto refractionPlane = glm::vec4(0, -1, 0, WATER_HEIGHT);
 
 	// Renderer
-	// auto terrainRenderer = std::make_shared<TerrainRenderer>(heightMap);
 	// auto skyboxRenderer = std::make_shared<SkyboxRenderer>(&skybox);
 
 	// Objects
@@ -103,14 +101,16 @@ int main()
 		glm::vec3(1.0, 15.0, 1.5), glm::vec3(1), glm::vec3(1, 0, 0),
 		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0));
 
+	auto terrain = Object::make(heightMap, "cpu_height");
+
 	// the white light is fixed to the camera (it's not rendered)
-	//camera->attach(whiteLight->getMainObject(), glm::vec3(0, 0, 0));
+	camera->attach(whiteLight->getMainObject(), glm::vec3(0, 0, 0));
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
 	auto trees = PropMaker::makeTrees(heightMap);
 	auto &lightManager = LightManager::get();
-
+	
 	auto pg = ParticleGenerator::make(ParticleParams{
 		.spread = 0.2,
 		.range = 0.5,
@@ -119,14 +119,16 @@ int main()
 		.color1 = glm::vec3(1.0f, 1.0f, 0.8f),
 		.color2 = glm::vec3(1.0f, 0.5f, 0.0f),
 		.color3 = glm::vec3(0.5f, 0.0f, 0.0f)});
-	pg->setPosition(glm::vec3(0.5, heightMap.getHeight(0.5, 5.0), -5));
+	pg->setPosition(glm::vec3(0.5, heightMap->getHeight(0.5, 5.0), -5));
+
+	OctreeManager::get()->print();
 
 	double lastTime = glfwGetTime();
 
 	while (!dm.shouldClose())
 	{
-		double currentTime = glfwGetTime();
-		double delta = currentTime - lastTime;
+		const double currentTime = glfwGetTime();
+		const double delta = currentTime - lastTime;
 		lastTime = currentTime;
 
 		lightManager.updateUBO();
@@ -141,7 +143,7 @@ int main()
 		camera->prepareReflection(WATER_HEIGHT);
 		camera->updateUBO();
 		fbos->setClipPlane(reflectionPlane);
-		//game.renderScene({trees, terrainRenderer, skyboxRenderer});
+
 		Game::renderScene(delta, {trees, skybox});
 		camera->resetCameraAfterReflection(WATER_HEIGHT);
 		camera->updateUBO();
@@ -151,7 +153,6 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		fbos->setClipPlane(refractionPlane); // One clean call
-		//game.renderScene({trees, terrainRenderer});
 		Game::renderScene(delta, {trees});
 
 		fbos->unbindCurrentFrameBuffer();
@@ -162,7 +163,6 @@ int main()
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glDisable(GL_CLIP_DISTANCE0);
 
-		//game.renderScene({trees, pg, redLight, waterRenderer, terrainRenderer, skyboxRenderer});
 		Game::renderScene(delta, {pg, trees, redLight, water, skybox});
 		dm.update();
 	}

@@ -24,15 +24,15 @@ float Object::computeHeight() const
     if (vertices.empty())
         return 0.0f;
 
-    float minY = vertices[0].Position.y;
-    float maxY = vertices[0].Position.y;
+    float minY = vertices[0].position.y;
+    float maxY = vertices[0].position.y;
 
     for (const auto &vertex : vertices)
     {
-        if (vertex.Position.y < minY)
-            minY = vertex.Position.y;
-        if (vertex.Position.y > maxY)
-            maxY = vertex.Position.y;
+        if (vertex.position.y < minY)
+            minY = vertex.position.y;
+        if (vertex.position.y > maxY)
+            maxY = vertex.position.y;
     }
 
     return maxY - minY;
