@@ -17,19 +17,18 @@ class Renderer;
 
 class Object : public RenderableEntity
 {
-    std::vector<glm::vec3> positions;
-    std::vector<glm::vec2> textures;
-    std::vector<glm::vec3> normals;
-    std::vector<Vertex> vertices;
-
     glm::vec3 _color{};
 
     float height = 0;
     glm::vec3 _scale = glm::vec3(1);
     float computeHeight() const;
+    glm::vec3 _minBound{};
+    glm::vec3 _maxBound{};
 
     std::shared_ptr<Mesh> m_mesh = nullptr;
 
+protected:
+    void updateBounds();
 public:
     explicit Object(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Renderer> &renderer);
 
@@ -45,11 +44,15 @@ public:
 
     void setScale(const glm::vec3 &scale);
 
+    std::pair<glm::vec3, glm::vec3> getBounds() const;
+
     [[nodiscard]] float getHeight() const;
 
     [[nodiscard]] glm::vec3 getColor() const;
 
     [[nodiscard]] glm::mat4 getModel() const override;
+
+    void update(float delta) override;
 
     std::shared_ptr<Mesh> getMesh() const;
 };
