@@ -42,7 +42,7 @@ void renderScene(const std::vector<std::shared_ptr<Renderer>> &renderers)
 	}
 }
 
-#define CONTROL_CAMERA 0
+#define CONTROL_CAMERA 1
 
 int main()
 {
@@ -175,7 +175,8 @@ int main()
 			camera->setPosition(plane->getMainObject()->getPosition() + cameraOffset);
 			camera->setLookAt(plane->getMainObject()->getPosition());
 			dm.update(std::dynamic_pointer_cast<Controllable>(plane->getMainObject()));
-		} else
+		}
+		else
 		{
 			dm.update(camera);
 		}
