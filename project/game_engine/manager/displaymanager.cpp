@@ -100,10 +100,11 @@ void DisplayManager::update(std::shared_ptr<Controllable> object)
     // Measure speed
     const double currentTime = glfwGetTime();
     nbFrames++;
+    frameTimeSeconds = 1000.0 / static_cast<double>(nbFrames);
     if (currentTime - lastTime >= 1.0)
     { // If last prinf() was more than 1 sec ago
         // printf and reset timer
-        printf("%f ms/frame\n", 1000.0 / static_cast<double>(nbFrames));
+        printf("%f ms/frame\n", frameTimeSeconds);
         nbFrames = 0;
         lastTime += 1.0;
     }

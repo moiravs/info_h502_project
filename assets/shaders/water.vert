@@ -19,12 +19,13 @@ out vec2 TexCoord;
 
 out vec4 clipSpace;
 
-const float tiling = 20.0;
+const float tiling = 0.05;
 
 void main() {
 
     clipSpace = projection * view * model * vec4(position.x, position.y, position.z, 1.0);
     gl_Position = clipSpace;
 
-    TexCoord = vec2(position.x /2.0 + 0.5, position.y/2.0 + 0.5) * tiling;
+    TexCoord = vec2(position.x /2.0 + 0.5, position.z/2.0 + 0.5) * tiling;
+
 }

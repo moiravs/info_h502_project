@@ -32,6 +32,7 @@ class DisplayManager
 public:
     double lastX = 800;
     double lastY = 600;
+    float frameTimeSeconds = 0;
     DisplayManager();
 
     void resizeViewport(int width, int height) const;

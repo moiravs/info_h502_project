@@ -11,7 +11,9 @@
 
 class WaterRenderer : public MeshRenderer
 {
+    float WAVE_SPEED = 0.03;
     Texture dudvMap = Texture(PATH_TO_SRC "/../assets/textures/waterdudv.png");
+    float moveFactor = 0;
 
     bool transparent;
     std::shared_ptr<WaterFrameBuffer> _fbos;
