@@ -175,7 +175,8 @@ int main()
 			camera->setPosition(plane->getMainObject()->getPosition() + cameraOffset);
 			camera->setLookAt(plane->getMainObject()->getPosition());
 			dm.update(std::dynamic_pointer_cast<Controllable>(plane->getMainObject()));
-		} else
+		}
+		else
 		{
 			dm.update(camera);
 		}
