@@ -19,7 +19,7 @@ void WaterRenderer::setupVAOs()
     // define VBO and VAO as active buffer and active vertex array
     const auto &mesh = this->getEntity<Object>()->getMesh();
 
-    if (mesh->m_Entries.empty())
+    if (mesh->getEntries().empty())
         return;
 
     this->createVAOs(1);
@@ -28,8 +28,8 @@ void WaterRenderer::setupVAOs()
     glBindVertexArray(_VAOs[0]);
 
     // USE THE BUFFER FROM THE MESH ENTRY, NOT _VBOs[0]
-    glBindBuffer(GL_ARRAY_BUFFER, mesh->m_Entries[0].VB);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->m_Entries[0].IB);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->getEntries()[0].VB);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->getEntries()[0].IB);
 
     auto att_pos = glGetAttribLocation(_shader->getID(), "position");
     if (att_pos >= 0)
@@ -59,7 +59,7 @@ void WaterRenderer::setupVAOs()
 void WaterRenderer::render()
 {
     const auto o = this->getEntity<Object>();
-    if (!o || !o->getMesh() || o->getMesh()->m_Entries.empty())
+    if (!o || !o->getMesh() || o->getMesh()->getEntries().empty())
         return;
 
     Renderer::render();
@@ -76,7 +76,7 @@ void WaterRenderer::render()
 
     glBindVertexArray(_VAOs[0]);
 
-    const auto &entry = o->getMesh()->m_Entries[0];
+    const auto &entry = o->getMesh()->getEntries()[0];
 
     glDrawElements(GL_TRIANGLES, entry.numIndices, GL_UNSIGNED_INT, 0);
 

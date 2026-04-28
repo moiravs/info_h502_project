@@ -16,6 +16,21 @@
 #include "../entity/vertex.h"
 #include "../texture.h"
 
+struct MeshEntry
+{
+    MeshEntry() = default;  // Add this
+    ~MeshEntry() = default; // Add this
+    void init(const std::vector<Vertex> &vertices,
+              const std::vector<unsigned int> &indices);
+
+    GLuint VB;
+    GLuint IB;
+    glm::vec3 minBound;
+    glm::vec3 maxBound;
+    int numIndices;
+    unsigned int materialIndex;
+};
+
 class Mesh
 {
     void initFromScene(const aiScene *pScene, const std::string &Filename);
@@ -24,26 +39,21 @@ class Mesh
     void clear();
 #define INVALID_MATERIAL 0xFFFFFFFF
 
-public:
-    struct MeshEntry
-    {
-        MeshEntry() = default;  // Add this
-        ~MeshEntry() = default; // Add this
-        void init(const std::vector<Vertex> &Vertices,
-                  const std::vector<unsigned int> &Indices);
+    glm::vec3 minBound{};
+    glm::vec3 maxBound{};
+    void updateBounds();
+    std::vector<MeshEntry> m_Entries; // One for each sub-mesh
 
-        GLuint VB;
-        GLuint IB;
-        int numIndices;
-        unsigned int materialIndex;
-    };
+public:
     Mesh()=default;
     explicit Mesh(const std::string &filename);
     ~Mesh();
 
     static std::shared_ptr<Mesh> createPlane(float size, float height);
+    [[nodiscard]] std::pair<glm::vec3, glm::vec3> getBounds() const;
+    void addEntry(const MeshEntry &entry);
+    [[nodiscard]] const std::vector<MeshEntry>& getEntries() const;
 
-    std::vector<MeshEntry> m_Entries; // One for each sub-mesh
     std::vector<Texture *> m_Textures;
 };
 

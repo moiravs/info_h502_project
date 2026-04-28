@@ -42,7 +42,7 @@ void renderScene(const std::vector<std::shared_ptr<Renderer>> &renderers)
 	}
 }
 
-#define CONTROL_CAMERA 0
+#define CONTROL_CAMERA 1
 
 int main()
 {
