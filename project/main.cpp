@@ -175,6 +175,7 @@ int main()
 		sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
 
 		Game::renderScene(delta, {pg, trees, redLight, water, skybox, terrain, sun, firecamp, plane});
+		plane->getMainObject()->setPosition(glm::vec3(camera->getPosition()) + glm::vec3(0, -5, 5));
 		dm.update();
 	}
 
