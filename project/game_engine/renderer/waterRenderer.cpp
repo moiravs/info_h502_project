@@ -17,7 +17,7 @@ void WaterRenderer::registerEntity(const std::shared_ptr<RenderableEntity> &enti
 void WaterRenderer::render()
 {
     const auto o = this->getEntity<Object>();
-    if (!o || !o->getMesh() || o->getMesh()->m_Entries.empty())
+    if (!o || !o->getMesh() || o->getMesh()->getEntries().empty())
         return;
 
     Renderer::render();
@@ -32,7 +32,7 @@ void WaterRenderer::render()
 
     glBindVertexArray(_VAOs[0]);
 
-    const auto &entry = o->getMesh()->m_Entries[0];
+    const auto &entry = o->getMesh()->getEntries()[0];
 
     glDrawElements(GL_TRIANGLES, entry.numIndices, GL_UNSIGNED_INT, 0);
 

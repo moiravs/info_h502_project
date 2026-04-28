@@ -30,13 +30,13 @@ void MeshRenderer::setupVAOs()
         return;
 
     const auto &mesh = this->getEntity<Object>()->getMesh();
-    this->createVAOs(mesh->m_Entries.size());
+    this->createVAOs(mesh->getEntries().size());
     this->createVBOs(1);
 
-    for (unsigned int i = 0; i < mesh->m_Entries.size(); i++)
+    for (unsigned int i = 0; i < mesh->getEntries().size(); i++)
     {
         glBindVertexArray(_VAOs[i]);
-        glBindBuffer(GL_ARRAY_BUFFER, mesh->m_Entries[i].VB);
+        glBindBuffer(GL_ARRAY_BUFFER, mesh->getEntries()[i].VB);
 
         const auto att_position = glGetAttribLocation(_shader->getID(), "position");
         if (att_position >= 0)
@@ -61,7 +61,7 @@ void MeshRenderer::setupVAOs()
             glVertexAttribPointer(att_normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, normal)));
         }
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->m_Entries[i].IB);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->getEntries()[i].IB);
 
         const auto att_model = glGetAttribLocation(_shader->getID(), "model");
 
@@ -87,7 +87,7 @@ void MeshRenderer::render()
 
     for (unsigned int i = 0; i < _VAOs.size(); i++)
     {
-        const auto &entry = mesh->m_Entries[i];
+        const auto &entry = mesh->getEntries()[i];
 
         // Use texture from Assimp material, fallback to constructor texture if null
         if (entry.materialIndex < mesh->m_Textures.size() && mesh->m_Textures[entry.materialIndex])
