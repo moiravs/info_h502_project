@@ -4,17 +4,19 @@
 
 #include "glm/gtc/type_ptr.hpp"
 
-void Player::processKeyboardMovement(const PlayerMovement direction, const float deltaTime)
+Player::Player(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<Renderer>& renderer): Object(mesh, renderer){}
+
+void Player::processKeyboardMovement(const MovementDirection direction, const float deltaTime)
 {
     const float velocity = MOV_SPEED * deltaTime;
     if (direction == LEFT)
-        this->setPosition(this->getPosition() + this->getFront() * velocity);
-    if (direction == RIGHT)
-        this->setPosition(this->getPosition() - this->getFront() * velocity);
-    if (direction == BACKWARD)
         this->setPosition(this->getPosition() - this->getRight() * velocity);
-    if (direction == FORWARD)
+    if (direction == RIGHT)
         this->setPosition(this->getPosition() + this->getRight() * velocity);
+    //if (direction == BACKWARD)
+        //this->setPosition(this->getPosition() - this->getRight() * velocity);
+    if (direction == FORWARD)
+        this->setPosition(this->getPosition() + this->getFront() * velocity);
     if (direction == CROUCH)
         this->setPosition(this->getPosition() - WORLD_UP * velocity);
     if (direction == JUMP)

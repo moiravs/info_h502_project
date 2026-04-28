@@ -2,10 +2,12 @@
 #include "propMaker.h"
 
 #include "../renderer/objectRenderer.h"
+#include "../entity/particleGenerator.h"
 #include "../entity/player.h"
 #include "../../utils/constants.h"
 #include "../entity/instancedObject.h"
 #include "../renderer/instancedRenderer.h"
+#include "../entity/renderableEntityMaker.h"
 
 std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &color,
                                           const glm::vec4 &lightProperties, const glm::vec3 &lightAttenuation)
@@ -14,7 +16,6 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
         std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/sphere_smooth.obj"),
         "solid");
     const auto light = Light::make();
-    sphere->setScale(scale);
 
     sphere->attach(light);
     sphere->setColor(color);
@@ -23,7 +24,7 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
     light->setAttenuation(lightAttenuation.x, lightAttenuation.y, lightAttenuation.z);
     light->setProperties(lightProperties.x, lightProperties.y, lightProperties.z, lightProperties.w);
     sphere->setPosition(position);
-    sphere->setScale(glm::vec3(4, 4, 4));
+    sphere->setScale(scale);
 
     auto prop = std::make_shared<Prop>();
 
@@ -37,9 +38,7 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
 
 std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<TerrainMesh> &heightMap)
 {
-    const auto plane = Player::make(
-        std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/plane/uploads_files_6592991_Model.obj"),
-        "firecamp");
+    const auto plane = RenderableEntityMaker::makeRenderable<Player, ObjectRenderer>("firecamp", std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/plane/uploads_files_6592991_Model.obj"));
 
     plane->setPosition(glm::vec3(1, 30, -5));
     auto prop = std::make_shared<Prop>();
@@ -49,23 +48,35 @@ std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<TerrainMesh> &h
     return prop;
 }
 
-std::shared_ptr<Prop> PropMaker::makeFirecamp(const std::shared_ptr<TerrainMesh> &heightMap)
+std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, const std::shared_ptr<TerrainMesh> &heightMap)
 {
-
     const auto firecamp = Object::make(
         std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/Campfire/Campfire OBJ.obj"),
         "firecamp");
 
-    firecamp->setPosition(glm::vec3(1, heightMap->getHeight(1, -5.0), -5));
+    firecamp->setPosition(glm::vec3(x, heightMap->getHeight(x, z), z));
     firecamp->setScale(glm::vec3(0.2, 0.2, 0.2));
 
     auto prop = std::make_shared<Prop>();
-    auto whiteLight = PropMaker::makeLamp(
+    auto light = PropMaker::makeLamp(
         glm::vec3(1.0, 15.0, 1.5), glm::vec3(1, 1, 1), glm::vec3(1, 0, 0),
         glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.1, 0));
 
-    firecamp->attach(whiteLight->getMainObject(), glm::vec3(0, 0, 0));
+    auto pg = ParticleGenerator::make(ParticleParams{
+        .spread = 0.2,
+        .range = 0.5,
+        .initialSize = 0.1,
+        .maxLife = 2,
+        .color1 = glm::vec3(1.0f, 1.0f, 0.8f),
+        .color2 = glm::vec3(1.0f, 0.5f, 0.0f),
+        .color3 = glm::vec3(0.5f, 0.0f, 0.0f)});
+
+    constexpr auto offset = glm::vec3(0, 0, 2.6);
+
+    firecamp->attach(light->getMainObject(), offset);
+    firecamp->attach(pg, offset);
     prop->addRenderable(firecamp);
+    prop->addRenderable(pg);
     return prop;
 }
 

@@ -4,20 +4,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "controllable.h"
 #include "entity.h"
 #include "../../utils/constants.h"
 #include "../manager/uboProvider.h"
-
-// Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
-enum PlayerMovement
-{
-    FORWARD,
-    BACKWARD,
-    LEFT,
-    RIGHT,
-    CROUCH,
-    JUMP
-};
 
 struct CameraInfo
 {
@@ -29,7 +19,7 @@ struct CameraInfo
 };
 
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
-class Camera : public Entity, public UboProvider
+class Camera : public Entity, public UboProvider, public Controllable
 {
     // camera Attributes
     glm::vec3 flatFront{};
@@ -54,7 +44,7 @@ public:
     void invertPitch();
 
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-    void processKeyboardMovement(PlayerMovement direction, float deltaTime);
+    void processKeyboardMovement(MovementDirection direction, float deltaTime) override;
 
     void updateUBO() const;
 
@@ -62,12 +52,12 @@ public:
 
     void resetCameraAfterReflection(int height);
 
-    void processKeyboardRotation(float yawRot, float pitchRot, float rollRot, float deltaTime);
+    void processKeyboardRotation(float yawRot, float pitchRot, float rollRot, float deltaTime) override;
 
     void setLookAt(glm::vec3 target);
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-    void processMouseMovement(float xoffset, float yoffset, float zoffset, float deltaTime);
+    void processMouseMovement(float xoffset, float yoffset, float zoffset, float deltaTime) override;
 
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void processMouseScroll(float yoffset);

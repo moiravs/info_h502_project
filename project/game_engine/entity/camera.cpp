@@ -30,7 +30,7 @@ void Camera::invertPitch()
     this->setRotation(this->getYaw(), -this->getPitch(), this->getRoll());
 }
 
-void Camera::processKeyboardMovement(const PlayerMovement direction, const float deltaTime)
+void Camera::processKeyboardMovement(const MovementDirection direction, const float deltaTime)
 {
     const float velocity = MOV_SPEED * deltaTime;
     if (direction == FORWARD)
@@ -111,7 +111,6 @@ void Camera::updateUBO() const
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-// In your Camera.cpp
 void Camera::setLookAt(glm::vec3 target)
 {
     // 1. Calculate the direction vector from camera to target
