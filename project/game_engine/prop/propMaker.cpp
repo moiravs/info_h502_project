@@ -2,6 +2,7 @@
 #include "propMaker.h"
 
 #include "../renderer/objectRenderer.h"
+#include "../entity/player.h"
 #include "../../utils/constants.h"
 #include "../entity/instancedObject.h"
 #include "../renderer/instancedRenderer.h"
@@ -36,7 +37,7 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
 
 std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<TerrainMesh> &heightMap)
 {
-    const auto plane = Object::make(
+    const auto plane = Player::make(
         std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/plane/uploads_files_6592991_Model.obj"),
         "firecamp");
 

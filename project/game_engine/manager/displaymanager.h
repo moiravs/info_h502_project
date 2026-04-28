@@ -5,8 +5,10 @@
 
 #include "../entity/camera.h"
 #include <GLFW/glfw3.h>
+#include "../entity/object.h"
 
 #include <glm/glm.hpp>
+#include "../entity/player.h"
 
 class DisplayManager
 {
@@ -42,8 +44,8 @@ public:
 
     static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos);
 
-    void update();
+    void update(std::shared_ptr<Player> object);
 
-    void processInput() const;
+    void processInput(std::shared_ptr<Player> object) const;
 };
 #endif
