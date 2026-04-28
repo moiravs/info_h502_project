@@ -1,16 +1,41 @@
 #include "mesh.h"
 
-void Mesh::MeshEntry::init(const std::vector<Vertex> &Vertices, const std::vector<unsigned int> &Indices)
+void MeshEntry::init(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices)
 {
-    numIndices = Indices.size();
+    numIndices = indices.size();
 
     glGenBuffers(1, &VB);
     glBindBuffer(GL_ARRAY_BUFFER, VB);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * Vertices.size(), Vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
 
     glGenBuffers(1, &IB);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IB);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * numIndices, Indices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * numIndices, indices.data(), GL_STATIC_DRAW);
+
+    minBound = vertices[0].position;
+    maxBound = vertices[0].position;
+    for (const auto& vert: vertices)
+    {
+        minBound = glm::min(vert.position, minBound);
+        maxBound = glm::max(vert.position, maxBound);
+    }
+}
+
+void Mesh::updateBounds()
+{
+    minBound = this->m_Entries.at(0).minBound;
+    maxBound = this->m_Entries.at(0).maxBound;
+
+    for (const auto& entry: this->m_Entries)
+    {
+        minBound = glm::min(minBound, entry.minBound);
+        maxBound = glm::max(maxBound, entry.maxBound);
+    }
+}
+
+std::pair<glm::vec3, glm::vec3> Mesh::getBounds() const
+{
+    return {this->minBound, this->maxBound};
 }
 
 Mesh::Mesh(const std::string &filename)
@@ -30,6 +55,19 @@ Mesh::Mesh(const std::string &filename)
     {
         printf("Error parsing '%s': '%s'\n", filename.c_str(), Importer.GetErrorString());
     }
+
+    this->updateBounds();
+}
+
+void Mesh::addEntry(const MeshEntry& entry)
+{
+    this->m_Entries.push_back(entry);
+    this->updateBounds();
+}
+
+const std::vector<MeshEntry>& Mesh::getEntries() const
+{
+    return this->m_Entries;
 }
 
 // Destructor
@@ -143,7 +181,7 @@ std::shared_ptr<Mesh> Mesh::createPlane(const float size, const float height)
         0, 1, 2,
         0, 2, 3};
 
-    Mesh::MeshEntry entry;
+    MeshEntry entry{};
     entry.init(planeVertices, planeIndices);
     entry.materialIndex = 0;
 
