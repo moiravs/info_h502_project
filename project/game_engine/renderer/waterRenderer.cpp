@@ -22,6 +22,11 @@ void WaterRenderer::render()
 
     Renderer::render();
 
+    this->moveFactor += WAVE_SPEED;
+
+    this->moveFactor = std::fmod(this->moveFactor, 1);
+    this->_shader->setFloat("moveFactor", moveFactor);
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -43,4 +48,6 @@ void WaterRenderer::updateUniforms() const
     glBindTexture(GL_TEXTURE_2D, _fbos->getRefractionTexture());
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, dudvMap.getTexture());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
