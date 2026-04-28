@@ -19,23 +19,45 @@ Object::Object(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Renderer
     height = computeHeight();
 }
 
+void Object::updateBounds()
+{
+    if (!this->m_mesh) return;
+
+    auto [min, max] = this->m_mesh->getBounds();
+    const glm::vec3 corners[8] = {
+        {min.x, min.y, min.z},
+        {max.x, min.y, min.z},
+        {max.x, max.y, min.z},
+        {min.x, max.y, min.z},
+        {min.x, min.y, max.z},
+        {max.x, min.y, max.z},
+        {max.x, max.y, max.z},
+        {min.x, max.y, max.z}
+    };
+
+    glm::vec3 worldCorners[8];
+    const auto model = this->getModel();
+    this->_minBound = glm::vec3(model * glm::vec4(corners[0], 1.0));
+    this->_maxBound = glm::vec3(model * glm::vec4(corners[0], 1.0));
+
+    for (int i = 1; i < 8; ++i) {
+        auto mapped = glm::vec3(model * glm::vec4(corners[i], 1.0));
+        this->_minBound = glm::min(this->_minBound, mapped);
+        this->_maxBound = glm::max(this->_maxBound, mapped);
+    }
+}
+
+std::pair<glm::vec3, glm::vec3> Object::getBounds() const
+{
+    return {this->_minBound, this->_maxBound};
+}
+
 float Object::computeHeight() const
 {
-    if (vertices.empty())
-        return 0.0f;
+    if (!this->m_mesh) return 0;
 
-    float minY = vertices[0].position.y;
-    float maxY = vertices[0].position.y;
-
-    for (const auto &vertex : vertices)
-    {
-        if (vertex.position.y < minY)
-            minY = vertex.position.y;
-        if (vertex.position.y > maxY)
-            maxY = vertex.position.y;
-    }
-
-    return maxY - minY;
+    auto [min, max] = this->m_mesh->getBounds();
+    return max.y - min.y;
 }
 
 float Object::getHeight() const
@@ -52,6 +74,12 @@ void Object::setScale(const glm::vec3 &scale)
 {
     this->_scale = scale;
     this->dirty();
+}
+
+void Object::update(const float delta)
+{
+    this->updateBounds();
+    RenderableEntity::update(delta);
 }
 
 glm::mat4 Object::getModel() const

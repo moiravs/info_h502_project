@@ -91,7 +91,7 @@ std::shared_ptr<TerrainMesh> TerrainMesh::terrainFromTexture(const std::string &
     MeshEntry entry{};
     entry.init(ret->_vertices, indices);
     entry.materialIndex = 0;
-    ret->m_Entries.push_back(entry);
+    ret->addEntry(entry);
 
     return ret;
 }
