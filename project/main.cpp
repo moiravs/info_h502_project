@@ -42,6 +42,8 @@ void renderScene(const std::vector<std::shared_ptr<Renderer>> &renderers)
 	}
 }
 
+#define CONTROL_CAMERA 0
+
 int main()
 {
 
@@ -96,10 +98,8 @@ int main()
 
 	auto terrain = Object::make(heightMap, "cpu_height");
 
-	// the white light is fixed to the camera (it's not rendered)
-	// camera->attach(whiteLight->getMainObject(), glm::vec3(0, 0, 0));
 	auto sun = PropMaker::makeLamp(
-		glm::vec3(.0, 100.0, 1.5), glm::vec3(1, 1, 1), glm::vec3(1, 1, 1),
+		glm::vec3(.0, 100.0, 1.5), glm::vec3(10, 10, 10), glm::vec3(1, 1, 1),
 		glm::vec4(0, 0.9, 1, 32), glm::vec3(0.005, 0.005, 0));
 
 	auto plane = PropMaker::makePlane(heightMap);
@@ -109,21 +109,11 @@ int main()
 	auto trees = PropMaker::makeTrees(heightMap);
 	auto &lightManager = LightManager::get();
 
-	auto pg = ParticleGenerator::make(ParticleParams{
-		.spread = 0.2,
-		.range = 0.5,
-		.initialSize = 0.1,
-		.maxLife = 2,
-		.color1 = glm::vec3(1.0f, 1.0f, 0.8f),
-		.color2 = glm::vec3(1.0f, 0.5f, 0.0f),
-		.color3 = glm::vec3(0.5f, 0.0f, 0.0f)});
-	pg->setPosition(glm::vec3(0.5, heightMap->getHeight(0.5, -5.0), -5));
-
 	float orbitRadius = PLAN_SIZE_X / 2; // Distance from the center of the scene
 	float orbitSpeed = 0.1f;			 // How fast the sun moves
 	float orbitHeight = 100.0f;			 // Vertical height of the sun
 
-	auto firecamp = PropMaker::makeFirecamp(heightMap);
+	auto firecamp = PropMaker::makeFirecamp(5, 0, heightMap);
 
 	double lastTime = glfwGetTime();
 
@@ -175,14 +165,20 @@ int main()
 
 		sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
 
-		Game::renderScene(delta, {pg, trees, redLight, water, skybox, terrain, sun, firecamp, plane});
+		Game::renderScene(delta, {trees, redLight, water, skybox, terrain, sun, firecamp, plane});
 		// 	plane->getMainObject()->setPosition(glm::vec3(camera->getPosition()) + glm::vec3(0, -5, 5));
 
 		glm::vec3 cameraOffset = glm::vec3(glm::mat4(1.0f) * glm::vec4(0.0f, 5.0f, -15.0f, 1.0f));
 
-		camera->setPosition(plane->getMainObject()->getPosition() + cameraOffset);
-		camera->setLookAt(plane->getMainObject()->getPosition());
-		dm.update(std::static_pointer_cast<Player>(plane->getMainObject()));
+		if constexpr (!CONTROL_CAMERA)
+		{
+			camera->setPosition(plane->getMainObject()->getPosition() + cameraOffset);
+			camera->setLookAt(plane->getMainObject()->getPosition());
+			dm.update(std::dynamic_pointer_cast<Controllable>(plane->getMainObject()));
+		} else
+		{
+			dm.update(camera);
+		}
 	}
 
 	glfwTerminate();

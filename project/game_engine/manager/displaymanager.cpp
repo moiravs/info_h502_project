@@ -83,7 +83,7 @@ void DisplayManager::cursor_position_callback(GLFWwindow *window, const double x
     dm->moveMouse(xpos, ypos);
 }
 
-void DisplayManager::update(std::shared_ptr<Player> object)
+void DisplayManager::update(std::shared_ptr<Controllable> object)
 {
     glfwSwapBuffers(this->window);
     glfwPollEvents();
@@ -109,7 +109,7 @@ void DisplayManager::update(std::shared_ptr<Player> object)
     }
 }
 
-void DisplayManager::processInput(std::shared_ptr<Player> object) const
+void DisplayManager::processInput(std::shared_ptr<Controllable> object) const
 {
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)

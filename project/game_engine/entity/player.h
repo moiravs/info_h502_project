@@ -13,20 +13,16 @@
 // Defines several possible options for player movement. Used as abstraction to stay away from window-system specific input methods
 
 // An abstract player class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
-class Player : public Object
+class Player : public Object, public Controllable
 {
-
-protected:
-    void updateRotation() override;
-
 public:
-    // constructor with vectors
+    explicit Player(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Renderer> &renderer);
 
-    void processKeyboardMovement(PlayerMovement direction, float deltaTime);
+    void processKeyboardMovement(MovementDirection direction, float deltaTime) override;
 
-    void processKeyboardRotation(float yawRot, float pitchRot, float rollRot, float deltaTime);
+    void processKeyboardRotation(float yawRot, float pitchRot, float rollRot, float deltaTime) override;
 
-    void processMouseMovement(float xoffset, float yoffset, float zoffset, float deltaTime);
+    void processMouseMovement(float xoffset, float yoffset, float zoffset, float deltaTime) override;
 };
 
 #endif

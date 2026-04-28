@@ -44,8 +44,8 @@ public:
 
     static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos);
 
-    void update(std::shared_ptr<Player> object);
+    void update(std::shared_ptr<Controllable> object);
 
-    void processInput(std::shared_ptr<Player> object) const;
+    void processInput(std::shared_ptr<Controllable> object) const;
 };
 #endif
