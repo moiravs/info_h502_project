@@ -128,7 +128,7 @@ int main()
 	double lastTime = glfwGetTime();
 
 	auto game = Game();
-	plane->getMainObject()->rotate(0, 0);
+	plane->getMainObject()->rotate(0, 0, 0);
 
 	while (!dm.shouldClose())
 	{

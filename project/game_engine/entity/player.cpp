@@ -21,14 +21,14 @@ void Player::processKeyboardMovement(const PlayerMovement direction, const float
         this->setPosition(this->getPosition() + WORLD_UP * velocity);
 }
 
-void Player::processKeyboardRotation(const float yawRot, const float pitchRot, const float deltaTime)
+void Player::processKeyboardRotation(const float yawRot, const float pitchRot, const float rollRot, const float deltaTime)
 {
-    const float velocity = ROT_SPEED * deltaTime;
 
-    this->rotate(velocity * yawRot, velocity * pitchRot);
+    const float velocity = ROT_SPEED * deltaTime;
+    this->rotate(velocity * yawRot, velocity * pitchRot, velocity * rollRot);
 }
 
-void Player::processMouseMovement(const float xoffset, const float yoffset, const float deltaTime)
+void Player::processMouseMovement(const float xoffset, const float yoffset, const float zoffset, const float deltaTime)
 {
-    this->processKeyboardRotation(xoffset * SENSITIVITY, -yoffset * SENSITIVITY, deltaTime);
+    this->processKeyboardRotation(xoffset * SENSITIVITY, -yoffset * SENSITIVITY, zoffset * SENSITIVITY, deltaTime);
 }

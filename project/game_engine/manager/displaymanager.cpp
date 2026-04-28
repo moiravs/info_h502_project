@@ -63,7 +63,7 @@ void DisplayManager::moveMouse(const double xpos, const double ypos)
 
     this->lastX = xpos;
     this->lastY = ypos;
-    MainCamera::get()->processMouseMovement(dx, dy, deltaTime);
+    MainCamera::get()->processMouseMovement(dx, dy, 0, deltaTime);
 }
 
 bool DisplayManager::shouldClose() const
@@ -133,11 +133,16 @@ void DisplayManager::processInput(std::shared_ptr<Player> object) const
 
     // camera rotation
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-        object->processKeyboardRotation(1.0, 0.0, deltaTime);
+        object->processKeyboardRotation(1.0, 0.0, 0.0, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-        object->processKeyboardRotation(-1.0, 0.0, deltaTime);
+        object->processKeyboardRotation(-1.0, 0.0, 0.0, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-        object->processKeyboardRotation(0.0, 1.0, deltaTime);
+        object->processKeyboardRotation(0.0, 1.0, 0.0, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        object->processKeyboardRotation(0.0, -1.0, deltaTime);
+        object->processKeyboardRotation(0.0, -1.0, 0.0, deltaTime);
+
+    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+        object->processKeyboardRotation(0.0, 0.0, -1.0, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+        object->processKeyboardRotation(0.0, 0.0, 1.0, deltaTime);
 }
