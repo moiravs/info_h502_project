@@ -96,12 +96,11 @@ void Camera::updateUBO() const
 {
     const CameraInfo i = {
         .projection = Camera::getProjectionMatrix(glm::radians(this->getZoom()),
-                                                static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), 0.1f, 100000.0f),
+                                                  static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), 0.1f, 100000.0f),
         .view = this->getViewMatrix(),
         .cameraPos = glm::vec4(this->getPosition(), 0),
         .cameraRight = glm::vec4(this->getRight(), 0),
-        .cameraUp = glm::vec4(this->getUp(), 0)
-    };
+        .cameraUp = glm::vec4(this->getUp(), 0)};
 
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(i.projection));
@@ -110,4 +109,24 @@ void Camera::updateUBO() const
     glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + sizeof(glm::vec4), sizeof(glm::vec4), glm::value_ptr(i.cameraRight));
     glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + 2 * sizeof(glm::vec4), sizeof(glm::vec4), glm::value_ptr(i.cameraUp));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+// In your Camera.cpp
+void Camera::setLookAt(glm::vec3 target)
+{
+    // 1. Calculate the direction vector from camera to target
+    glm::vec3 direction = glm::normalize(target - this->getPosition());
+
+    // 2. Calculate Pitch (Vertical angle)
+    // direction.y is the 'Opposite' side of the triangle
+    float newPitch = glm::degrees(asin(direction.y));
+
+    // 3. Calculate Yaw (Horizontal angle)
+    // Using atan2 handles the signs of x and z correctly
+    float newYaw = glm::degrees(atan2(direction.z, direction.x));
+
+    // 4. Update the Camera's state using your existing function
+    // This will trigger the math needed for getFront() and updateRotation()
+    this->setRotation(newYaw, newPitch);
+    this->updateRotation();
 }

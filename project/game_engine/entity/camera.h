@@ -35,11 +35,11 @@ class Camera : public Entity, public UboProvider
     glm::vec3 flatFront{};
     // camera options
     float zoom;
+
 protected:
     void updateRotation() override;
 
 public:
-
     // constructor with vectors
     explicit Camera(glm::vec3 up = WORLD_UP,
                     float yaw = YAW, float pitch = PITCH);
@@ -63,6 +63,8 @@ public:
     void resetCameraAfterReflection(int height);
 
     void processKeyboardRotation(float yawRot, float pitchRot, float deltaTime);
+
+    void setLookAt(glm::vec3 target);
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
     void processMouseMovement(float xoffset, float yoffset, float deltaTime);

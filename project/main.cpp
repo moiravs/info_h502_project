@@ -128,6 +128,7 @@ int main()
 	double lastTime = glfwGetTime();
 
 	auto game = Game();
+	plane->getMainObject()->rotate(0, 0);
 
 	while (!dm.shouldClose())
 	{
@@ -175,8 +176,13 @@ int main()
 		sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
 
 		Game::renderScene(delta, {pg, trees, redLight, water, skybox, terrain, sun, firecamp, plane});
-		plane->getMainObject()->setPosition(glm::vec3(camera->getPosition()) + glm::vec3(0, -5, 5));
-		dm.update();
+		// 	plane->getMainObject()->setPosition(glm::vec3(camera->getPosition()) + glm::vec3(0, -5, 5));
+
+		glm::vec3 cameraOffset = glm::vec3(glm::mat4(1.0f) * glm::vec4(0.0f, 5.0f, -15.0f, 1.0f));
+
+		camera->setPosition(plane->getMainObject()->getPosition() + cameraOffset);
+		camera->setLookAt(plane->getMainObject()->getPosition());
+		dm.update(std::static_pointer_cast<Player>(plane->getMainObject()));
 	}
 
 	glfwTerminate();
