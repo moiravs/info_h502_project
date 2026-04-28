@@ -8,13 +8,14 @@
 class Renderer;
 class Octree;
 
-class RenderableEntity : public Entity, public Renderable {
+class RenderableEntity : public Entity, public Renderable
+{
     std::shared_ptr<Renderer> _renderer;
     std::shared_ptr<Octree> octreeNode = nullptr;
     bool _dirty;
 
 public:
-    void setOctreeNode(const std::shared_ptr<Octree>& node);
+    void setOctreeNode(const std::shared_ptr<Octree> &node);
     virtual glm::mat4 getModel() const;
     void update(float delta) override;
     virtual bool shouldUpdate() const;
@@ -24,9 +25,7 @@ public:
     std::shared_ptr<Renderer> getRenderer() const;
     void render(float delta) override;
     void setPosition(const glm::vec3 &position) override;
-    void setRotation(float yaw, float pitch) override;
+    void setRotation(float yaw, float pitch, float roll) override;
 };
 
-
-
-#endif //INFOH502_CPP_RENDERABLEENTITY_H
+#endif // INFOH502_CPP_RENDERABLEENTITY_H

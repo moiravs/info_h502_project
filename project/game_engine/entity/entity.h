@@ -24,9 +24,10 @@ class Entity : public std::enable_shared_from_this<Entity>
     glm::vec3 _right = glm::vec3(0, 0, 0);
     float _yaw;
     float _pitch;
+    float _roll;
     float _lastTime;
 
-    void forceSetRotation(const glm::vec3 &front, const glm::vec3 &up, const glm::vec3 &right, float yaw, float pitch);
+    void forceSetRotation(const glm::vec3 &front, const glm::vec3 &up, const glm::vec3 &right, float yaw, float pitch, float roll);
     inline void updateRotationAttached() const;
     inline void updatePositionAttached(const Attachment &attachment) const;
 
@@ -36,7 +37,7 @@ protected:
 public:
     virtual ~Entity() = default;
     explicit Entity(glm::vec3 up = WORLD_UP);
-    Entity(float yaw, float pitch, glm::vec3 up = WORLD_UP);
+    Entity(float yaw, float pitch, float roll, glm::vec3 up = WORLD_UP);
 
     void attach(const std::shared_ptr<Entity> &entity, glm::vec3 offset = glm::vec3(0, 0, 0));
     [[nodiscard]] glm::vec3 getPosition() const;
@@ -48,9 +49,10 @@ public:
     [[nodiscard]] glm::vec3 getFront() const;
     [[nodiscard]] float getYaw() const;
     [[nodiscard]] float getPitch() const;
+    [[nodiscard]] float getRoll() const;
 
-    void rotate(float dyaw, float dpitch);
-    virtual void setRotation(float yaw, float pitch);
+    void rotate(float dyaw, float dpitch, float droll);
+    virtual void setRotation(float yaw, float pitch, float roll);
     virtual void update(float delta);
 
     bool operator==(const Entity &other) const;

@@ -24,9 +24,9 @@ public:
 
     void processKeyboardMovement(PlayerMovement direction, float deltaTime);
 
-    void processKeyboardRotation(float yawRot, float pitchRot, float deltaTime);
+    void processKeyboardRotation(float yawRot, float pitchRot, float rollRot, float deltaTime);
 
-    void processMouseMovement(float xoffset, float yoffset, float deltaTime);
+    void processMouseMovement(float xoffset, float yoffset, float zoffset, float deltaTime);
 };
 
 #endif

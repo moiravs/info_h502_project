@@ -42,7 +42,7 @@ protected:
 public:
     // constructor with vectors
     explicit Camera(glm::vec3 up = WORLD_UP,
-                    float yaw = YAW, float pitch = PITCH);
+                    float yaw = YAW, float pitch = PITCH, float roll = ROLL);
 
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     [[nodiscard]] glm::mat4 getViewMatrix() const;
@@ -62,12 +62,12 @@ public:
 
     void resetCameraAfterReflection(int height);
 
-    void processKeyboardRotation(float yawRot, float pitchRot, float deltaTime);
+    void processKeyboardRotation(float yawRot, float pitchRot, float rollRot, float deltaTime);
 
     void setLookAt(glm::vec3 target);
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-    void processMouseMovement(float xoffset, float yoffset, float deltaTime);
+    void processMouseMovement(float xoffset, float yoffset, float zoffset, float deltaTime);
 
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void processMouseScroll(float yoffset);

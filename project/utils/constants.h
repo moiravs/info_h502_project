@@ -20,6 +20,7 @@ constexpr int REFRACTION_HEIGHT = 720;
 // Default camera values
 constexpr float YAW = -90.0f;
 constexpr float PITCH = 0.0f;
+constexpr float ROLL = 0.0f;
 constexpr float MOV_SPEED = 100.0f;
 constexpr float ROT_SPEED = 5.0f;
 constexpr float SENSITIVITY = 0.2f;

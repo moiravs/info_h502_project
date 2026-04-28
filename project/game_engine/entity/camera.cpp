@@ -4,8 +4,8 @@
 
 #include "glm/gtc/type_ptr.hpp"
 
-Camera::Camera(const glm::vec3 up, const float yaw, const float pitch)
-    : Entity(yaw, pitch, up), UboProvider("CameraInfo", sizeof(CameraInfo)), zoom(ZOOM)
+Camera::Camera(const glm::vec3 up, const float yaw, const float roll, const float pitch)
+    : Entity(yaw, pitch, roll, up), UboProvider("CameraInfo", sizeof(CameraInfo)), zoom(ZOOM)
 {
     this->Camera::updateRotation();
 }
@@ -27,7 +27,7 @@ float Camera::getZoom() const
 
 void Camera::invertPitch()
 {
-    this->setRotation(this->getYaw(), -this->getPitch());
+    this->setRotation(this->getYaw(), -this->getPitch(), this->getRoll());
 }
 
 void Camera::processKeyboardMovement(const PlayerMovement direction, const float deltaTime)
@@ -63,16 +63,16 @@ void Camera::resetCameraAfterReflection(const int height)
     this->setPosition(pos.x, 2.0f * static_cast<float>(height) - pos.y, pos.z);
 }
 
-void Camera::processKeyboardRotation(const float yawRot, const float pitchRot, const float deltaTime)
+void Camera::processKeyboardRotation(const float yawRot, const float pitchRot, const float rollRot, const float deltaTime)
 {
     const float velocity = ROT_SPEED * deltaTime;
 
-    this->rotate(velocity * yawRot, velocity * pitchRot);
+    this->rotate(velocity * yawRot, velocity * pitchRot, 0);
 }
 
-void Camera::processMouseMovement(const float xoffset, const float yoffset, const float deltaTime)
+void Camera::processMouseMovement(const float xoffset, const float yoffset, const float zoffset, const float deltaTime)
 {
-    this->processKeyboardRotation(xoffset * SENSITIVITY, -yoffset * SENSITIVITY, deltaTime);
+    this->processKeyboardRotation(xoffset * SENSITIVITY, -yoffset * SENSITIVITY, 0, deltaTime);
 }
 
 void Camera::processMouseScroll(const float yoffset)
@@ -127,6 +127,6 @@ void Camera::setLookAt(glm::vec3 target)
 
     // 4. Update the Camera's state using your existing function
     // This will trigger the math needed for getFront() and updateRotation()
-    this->setRotation(newYaw, newPitch);
+    this->setRotation(newYaw, newPitch, 0.0f);
     this->updateRotation();
 }
