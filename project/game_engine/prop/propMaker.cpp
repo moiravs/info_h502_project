@@ -37,15 +37,14 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
 std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<TerrainMesh> &heightMap)
 {
     const auto plane = Object::make(
-        std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/AirPlane/11803_Airplane_v1_l1.obj"),
+        std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/plane/uploads_files_6592991_Model.obj"),
         "firecamp");
 
     plane->setPosition(glm::vec3(1, 30, -5));
-    plane->setScale(glm::vec3(0.01, 0.01, 0.01));
-    plane->rotate(0.5, 0.1);
     auto prop = std::make_shared<Prop>();
 
     prop->addRenderable(plane);
+    prop->setMainObject(plane);
     return prop;
 }
 
