@@ -10,6 +10,9 @@ out float Height;
 out vec3 v_normal;   // Pass to fragment
 out vec3 v_fragPos;  // Pass to fragment
 out vec4 WorldPos;
+uniform mat4 lightSpaceMatrix; // Passed from MeshRenderer
+
+out vec4 FragPosLightSpace;
 
 out vec2 v_texCoord; // New output
 uniform mat4 model;
@@ -35,4 +38,6 @@ void main()
 
     //gl_Position = color;
     gl_Position = projection * view * WorldPos;
+FragPosLightSpace = lightSpaceMatrix * model * vec4(position, 1.0);
+
 }
