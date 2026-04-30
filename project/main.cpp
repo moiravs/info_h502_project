@@ -32,57 +32,10 @@
 #include "game_engine/entity/renderableEntityMaker.h"
 #include "game_engine/renderer/waterRenderer.h"
 #include <glm/gtx/string_cast.hpp>
+#include "game_engine/shadow.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
-unsigned int debugQuadVAO = 0;
-unsigned int debugQuadVBO;
-void renderDebugQuad()
-{
-	if (debugQuadVAO == 0)
-	{
-		// Positions (x, y, z) and TexCoords (u, v)
-		// This renders a square from 0.3 to 1.0 on the screen (bottom right)
-		float quadVertices[] = {
-			// positions        // texcoords
-			0.3f,
-			1.0f,
-			0.0f,
-			0.0f,
-			1.0f, // Top Left
-			0.3f,
-			0.3f,
-			0.0f,
-			0.0f,
-			0.0f, // Bottom Left
-			1.0f,
-			1.0f,
-			0.0f,
-			1.0f,
-			1.0f, // Top Right
-			1.0f,
-			0.3f,
-			0.0f,
-			1.0f,
-			0.0f, // Bottom Right
-		};
-		glGenVertexArrays(1, &debugQuadVAO);
-		glGenBuffers(1, &debugQuadVBO);
-		glBindVertexArray(debugQuadVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, debugQuadVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-
-		// Position attribute
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
-		// TexCoord attribute
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
-	}
-	glBindVertexArray(debugQuadVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glBindVertexArray(0);
-}
 #define CONTROL_CAMERA 1
 
 int main()
@@ -131,9 +84,6 @@ int main()
 	auto reflectionPlane = glm::vec4(0, 1, 0, WATER_HEIGHT);
 	auto refractionPlane = glm::vec4(0, -1, 0, WATER_HEIGHT);
 
-	// Renderer
-	// auto skyboxRenderer = std::make_shared<SkyboxRenderer>(&skybox);
-
 	// Objects
 	auto water = RenderableEntityMaker::makeRenderable<Object, WaterRenderer>(
 		fbos, Mesh::createPlane(PLAN_SIZE_X / 2, WATER_HEIGHT));
@@ -146,31 +96,6 @@ int main()
 
 	auto plane = PropMaker::makePlane(heightMap);
 
-	unsigned int depthMapFBO;
-	glGenFramebuffers(1, &depthMapFBO);
-
-	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
-	unsigned int depthMap;
-	glGenTextures(1, &depthMap);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-				 SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	float borderColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
-	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
-
 	auto trees = PropMaker::makeTrees(heightMap);
 	auto &lightManager = LightManager::get();
 
@@ -182,7 +107,7 @@ int main()
 
 	double lastTime = glfwGetTime();
 
-	const std::shared_ptr<Shader> shadowShader = std::make_shared<Shader>(PATH_TO_SRC "/../assets/shaders/shadow.vert", PATH_TO_SRC "/../assets/shaders/shadow.frag");
+	Shadow shadow;
 
 	auto game = Game();
 	plane->getMainObject()->rotate(0, 0, 0);
@@ -197,30 +122,28 @@ int main()
 		lightManager.updateUBO();
 		camera->updateUBO();
 
+		// == SHADOWS ==
 		glm::vec3 target = glm::vec3(0.0f, 50.0f, 0.0f); // Terrain center, some height
 		glm::mat4 lightView = glm::lookAt(sun->getMainObject()->getPosition(), target, glm::vec3(0.0f, 1.0f, 0.0f));
 
 		float orthoSize = PLAN_SIZE_X * 0.7f;
-		float lightNear = 0.1f; // Just in front of the "sun"
-		float lightFar = 1000.0f;
 		glm::mat4 lightProjection = glm::ortho(-300.0f, 300.0f, -100.0f, 400.0f,
-											   lightNear, lightFar);
+											   0.1f, 1000.0f);
 
 		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, shadow.depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
-		shadowShader->use();
-		shadowShader->setMatrix4("lightSpaceMatrix", lightSpaceMatrix);
-		Game::renderShadows(delta, {trees, plane, terrain}, lightSpaceMatrix, depthMap, shadowShader);
+
+		Game::renderShadows(delta, {trees, plane, terrain}, lightSpaceMatrix, shadow.depthMap, shadow.shadowShader);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDrawBuffer(GL_BACK); // Reactivate color drawing
 		glReadBuffer(GL_BACK);
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
-		// 1. Reflection
+		// == REFLECTION ==
 		glEnable(GL_CLIP_DISTANCE0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		fbos->bindReflectionFrameBuffer();
@@ -230,21 +153,21 @@ int main()
 		camera->updateUBO();
 		fbos->setClipPlane(reflectionPlane);
 
-		Game::renderScene(delta, {trees, skybox, terrain}, lightSpaceMatrix, depthMap);
+		Game::renderScene(delta, {trees, skybox, terrain});
 		camera->resetCameraAfterReflection(WATER_HEIGHT);
 		camera->updateUBO();
 
-		// 2. Refraction
+		// == REFRACTION ==
 		fbos->bindRefractionFrameBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		fbos->setClipPlane(refractionPlane); // One clean call
-		Game::renderScene(delta, {trees, terrain}, lightSpaceMatrix, depthMap);
+		Game::renderScene(delta, {trees, terrain});
 
 		fbos->unbindCurrentFrameBuffer();
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
-		// Normal Scene
+		// == NORMAL ==
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glDisable(GL_CLIP_DISTANCE0);
@@ -252,11 +175,11 @@ int main()
 		float sunX = 0.0f;
 		float sunY = std::sin(currentTime * orbitSpeed) * orbitRadius;
 		float sunZ = std::cos(currentTime * orbitSpeed) * orbitRadius;
-		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glBindTexture(GL_TEXTURE_2D, shadow.depthMap);
 
 		sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
 
-		Game::renderScene(delta, {trees, redLight, water, skybox, terrain, sun, firecamp, plane}, lightSpaceMatrix, depthMap);
+		Game::renderScene(delta, {trees, redLight, water, skybox, terrain, sun, firecamp, plane});
 
 		glm::vec3 cameraOffset = glm::vec3(glm::mat4(1.0f) * glm::vec4(0.0f, 5.0f, -15.0f, 1.0f));
 

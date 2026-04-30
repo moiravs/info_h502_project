@@ -28,15 +28,9 @@ void MeshRenderer::updateUniforms() const
 {
     _shader->use();
     _shader->setMatrix4("lightSpaceMatrix", this->lightSpaceMatrix);
-
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, this->shadowMapTexture);
-
-    std::cout << "lightSpaceMatrix" << glm::to_string(this->lightSpaceMatrix) << std::endl;
-
     _shader->setInteger("shadowMap", 4);
-
-    std::cout << "Binding Texture ID: " << this->shadowMapTexture << " to Slot 4" << std::endl;
 
     glActiveTexture(GL_TEXTURE0);
 }
