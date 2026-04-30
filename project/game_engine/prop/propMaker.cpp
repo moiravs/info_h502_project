@@ -77,6 +77,7 @@ std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, cons
     firecamp->attach(pg, offset);
     prop->addRenderable(firecamp);
     prop->addRenderable(pg);
+    prop->setMainObject(firecamp);
     return prop;
 }
 
@@ -110,9 +111,12 @@ std::shared_ptr<Prop> PropMaker::makeTrees(const std::shared_ptr<TerrainMesh> &h
             std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/Tree_V10_OBJ/Tree.obj"),
             "tree", treeMatrices);
 
+    tree->setScale(glm::vec3(10, 10, 10));
+
     auto prop = std::make_shared<Prop>();
 
     prop->addEntity(tree);
     prop->addRenderable(tree);
+    prop->setMainObject(tree);
     return prop;
 }

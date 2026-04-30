@@ -13,6 +13,7 @@ class ObjectRenderer : public MeshRenderer
     Texture snowTex = Texture(PATH_TO_SRC "/../assets/textures/terrain/snow.jpg");
 
 public:
+    explicit ObjectRenderer(const std::shared_ptr<Shader> shader);
     explicit ObjectRenderer(const std::string &shaderName);
     void updateUniforms() const override;
 };

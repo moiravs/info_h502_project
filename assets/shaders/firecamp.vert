@@ -7,8 +7,11 @@ out vec2 v_t;
 out vec3 v_fragPos; 
 out vec3 v_normal; 
 
-uniform mat4 itM; // Use this instead of calculating it every vertex
+uniform mat4 itM; 
 uniform mat4 model; 
+uniform mat4 lightSpaceMatrix; 
+
+out vec4 FragPosLightSpace;
 
 layout(std140) uniform CameraInfo {
      mat4 projection;
@@ -25,6 +28,5 @@ v_normal = vec3(itM * vec4(normal, 1.0));
 v_fragPos = worldPos.xyz; 
 gl_Position = projection*view*worldPos; 
 v_t = tex_coord;
-
-    // same component in every direction
+FragPosLightSpace = lightSpaceMatrix * model * vec4(position, 1.0);
 }
