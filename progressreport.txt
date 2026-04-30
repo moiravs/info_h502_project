@@ -13,6 +13,7 @@ DONE:
 - Fire camp (https://www.rastertek.com/gl4linuxtut33.html)
 (https://learnopengl.com/In-Practice/2D-Game/Particles)
 - Refactor Lights
+- Shadows
 
 
 EN COURS:
@@ -28,7 +29,8 @@ TODO:
 
 - Bigger map maybe
 
-- Shadows
+- Why trees don't have shadows ?
+
 
 - Player plane
 
