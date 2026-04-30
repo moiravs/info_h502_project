@@ -101,6 +101,23 @@ void MeshRenderer::setupVAOs()
     glBindVertexArray(0);
 }
 
+void MeshRenderer::renderShadows(const std::shared_ptr<Shader> &shadowShader)
+{
+    shadowShader->use();
+    const auto mesh = this->getEntity<Object>()->getMesh();
+
+    for (unsigned int i = 0; i < _VAOs.size(); i++)
+    {
+        const auto &entry = mesh->getEntries()[i];
+
+        shadowShader->setMatrix4("model", this->getEntity<Object>()->getModel());
+
+        glBindVertexArray(_VAOs[i]);
+        glDrawElements(GL_TRIANGLES, entry.numIndices, GL_UNSIGNED_INT, 0);
+    }
+    glBindVertexArray(0);
+}
+
 void MeshRenderer::render()
 {
     Renderer::render(); // Updates shader uniforms
