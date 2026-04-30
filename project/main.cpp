@@ -31,25 +31,59 @@
 #include "game_engine/entity/particleGenerator.h"
 #include "game_engine/entity/renderableEntityMaker.h"
 #include "game_engine/renderer/waterRenderer.h"
-#include "game_engine/renderer/objectRenderer.h"
+#include <glm/gtx/string_cast.hpp>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
-void renderScene(const Shader &shader);
-void renderCube();
-void renderQuad();
+unsigned int debugQuadVAO = 0;
+unsigned int debugQuadVBO;
+void renderDebugQuad()
+{
+	if (debugQuadVAO == 0)
+	{
+		// Positions (x, y, z) and TexCoords (u, v)
+		// This renders a square from 0.3 to 1.0 on the screen (bottom right)
+		float quadVertices[] = {
+			// positions        // texcoords
+			0.3f,
+			1.0f,
+			0.0f,
+			0.0f,
+			1.0f, // Top Left
+			0.3f,
+			0.3f,
+			0.0f,
+			0.0f,
+			0.0f, // Bottom Left
+			1.0f,
+			1.0f,
+			0.0f,
+			1.0f,
+			1.0f, // Top Right
+			1.0f,
+			0.3f,
+			0.0f,
+			1.0f,
+			0.0f, // Bottom Right
+		};
+		glGenVertexArrays(1, &debugQuadVAO);
+		glGenBuffers(1, &debugQuadVBO);
+		glBindVertexArray(debugQuadVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, debugQuadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
 
-// camera
-float lastX = (float)SCR_WIDTH / 2.0;
-float lastY = (float)SCR_HEIGHT / 2.0;
-bool firstMouse = true;
-
-// timing
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
-
-// meshes
-unsigned int planeVAO;
+		// Position attribute
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+		// TexCoord attribute
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
+	}
+	glBindVertexArray(debugQuadVAO);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray(0);
+}
+#define CONTROL_CAMERA 1
 
 int main()
 {
@@ -72,6 +106,11 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);
 
+	// make sun must be in first
+	auto sun = PropMaker::makeLamp(
+		glm::vec3(.0, 100.0, 1.5), glm::vec3(10, 10, 10), glm::vec3(1, 1, 1),
+		glm::vec4(0, 0.9, 1, 32), glm::vec3(0.005, 0.005, 0));
+
 	auto camera = MainCamera::get();
 	// Terrain
 	auto heightMap =
@@ -91,6 +130,7 @@ int main()
 
 	auto reflectionPlane = glm::vec4(0, 1, 0, WATER_HEIGHT);
 	auto refractionPlane = glm::vec4(0, -1, 0, WATER_HEIGHT);
+
 	// Renderer
 	// auto skyboxRenderer = std::make_shared<SkyboxRenderer>(&skybox);
 
@@ -99,16 +139,37 @@ int main()
 		fbos, Mesh::createPlane(PLAN_SIZE_X / 2, WATER_HEIGHT));
 
 	auto redLight = PropMaker::makeLamp(
-		glm::vec3(1.0, 15.0, 1.5), glm::vec3(1), glm::vec3(1, 0, 0),
+		glm::vec3(1.0, 15.0, 1.5), glm::vec3(1), glm::vec3(1, 1, 1),
 		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0));
 
 	auto terrain = Object::make(heightMap, "cpu_height");
 
-	auto sun = PropMaker::makeLamp(
-		glm::vec3(.0, 100.0, 1.5), glm::vec3(10, 10, 10), glm::vec3(1, 1, 1),
-		glm::vec4(0, 0.9, 1, 32), glm::vec3(0.005, 0.005, 0));
+	auto plane = PropMaker::makePlane(heightMap);
 
-	// auto plane = PropMaker::makePlane(heightMap);
+	unsigned int depthMapFBO;
+	glGenFramebuffers(1, &depthMapFBO);
+
+	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+	unsigned int depthMap;
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+				 SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float borderColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
@@ -123,73 +184,12 @@ int main()
 
 	double lastTime = glfwGetTime();
 
+	const std::shared_ptr<Shader> shadowShader = std::make_shared<Shader>(PATH_TO_SRC "/../assets/shaders/shadow.vert", PATH_TO_SRC "/../assets/shaders/shadow.frag");
+	Shader debugShader = Shader(PATH_TO_SRC "/../assets/shaders/debug.vert", PATH_TO_SRC "/../assets/shaders/debug.frag");
+	debugShader.setInteger("depthMap", 0);
+
 	auto game = Game();
-
-	glEnable(GL_DEPTH_TEST);
-
-	// build and compile shaders
-	// -------------------------
-	const std::shared_ptr<Shader> simpleDepthShader = std::make_shared<Shader>(Shader(PATH_TO_SRC "/../assets/shaders/shadow.vert", PATH_TO_SRC "/../assets/shaders/shadow.frag"));
-	Shader debugDepthQuad(PATH_TO_SRC "/../assets/shaders/debug.vert", PATH_TO_SRC "/../assets/shaders/debug.frag");
-
-	// set up vertex data (and buffer(s)) and configure vertex attributes
-	// ------------------------------------------------------------------
-	float planeVertices[] = {
-		// positions            // normals         // texcoords
-		25.0f, -0.5f, 25.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,
-		-25.0f, -0.5f, 25.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-		-25.0f, -0.5f, -25.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,
-
-		25.0f, -0.5f, 25.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,
-		-25.0f, -0.5f, -25.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,
-		25.0f, -0.5f, -25.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f};
-	// plane VAO
-	unsigned int planeVBO;
-	glGenVertexArrays(1, &planeVAO);
-	glGenBuffers(1, &planeVBO);
-	glBindVertexArray(planeVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
-	glBindVertexArray(0);
-
-	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
-	unsigned int depthMapFBO;
-	glGenFramebuffers(1, &depthMapFBO);
-	// create depth texture
-	unsigned int depthMap;
-	glGenTextures(1, &depthMap);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// attach depth texture as FBO's depth buffer
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	// shader configuration
-	// --------------------
-	debugDepthQuad.use();
-	debugDepthQuad.setInteger("depthMap", 0);
-
-	// lighting info
-	// -------------
-	glm::vec3 lightPos(-2.0f, 4.0f, -1.0f);
-
-	// render loop
-	// -----------
-
-	const auto plane = RenderableEntityMaker::makeRenderable<Player, ObjectRenderer>(simpleDepthShader, std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/plane/uploads_files_6592991_Model.obj"));
+	plane->getMainObject()->rotate(0, 0, 0);
 
 	while (!dm.shouldClose())
 	{
@@ -200,207 +200,118 @@ int main()
 
 		lightManager.updateUBO();
 		camera->updateUBO();
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// 1. render depth of scene to texture (from light's perspective)
-		// --------------------------------------------------------------
-		glm::mat4 lightProjection, lightView;
-		glm::mat4 lightSpaceMatrix;
-		float near_plane = 1.0f, far_plane = 7.5f;
-		lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-		lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-		lightSpaceMatrix = lightProjection * lightView;
-		// render scene from light's point of view
+		// depth map
 
-		simpleDepthShader->use();
-		simpleDepthShader->setMatrix4("lightSpaceMatrix", lightSpaceMatrix);
+		// Ensure sun covers entire terrain
+		// 1. VALID sun position (high above center)
+		glm::vec3 currentSunPos = sun->getMainObject()->getPosition();
+		sun->getMainObject()->setPosition(currentSunPos);
+
+		// 2. VALID lookAt
+		glm::vec3 target = glm::vec3(0.0f, 50.0f, 0.0f); // Terrain center, some height
+		glm::mat4 lightView = glm::lookAt(currentSunPos, target, glm::vec3(0.0f, 1.0f, 0.0f));
+
+		// 3. VALID ortho
+		float orthoSize = PLAN_SIZE_X * 0.7f;
+		float lightNear = 0.1f; // Just in front of the "sun"
+		float lightFar = 1000.0f;
+		glm::mat4 lightProjection = glm::ortho(-300.0f, 300.0f, -100.0f, 400.0f,
+											   lightNear, lightFar);
+
+		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+
+		std::cout << "Sun: " << glm::to_string(currentSunPos) << std::endl;
+		std::cout << "Target: " << glm::to_string(target) << std::endl;
+		std::cout << "Light matrix:\n"
+				  << glm::to_string(lightSpaceMatrix) << std::endl; // Should be numbers!rom its position (sunX, sunY, sunZ) towards the center of your scene
+
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
-
-		// Use your engine's objects but FORCE the shader
-		simpleDepthShader->setMatrix4("model", plane->getModel());
-		plane->render(delta);
+		shadowShader->use();
+		shadowShader->setMatrix4("lightSpaceMatrix", lightSpaceMatrix);
+		Game::renderShadows(delta, {trees, firecamp, plane}, lightSpaceMatrix, depthMap, shadowShader);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		// simpleDepthShader.use();
-		// simpleDepthShader.setMatrix4("lightSpaceMatrix", lightSpaceMatrix);
+		glDrawBuffer(GL_BACK); // Reactivate color drawing
+		glReadBuffer(GL_BACK);
+		// 2. then render scene as normal with shadow mapping (using depth map)
+		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
-		// glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		// glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		// glClear(GL_DEPTH_BUFFER_BIT);
-		// // Game::renderScene(delta, {trees, terrain}, lightSpaceMatrix, depthMap);
-		// renderScene(simpleDepthShader);
-		// glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		std::cout << "Light matrix:\n"
+				  << glm::to_string(lightSpaceMatrix) << std::endl;
 
-		// reset viewport
-		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+		// Sample terrain vertex extremes
+		glm::vec4 testVert[] = {
+			glm::vec4(-PLAN_SIZE_X / 2, 0, -PLAN_SIZE_X / 2, 1),
+			glm::vec4(PLAN_SIZE_X / 2, 200, PLAN_SIZE_X / 2, 1)};
+		for (auto &v : testVert)
+		{
+			glm::vec4 lightSpace = lightSpaceMatrix * v;
+			std::cout << "Vertex light Z: " << lightSpace.z << std::endl;
+		}
+		// 1. Reflection
+		glEnable(GL_CLIP_DISTANCE0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		fbos->bindReflectionFrameBuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		debugDepthQuad.use();
-		debugDepthQuad.setFloat("near_plane", near_plane);
-		debugDepthQuad.setFloat("far_plane", far_plane);
-		glActiveTexture(GL_TEXTURE0);
+		camera->prepareReflection(WATER_HEIGHT);
+		camera->updateUBO();
+		fbos->setClipPlane(reflectionPlane);
+
+		Game::renderScene(delta, {trees, skybox, terrain}, lightSpaceMatrix, depthMap);
+		camera->resetCameraAfterReflection(WATER_HEIGHT);
+		camera->updateUBO();
+
+		// 2. Refraction
+		fbos->bindRefractionFrameBuffer();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		fbos->setClipPlane(refractionPlane); // One clean call
+		Game::renderScene(delta, {trees, terrain}, lightSpaceMatrix, depthMap);
+
+		fbos->unbindCurrentFrameBuffer();
+		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
+
+		// Normal Scene
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+		glDisable(GL_CLIP_DISTANCE0);
+
+		float sunX = 0.0f;
+		float sunY = std::sin(currentTime * orbitSpeed) * orbitRadius;
+		float sunZ = std::cos(currentTime * orbitSpeed) * orbitRadius;
 		glBindTexture(GL_TEXTURE_2D, depthMap);
-		renderQuad();
 
-		dm.update(camera);
+		// sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
+		sun->getMainObject()->setPosition(glm::vec3(50, 100, 50));
+
+		Game::renderScene(delta, {trees, redLight, water, skybox, terrain, sun, firecamp, plane}, lightSpaceMatrix, depthMap);
+		// 	plane->getMainObject()->setPosition(glm::vec3(camera->getPosition()) + glm::vec3(0, -5, 5));
+
+		glm::vec3 cameraOffset = glm::vec3(glm::mat4(1.0f) * glm::vec4(0.0f, 5.0f, -15.0f, 1.0f));
+
+		glDisable(GL_DEPTH_TEST); // Ensure it draws on top of everything
+
+		debugShader.use();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, depthMap); // The ID of your depth texture
+		renderDebugQuad();
+
+		if constexpr (!CONTROL_CAMERA)
+		{
+			camera->setPosition(plane->getMainObject()->getPosition() + cameraOffset);
+			camera->setLookAt(plane->getMainObject()->getPosition());
+			dm.update(std::dynamic_pointer_cast<Controllable>(plane->getMainObject()));
+		}
+		else
+		{
+			dm.update(camera);
+		}
 	}
-
-	glDeleteVertexArrays(1, &planeVAO);
-	glDeleteBuffers(1, &planeVBO);
 
 	glfwTerminate();
 	return 0;
-}
-
-// renders the 3D scene
-// --------------------
-void renderScene(const Shader &shader)
-{
-	// floor
-	glm::mat4 model = glm::mat4(1.0f);
-	shader.setMatrix4("model", model);
-	glBindVertexArray(planeVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	// cubes
-	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.0f, 1.5f, 0.0));
-	model = glm::scale(model, glm::vec3(0.5f));
-	shader.setMatrix4("model", model);
-	renderCube();
-	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(2.0f, 0.0f, 1.0));
-	model = glm::scale(model, glm::vec3(0.5f));
-	shader.setMatrix4("model", model);
-	renderCube();
-	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 2.0));
-	model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-	model = glm::scale(model, glm::vec3(0.25));
-	shader.setMatrix4("model", model);
-	renderCube();
-}
-
-// renderCube() renders a 1x1 3D cube in NDC.
-// -------------------------------------------------
-unsigned int cubeVAO = 0;
-unsigned int cubeVBO = 0;
-void renderCube()
-{
-	// initialize (if necessary)
-	if (cubeVAO == 0)
-	{
-		float vertices[] = {
-			// back face
-			-1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-			1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,	// top-right
-			1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f,	// bottom-right
-			1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,	// top-right
-			-1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-			-1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f,	// top-left
-			// front face
-			-1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom-left
-			1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,  // bottom-right
-			1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,	  // top-right
-			1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,	  // top-right
-			-1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,  // top-left
-			-1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom-left
-			// left face
-			-1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,	// top-right
-			-1.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f,	// top-left
-			-1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-left
-			-1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-left
-			-1.0f, -1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,	// bottom-right
-			-1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,	// top-right
-																// right face
-			1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,		// top-left
-			1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,	// bottom-right
-			1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,	// top-right
-			1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,	// bottom-right
-			1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,		// top-left
-			1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,	// bottom-left
-			// bottom face
-			-1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // top-right
-			1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f,	// top-left
-			1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,	// bottom-left
-			1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,	// bottom-left
-			-1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,	// bottom-right
-			-1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // top-right
-			// top face
-			-1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top-left
-			1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,	  // bottom-right
-			1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,  // top-right
-			1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,	  // bottom-right
-			-1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top-left
-			-1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f	  // bottom-left
-		};
-		glGenVertexArrays(1, &cubeVAO);
-		glGenBuffers(1, &cubeVBO);
-		// fill buffer
-		glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-		// link vertex attributes
-		glBindVertexArray(cubeVAO);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-	}
-	// render Cube
-	glBindVertexArray(cubeVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glBindVertexArray(0);
-}
-
-// renderQuad() renders a 1x1 XY quad in NDC
-// -----------------------------------------
-unsigned int quadVAO = 0;
-unsigned int quadVBO;
-void renderQuad()
-{
-	if (quadVAO == 0)
-	{
-		float quadVertices[] = {
-			// positions        // texture Coords
-			-1.0f,
-			1.0f,
-			0.0f,
-			0.0f,
-			1.0f,
-			-1.0f,
-			-1.0f,
-			0.0f,
-			0.0f,
-			0.0f,
-			1.0f,
-			1.0f,
-			0.0f,
-			1.0f,
-			1.0f,
-			1.0f,
-			-1.0f,
-			0.0f,
-			1.0f,
-			0.0f,
-		};
-		// setup plane VAO
-		glGenVertexArrays(1, &quadVAO);
-		glGenBuffers(1, &quadVBO);
-		glBindVertexArray(quadVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
-	}
-	glBindVertexArray(quadVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glBindVertexArray(0);
 }
