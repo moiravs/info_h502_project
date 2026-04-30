@@ -162,8 +162,6 @@ int main()
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
@@ -185,8 +183,6 @@ int main()
 	double lastTime = glfwGetTime();
 
 	const std::shared_ptr<Shader> shadowShader = std::make_shared<Shader>(PATH_TO_SRC "/../assets/shaders/shadow.vert", PATH_TO_SRC "/../assets/shaders/shadow.frag");
-	Shader debugShader = Shader(PATH_TO_SRC "/../assets/shaders/debug.vert", PATH_TO_SRC "/../assets/shaders/debug.frag");
-	debugShader.setInteger("depthMap", 0);
 
 	auto game = Game();
 	plane->getMainObject()->rotate(0, 0, 0);
@@ -201,18 +197,9 @@ int main()
 		lightManager.updateUBO();
 		camera->updateUBO();
 
-		// depth map
-
-		// Ensure sun covers entire terrain
-		// 1. VALID sun position (high above center)
-		glm::vec3 currentSunPos = sun->getMainObject()->getPosition();
-		sun->getMainObject()->setPosition(currentSunPos);
-
-		// 2. VALID lookAt
 		glm::vec3 target = glm::vec3(0.0f, 50.0f, 0.0f); // Terrain center, some height
-		glm::mat4 lightView = glm::lookAt(currentSunPos, target, glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 lightView = glm::lookAt(sun->getMainObject()->getPosition(), target, glm::vec3(0.0f, 1.0f, 0.0f));
 
-		// 3. VALID ortho
 		float orthoSize = PLAN_SIZE_X * 0.7f;
 		float lightNear = 0.1f; // Just in front of the "sun"
 		float lightFar = 1000.0f;
@@ -221,36 +208,18 @@ int main()
 
 		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
-		std::cout << "Sun: " << glm::to_string(currentSunPos) << std::endl;
-		std::cout << "Target: " << glm::to_string(target) << std::endl;
-		std::cout << "Light matrix:\n"
-				  << glm::to_string(lightSpaceMatrix) << std::endl; // Should be numbers!rom its position (sunX, sunY, sunZ) towards the center of your scene
-
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		shadowShader->use();
 		shadowShader->setMatrix4("lightSpaceMatrix", lightSpaceMatrix);
-		Game::renderShadows(delta, {trees, firecamp, plane}, lightSpaceMatrix, depthMap, shadowShader);
+		Game::renderShadows(delta, {trees, plane, terrain}, lightSpaceMatrix, depthMap, shadowShader);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDrawBuffer(GL_BACK); // Reactivate color drawing
 		glReadBuffer(GL_BACK);
-		// 2. then render scene as normal with shadow mapping (using depth map)
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
-		std::cout << "Light matrix:\n"
-				  << glm::to_string(lightSpaceMatrix) << std::endl;
-
-		// Sample terrain vertex extremes
-		glm::vec4 testVert[] = {
-			glm::vec4(-PLAN_SIZE_X / 2, 0, -PLAN_SIZE_X / 2, 1),
-			glm::vec4(PLAN_SIZE_X / 2, 200, PLAN_SIZE_X / 2, 1)};
-		for (auto &v : testVert)
-		{
-			glm::vec4 lightSpace = lightSpaceMatrix * v;
-			std::cout << "Vertex light Z: " << lightSpace.z << std::endl;
-		}
 		// 1. Reflection
 		glEnable(GL_CLIP_DISTANCE0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -285,20 +254,13 @@ int main()
 		float sunZ = std::cos(currentTime * orbitSpeed) * orbitRadius;
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 
-		// sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
-		sun->getMainObject()->setPosition(glm::vec3(50, 100, 50));
+		sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
 
 		Game::renderScene(delta, {trees, redLight, water, skybox, terrain, sun, firecamp, plane}, lightSpaceMatrix, depthMap);
-		// 	plane->getMainObject()->setPosition(glm::vec3(camera->getPosition()) + glm::vec3(0, -5, 5));
 
 		glm::vec3 cameraOffset = glm::vec3(glm::mat4(1.0f) * glm::vec4(0.0f, 5.0f, -15.0f, 1.0f));
 
 		glDisable(GL_DEPTH_TEST); // Ensure it draws on top of everything
-
-		debugShader.use();
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, depthMap); // The ID of your depth texture
-		renderDebugQuad();
 
 		if constexpr (!CONTROL_CAMERA)
 		{

@@ -9,28 +9,6 @@ void Game::renderScene(const float delta, const std::vector<std::shared_ptr<Rend
 {
     for (const auto &i : renderers)
     {
-        std::cout << "render" << typeid(*i).name() << std::endl;
-        if (auto mesh = std::dynamic_pointer_cast<RenderableEntity>(i))
-        {
-            std::cout << "here" << std::endl;
-            if (auto meshRef = std::dynamic_pointer_cast<MeshRenderer>(mesh->getRenderer()))
-            {
-                std::cout << "next" << std::endl;
-                meshRef->setShadowData(shadowTex, lightSpaceMatrix);
-                meshRef->updateUniforms();
-            }
-        }
-
-        if (auto mesh = std::dynamic_pointer_cast<Prop>(i))
-        {
-            std::cout << "hereprop" << std::endl;
-            if (auto meshRef = std::dynamic_pointer_cast<MeshRenderer>(mesh->getMainObject()->getRenderer()))
-            {
-                std::cout << "next" << std::endl;
-                meshRef->setShadowData(shadowTex, lightSpaceMatrix);
-                meshRef->updateUniforms();
-            }
-        }
         i->render(delta);
     }
 }
@@ -40,12 +18,19 @@ void Game::renderShadows(const float delta, const std::vector<std::shared_ptr<Re
     for (const auto &i : renderers)
     {
 
+        if (auto mesh = std::dynamic_pointer_cast<RenderableEntity>(i))
+        {
+            if (auto meshRef = std::dynamic_pointer_cast<MeshRenderer>(mesh->getRenderer()))
+            {
+                meshRef->setShadowData(shadowTex, lightSpaceMatrix);
+                meshRef->updateUniforms();
+                meshRef->renderShadows(shadowShader);
+            }
+        }
         if (auto mesh = std::dynamic_pointer_cast<Prop>(i))
         {
-            std::cout << "hereprop" << std::endl;
             if (auto meshRef = std::dynamic_pointer_cast<MeshRenderer>(mesh->getMainObject()->getRenderer()))
             {
-                std::cout << "next" << std::endl;
                 meshRef->setShadowData(shadowTex, lightSpaceMatrix);
                 meshRef->updateUniforms();
                 meshRef->renderShadows(shadowShader);

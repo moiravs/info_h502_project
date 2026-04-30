@@ -123,6 +123,6 @@ void main()
 
 //  vec3 outColor = mix(mistColor, result, mistFactor);
 
-    FragColor = vec4(totalLighting , 1.0);
+    FragColor = vec4(totalLighting * baseColor, 1.0);
 
 }
