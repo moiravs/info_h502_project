@@ -24,7 +24,6 @@ public:
     {
         this->shadowMapTexture = textureID;
         this->lightSpaceMatrix = matrix;
-        std::cout << "texId " << textureID << " matrix " << glm::to_string(matrix) << std::endl;
     }
 
     virtual void drawElements(int numTriangles);

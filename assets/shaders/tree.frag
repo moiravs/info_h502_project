@@ -29,15 +29,21 @@ uniform sampler2D shadowMap;
 in vec4 FragPosLightSpace;  
 
 float ShadowCalculation(vec4 fragPosLS) {
-    vec3 projCoords = fragPosLS.xyz / fragPosLS.w * 0.5 + 0.5;
-    
-    float closest = texture(shadowMap, projCoords.xy).r;
-    float current = projCoords.z;
-    
-    
+    vec3 projCoords = fragPosLS.xyz / fragPosLS.w;
+    projCoords = projCoords * 0.5 + 0.5;
+
+    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+
+    float currentDepth = projCoords.z;
+
     float bias = 0.001;
-    return (current > closest + bias) ? 1.0 : 0.0;  // Red=shadow, Green=lit
+    float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+
+    if(projCoords.z > 1.0) shadow = 0.0;
+
+    return shadow;
 }
+
 
 uniform sampler2D texture0;
 
@@ -75,12 +81,7 @@ void main() {
         }
     }
 
-    float depthSample = texture(shadowMap, FragPosLightSpace.xy / FragPosLightSpace.w * 0.5 + 0.5).r;
-//FragColor = vec4(vec3(depthSample), 1.0);
-FragColor = vec4(FragPosLightSpace.xyz * 0.01, 1.0);
-//FragColor = vec4(shadow * 0.5, (1.0-shadow) * 0.5, shadow * 0.5 + 0.5, 1.0);
-   // FragColor = vec4(shadow, 1-shadow, 0.0, 1.0);
+    vec3 finalRGB = totalLighting * texColor.rgb;
+    FragColor = vec4(finalRGB, 1.0);
 
-
-    //FragColor = vec4(totalLighting * texColor.rgb, texColor.a);
 }
