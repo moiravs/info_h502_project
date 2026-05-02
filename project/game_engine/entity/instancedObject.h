@@ -11,6 +11,7 @@ public:
     static std::shared_ptr<InstancedObject> make(const std::shared_ptr<Mesh> &mesh, const std::string &shader, const std::vector<glm::mat4>& models);
     InstancedObject(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Renderer>& renderer);
     void setModels(const std::vector<glm::mat4>& models);
+    void updateBounds() override;
     std::shared_ptr<InstancedRenderer> getInstancedRenderer() const;
 };
 

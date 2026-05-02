@@ -41,7 +41,7 @@ public:
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     [[nodiscard]] glm::mat4 getViewMatrix() const;
 
-    static glm::mat4 getProjectionMatrix(float fov = 45.0, float ratio = 1.0, float near = 0.01, float far = 500.0);
+    static glm::mat4 getProjectionMatrix(float fov = FOVY, float ratio = ASPECT_RATIO, float near = NEAR, float far = FAR);
 
     [[nodiscard]] float getZoom() const;
 

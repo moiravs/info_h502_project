@@ -95,17 +95,13 @@ void Camera::updateRotation()
 // https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
 void Camera::updateFrustum()
 {
-    float zFar = 1000;
-    float fovY = 45;
-    float aspect = 1;
-    float zNear = 0.01;
-    const float halfVSide = zFar * tanf(fovY * .5f);
-    const float halfHSide = halfVSide * aspect;
-    const glm::vec3 frontMultFar = zFar * this->getFront();
+    const float halfVSide = FAR * tanf(FOVY * .5f);
+    const float halfHSide = halfVSide * ASPECT_RATIO;
+    const glm::vec3 frontMultFar = FAR * this->getFront();
     auto pos = this->getPosition();
 
     this->_frustum = Frustum(
-    Plane(pos + zNear * this->getFront(), this->getFront()),
+    Plane(pos + NEAR * this->getFront(), this->getFront()),
     Plane(pos + frontMultFar, -this->getFront()),
     Plane(pos, glm::cross(frontMultFar - this->getRight() * halfHSide, this->getUp())),
     Plane(pos, glm::cross(this->getUp(),frontMultFar + this->getRight() * halfHSide)),
@@ -125,7 +121,7 @@ void Camera::updateUBO() const
 {
     const CameraInfo i = {
         .projection = getProjectionMatrix(glm::radians(this->getZoom()),
-                                                  static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), 0.1f, 1000.0f),
+                                                  static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), NEAR, FAR),
         .view = this->getViewMatrix(),
         .cameraPos = glm::vec4(this->getPosition(), 0),
         .cameraRight = glm::vec4(this->getRight(), 0),

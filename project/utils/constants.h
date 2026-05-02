@@ -25,6 +25,10 @@ constexpr float MOV_SPEED = 100.0f;
 constexpr float ROT_SPEED = 5.0f;
 constexpr float SENSITIVITY = 1.f;
 constexpr float ZOOM = 45.0f;
+constexpr float FAR = 1000.f;
+constexpr float NEAR = 0.01f;
+constexpr float FOVY = 45.f;
+constexpr float ASPECT_RATIO = 1.f;
 
 constexpr int MAX_LIGHTS = 128;
 constexpr int CHUNK_SIZE = 128;
