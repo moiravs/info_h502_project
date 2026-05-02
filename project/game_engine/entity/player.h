@@ -1,12 +1,6 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
-#include "entity.h"
-#include "../../utils/constants.h"
-#include "../manager/uboProvider.h"
 #include "object.h"
 #include "camera.h"
 

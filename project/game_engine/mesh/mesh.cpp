@@ -1,5 +1,7 @@
 #include "mesh.h"
 
+#include "../../utils/utils.h"
+
 void MeshEntry::init(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices)
 {
     numIndices = indices.size();
@@ -185,7 +187,7 @@ std::shared_ptr<Mesh> Mesh::createPlane(const float size, const float height)
     entry.init(planeVertices, planeIndices);
     entry.materialIndex = 0;
 
-    mesh->m_Entries.push_back(entry);
+    mesh->addEntry(entry);
 
     return mesh;
 }

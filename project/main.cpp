@@ -67,8 +67,8 @@ int main()
 
 	auto camera = MainCamera::get();
 	// Terrain
-	auto heightMap =
-		TerrainMesh::terrainFromTexture(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
+	auto [heightMap, terrainMeshes] =
+		RenderableEntityMaker::terrainFromTexture(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
 
 	// Skybox
 	auto skybox = RenderableEntityMaker::makeRenderable<Skybox, SkyboxRenderer>(
@@ -85,9 +85,6 @@ int main()
 	auto reflectionPlane = glm::vec4(0, 1, 0, WATER_HEIGHT);
 	auto refractionPlane = glm::vec4(0, -1, 0, WATER_HEIGHT);
 
-	// Renderer
-	// auto skyboxRenderer = std::make_shared<SkyboxRenderer>(&skybox);
-
 	// Objects
 	auto water = RenderableEntityMaker::makeRenderable<Object, WaterRenderer>(
 		fbos, Mesh::createPlane(PLAN_SIZE_X / 2, WATER_HEIGHT));
@@ -96,30 +93,24 @@ int main()
 		glm::vec3(1.0, 15.0, 1.5), glm::vec3(1), glm::vec3(1, 0, 0),
 		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0));
 
-	auto terrain = Object::make(heightMap, "cpu_height");
-
 	auto sun = PropMaker::makeLamp(
 		glm::vec3(.0, 100.0, 1.5), glm::vec3(10, 10, 10), glm::vec3(1, 1, 1),
 		glm::vec4(0, 0.9, 1, 32), glm::vec3(0.005, 0.005, 0));
 
-	auto plane = PropMaker::makePlane(heightMap);
+	auto plane = PropMaker::makePlane();
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
-
 	auto trees = PropMaker::makeTrees(heightMap);
 	auto &lightManager = LightManager::get();
-
 	float orbitRadius = PLAN_SIZE_X / 2; // Distance from the center of the scene
 	float orbitSpeed = 0.1f;			 // How fast the sun moves
 	float orbitHeight = 100.0f;			 // Vertical height of the sun
 
 	auto firecamp = PropMaker::makeFirecamp(5, 0, heightMap);
-
 	double lastTime = glfwGetTime();
 
 	auto game = Game();
 	plane->getMainObject()->rotate(0, 0, 0);
-
 	while (!dm.shouldClose())
 	{
 		const double currentTime = glfwGetTime();
@@ -130,29 +121,34 @@ int main()
 		lightManager.updateUBO();
 		camera->updateUBO();
 
-		// 1. Reflection
-		glEnable(GL_CLIP_DISTANCE0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		fbos->bindReflectionFrameBuffer();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	    if (water->shouldRender())
+	    {
+	        // 1. Reflection
+	        glEnable(GL_CLIP_DISTANCE0);
+	        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	        fbos->bindReflectionFrameBuffer();
+	        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		camera->prepareReflection(WATER_HEIGHT);
-		camera->updateUBO();
-		fbos->setClipPlane(reflectionPlane);
+	        camera->prepareReflection(WATER_HEIGHT);
+	        camera->updateUBO();
+	        fbos->setClipPlane(reflectionPlane);
 
-		Game::renderScene(delta, {trees, skybox, terrain});
-		camera->resetCameraAfterReflection(WATER_HEIGHT);
-		camera->updateUBO();
+	        Game::renderScene(delta, {trees, skybox});
+	        camera->resetCameraAfterReflection(WATER_HEIGHT);
+	        camera->updateUBO();
 
-		// 2. Refraction
-		fbos->bindRefractionFrameBuffer();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	        // 2. Refraction
+	        fbos->bindRefractionFrameBuffer();
+	        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		fbos->setClipPlane(refractionPlane); // One clean call
-		Game::renderScene(delta, {trees, terrain});
+	        fbos->setClipPlane(refractionPlane); // One clean call
+	        Game::renderScene(delta, {trees});
+	        for (const auto& i: terrainMeshes)
+	            i->render(delta);
 
-		fbos->unbindCurrentFrameBuffer();
-		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
+	        fbos->unbindCurrentFrameBuffer();
+	        dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
+	    }
 
 		// Normal Scene
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -165,8 +161,10 @@ int main()
 
 		sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
 
-		Game::renderScene(delta, {trees, redLight, water, skybox, terrain, sun, firecamp, plane});
-		// 	plane->getMainObject()->setPosition(glm::vec3(camera->getPosition()) + glm::vec3(0, -5, 5));
+		Game::renderScene(delta, {trees, redLight, water, skybox, sun, firecamp, plane});
+		for (auto &i: terrainMeshes)
+		    i->render(delta);
+	    // 	plane->getMainObject()->setPosition(glm::vec3(camera->getPosition()) + glm::vec3(0, -5, 5));
 
 		glm::vec3 cameraOffset = glm::vec3(glm::mat4(1.0f) * glm::vec4(0.0f, 5.0f, -15.0f, 1.0f));
 

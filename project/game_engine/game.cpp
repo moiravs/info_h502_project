@@ -1,8 +1,11 @@
 #include "game.h"
 
+#include "mesh/heightMap.h"
+
 Game::Game()
 {
 }
+
 void Game::renderScene(const float delta, const std::vector<std::shared_ptr<Renderable>> &renderers)
 {
     for (const auto &i : renderers)
@@ -11,12 +14,12 @@ void Game::renderScene(const float delta, const std::vector<std::shared_ptr<Rend
     }
 }
 
-void Game::checkTerrainCollision(const std::shared_ptr<Entity> &entity, const std::shared_ptr<TerrainMesh> &terrain)
+void Game::checkTerrainCollision(const std::shared_ptr<Entity> &entity, const std::shared_ptr<HeightMap> &heighMap)
 {
     glm::vec3 pos = entity->getPosition();
 
     // Get the height of the floor at the entity's current X, Z
-    float terrainHeight = terrain->getHeight(pos.x, pos.z);
+    float terrainHeight = heighMap->getHeight(pos.x, pos.z);
 
     // If the entity is below the ground, snap it back to the surface
     if (pos.y < terrainHeight)
