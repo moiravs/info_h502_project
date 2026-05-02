@@ -1,11 +1,20 @@
 #include "objectRenderer.h"
 
-#include "../../utils/utils.h"
 #include "../manager/displaymanager.h"
 #include "../entity/object.h"
 
+std::shared_ptr<Texture> ObjectRenderer::grassTex = nullptr;
+std::shared_ptr<Texture> ObjectRenderer::rockTex = nullptr;
+std::shared_ptr<Texture> ObjectRenderer::snowTex = nullptr;
+
 ObjectRenderer::ObjectRenderer(const std::string &shaderName) : MeshRenderer(shaderName)
 {
+    if (ObjectRenderer::grassTex == nullptr)
+    {
+        grassTex = std::make_shared<Texture>(PATH_TO_SRC "/../assets/textures/terrain/grass.jpg");
+        rockTex = std::make_shared<Texture>(PATH_TO_SRC "/../assets/textures/terrain/rock.jpg");
+        snowTex = std::make_shared<Texture>(PATH_TO_SRC "/../assets/textures/terrain/snow.jpg");
+    }
 }
 
 void ObjectRenderer::updateUniforms() const
@@ -21,13 +30,13 @@ void ObjectRenderer::updateUniforms() const
     glUniform1i(glGetUniformLocation(_shader->getID(), "snowTex"), 3);
 
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, grassTex.getTexture());
+    glBindTexture(GL_TEXTURE_2D, grassTex->getTexture());
 
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, rockTex.getTexture());
+    glBindTexture(GL_TEXTURE_2D, rockTex->getTexture());
 
     glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, snowTex.getTexture());
+    glBindTexture(GL_TEXTURE_2D, snowTex->getTexture());
 
     // 3. Reset Active Texture to 0 so other code doesn't get confused
     glActiveTexture(GL_TEXTURE0);

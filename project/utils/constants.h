@@ -27,6 +27,7 @@ constexpr float SENSITIVITY = 1.f;
 constexpr float ZOOM = 45.0f;
 
 constexpr int MAX_LIGHTS = 128;
+constexpr int CHUNK_SIZE = 128;
 
 constexpr unsigned MAX_PARTICLES = 10000;
 

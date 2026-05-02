@@ -9,6 +9,8 @@
 #include "../renderer/instancedRenderer.h"
 #include "../entity/renderableEntityMaker.h"
 
+#include "../mesh/heightMap.h"
+
 std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &color,
                                           const glm::vec4 &lightProperties, const glm::vec3 &lightAttenuation)
 {
@@ -36,7 +38,7 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
     return prop;
 }
 
-std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<TerrainMesh> &heightMap)
+std::shared_ptr<Prop> PropMaker::makePlane()
 {
     const auto plane = RenderableEntityMaker::makeRenderable<Player, ObjectRenderer>("firecamp", std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/plane/uploads_files_6592991_Model.obj"));
 
@@ -48,7 +50,7 @@ std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<TerrainMesh> &h
     return prop;
 }
 
-std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, const std::shared_ptr<TerrainMesh> &heightMap)
+std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, const std::shared_ptr<HeightMap> &heightMap)
 {
     const auto firecamp = Object::make(
         std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/Campfire/Campfire OBJ.obj"),
@@ -80,7 +82,7 @@ std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, cons
     return prop;
 }
 
-std::shared_ptr<Prop> PropMaker::makeTrees(const std::shared_ptr<TerrainMesh> &heightMap)
+std::shared_ptr<Prop> PropMaker::makeTrees(const std::shared_ptr<HeightMap> &heightMap)
 {
     std::vector<glm::mat4> treeMatrices;
 

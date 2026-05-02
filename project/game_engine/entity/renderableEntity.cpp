@@ -2,7 +2,6 @@
 #include "renderableEntity.h"
 
 #include "../renderer/renderer.h"
-#include "../culling/octree.h"
 
 RenderableEntity::RenderableEntity(const std::shared_ptr<Renderer> &renderer)
     : Entity(), _renderer(renderer), _dirty(true)
@@ -35,10 +34,6 @@ void RenderableEntity::dirty()
 void RenderableEntity::setPosition(const glm::vec3 &position)
 {
     Entity::setPosition(position);
-    // if (const auto obj = std::dynamic_pointer_cast<RenderableEntity>(this->shared_from_this()))
-    // {
-    //     this->octreeNode->moveObject(obj, position);
-    // }
     this->dirty();
 }
 
@@ -59,8 +54,14 @@ void RenderableEntity::render(const float delta)
         this->update(delta);
 
     this->_dirty = false;
-    this->_renderer->render();
+
+    if (this->shouldRender())
+    {
+        this->_renderer->render();
+    }
 }
+
+bool RenderableEntity::shouldRender() const { return true; }
 
 void RenderableEntity::setOctreeNode(const std::shared_ptr<Octree> &node)
 {
