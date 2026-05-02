@@ -82,16 +82,21 @@ std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, cons
     return prop;
 }
 
-std::shared_ptr<Prop> PropMaker::makeTrees(const std::shared_ptr<HeightMap> &heightMap)
+std::shared_ptr<Prop> PropMaker::makeTrees(const std::shared_ptr<HeightMap> &heightMap, const int nbTrees, const int chunkSize)
 {
-    std::vector<glm::mat4> treeMatrices;
-
     constexpr int maxRandom = PLAN_SIZE_X / 2;
     constexpr int minRandom = -PLAN_SIZE_X / 2;
 
-    for (int i = 0; i < 200; i++)
+    const int chunksPerAxis = (PLAN_SIZE_X + chunkSize - 1) / chunkSize;
+
+    const int minChunk = static_cast<int>(std::floor(minRandom / static_cast<float>(chunkSize)));
+
+    std::vector<std::vector<glm::mat4>> treeMatrices(chunksPerAxis * chunksPerAxis);
+
+    for (int i = 0; i < nbTrees; i++)
     {
-        auto model = glm::mat4(1.0f);
+        glm::mat4 model(1.0f);
+
         const float x = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
         const float z = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
         const float y = heightMap->getHeight(x, z);
@@ -101,20 +106,38 @@ std::shared_ptr<Prop> PropMaker::makeTrees(const std::shared_ptr<HeightMap> &hei
             i--;
             continue;
         }
+
         model = glm::translate(model, glm::vec3(x, y, z));
         model = glm::rotate(model, static_cast<float>(rand() % 360), glm::vec3(0, 1, 0));
 
-        treeMatrices.push_back(model);
+        const int chunkX = static_cast<int>(std::floor(x / static_cast<float>(chunkSize)));
+        const int chunkY = static_cast<int>(std::floor(z / static_cast<float>(chunkSize)));
+
+        const int ix = chunkX - minChunk;
+        const int iy = chunkY - minChunk;
+
+        const int index = iy * chunksPerAxis + ix;
+
+        treeMatrices[index].push_back(model);
     }
 
-    const auto tree =
-        InstancedObject::make(
-            std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/Tree_V10_OBJ/Tree.obj"),
-            "tree", treeMatrices);
-
+    const auto mesh = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/Tree_V10_OBJ/Tree.obj");
     auto prop = std::make_shared<Prop>();
 
-    prop->addEntity(tree);
-    prop->addRenderable(tree);
+    for (const auto& v : treeMatrices)
+    {
+        if (v.empty()) continue;
+
+        auto tree = InstancedObject::make(mesh, "tree", v);
+
+        prop->addEntity(tree);
+        prop->addRenderable(tree);
+
+        std::cout << "size " << v.size() << std::endl;
+        auto bounds = tree->getBounds();
+        for (auto& b: bounds)
+            printVec3(b);
+    }
+
     return prop;
 }

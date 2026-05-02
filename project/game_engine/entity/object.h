@@ -27,7 +27,7 @@ class Object : public RenderableEntity
 protected:
     std::array<glm::vec3, 8> _bounds{};
 public:
-    void updateBounds();
+    virtual void updateBounds();
     explicit Object(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Renderer> &renderer);
 
     static std::shared_ptr<Object> make(const std::shared_ptr<Mesh> &mesh, const std::string &shader);
