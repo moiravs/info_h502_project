@@ -4,7 +4,8 @@
 #include <memory>
 
 #include "prop.h"
-#include "../mesh/terrainMesh.h"
+
+class HeightMap;
 
 class PropMaker
 {
@@ -14,11 +15,11 @@ public:
     static std::shared_ptr<Prop> makeLamp(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &color,
                                           const glm::vec4 &lightProperties, const glm::vec3 &lightAttenuation);
 
-    static std::shared_ptr<Prop> makeTrees(const std::shared_ptr<TerrainMesh> &heightMap);
+    static std::shared_ptr<Prop> makeTrees(const std::shared_ptr<HeightMap> &heightMap, int nbTrees = 200, int chunkSize = 256);
 
-    static std::shared_ptr<Prop> makeFirecamp(float x, float z, const std::shared_ptr<TerrainMesh> &heightMap);
+    static std::shared_ptr<Prop> makeFirecamp(float x, float z, const std::shared_ptr<HeightMap> &heightMap);
 
-    static std::shared_ptr<Prop> makePlane(const std::shared_ptr<TerrainMesh> &heightMap);
+    static std::shared_ptr<Prop> makePlane();
 };
 
 #endif // INFOH502_CPP_PROPMAKER_H

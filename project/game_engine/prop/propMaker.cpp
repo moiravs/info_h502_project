@@ -9,6 +9,8 @@
 #include "../renderer/instancedRenderer.h"
 #include "../entity/renderableEntityMaker.h"
 
+#include "../mesh/heightMap.h"
+
 std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &color,
                                           const glm::vec4 &lightProperties, const glm::vec3 &lightAttenuation)
 {
@@ -36,7 +38,7 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
     return prop;
 }
 
-std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<TerrainMesh> &heightMap)
+std::shared_ptr<Prop> PropMaker::makePlane()
 {
     const auto plane = RenderableEntityMaker::makeRenderable<Player, ObjectRenderer>("firecamp", std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/plane/uploads_files_6592991_Model.obj"));
 
@@ -48,7 +50,7 @@ std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<TerrainMesh> &h
     return prop;
 }
 
-std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, const std::shared_ptr<TerrainMesh> &heightMap)
+std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, const std::shared_ptr<HeightMap> &heightMap)
 {
     const auto firecamp = Object::make(
         std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/Campfire/Campfire OBJ.obj"),
@@ -81,16 +83,21 @@ std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, cons
     return prop;
 }
 
-std::shared_ptr<Prop> PropMaker::makeTrees(const std::shared_ptr<TerrainMesh> &heightMap)
+std::shared_ptr<Prop> PropMaker::makeTrees(const std::shared_ptr<HeightMap> &heightMap, const int nbTrees, const int chunkSize)
 {
-    std::vector<glm::mat4> treeMatrices;
-
     constexpr int maxRandom = PLAN_SIZE_X / 2;
     constexpr int minRandom = -PLAN_SIZE_X / 2;
 
-    for (int i = 0; i < 200; i++)
+    const int chunksPerAxis = (PLAN_SIZE_X + chunkSize - 1) / chunkSize;
+
+    const int minChunk = static_cast<int>(std::floor(minRandom / static_cast<float>(chunkSize)));
+
+    std::vector<std::vector<glm::mat4>> treeMatrices(chunksPerAxis * chunksPerAxis);
+
+    for (int i = 0; i < nbTrees; i++)
     {
-        auto model = glm::mat4(1.0f);
+        glm::mat4 model(1.0f);
+
         const float x = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
         const float z = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
         const float y = heightMap->getHeight(x, z);
@@ -100,23 +107,33 @@ std::shared_ptr<Prop> PropMaker::makeTrees(const std::shared_ptr<TerrainMesh> &h
             i--;
             continue;
         }
+
         model = glm::translate(model, glm::vec3(x, y, z));
         model = glm::rotate(model, static_cast<float>(rand() % 360), glm::vec3(0, 1, 0));
 
-        treeMatrices.push_back(model);
+        const int chunkX = static_cast<int>(std::floor(x / static_cast<float>(chunkSize)));
+        const int chunkY = static_cast<int>(std::floor(z / static_cast<float>(chunkSize)));
+
+        const int ix = chunkX - minChunk;
+        const int iy = chunkY - minChunk;
+
+        const int index = iy * chunksPerAxis + ix;
+
+        treeMatrices[index].push_back(model);
     }
 
-    const auto tree =
-        InstancedObject::make(
-            std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/Tree_V10_OBJ/Tree.obj"),
-            "tree", treeMatrices);
-
-    tree->setScale(glm::vec3(10, 10, 10));
-
+    const auto mesh = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/Tree_V10_OBJ/Tree.obj");
     auto prop = std::make_shared<Prop>();
 
-    prop->addEntity(tree);
-    prop->addRenderable(tree);
-    prop->setMainObject(tree);
+    for (const auto& v : treeMatrices)
+    {
+        if (v.empty()) continue;
+
+        auto tree = InstancedObject::make(mesh, "tree", v);
+
+        prop->addEntity(tree);
+        prop->addRenderable(tree);
+        prop->setMainObject(tree);
+    }
     return prop;
 }

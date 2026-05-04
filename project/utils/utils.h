@@ -33,6 +33,11 @@ inline void printMat4(const glm::mat4& m)
     }
 }
 
+inline void printVec3(const glm::vec3& v)
+{
+    std::cout << std::setw(10) << std::setprecision(4) << v.x << " " << v.y << " " << v.z << std::endl;;
+}
+
 inline bool isInVolume(const glm::vec3& point, const glm::vec3& lower, const glm::vec3& upper)
 {
     return

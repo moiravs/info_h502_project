@@ -2,9 +2,12 @@
 #include "renderer/meshRenderer.h"
 #include "prop/prop.h"
 
+#include "mesh/heightMap.h"
+
 Game::Game()
 {
 }
+
 void Game::renderScene(const float delta, const std::vector<std::shared_ptr<Renderable>> &renderers)
 {
     for (const auto &i : renderers)
@@ -17,10 +20,11 @@ void Game::renderShadows(const float delta, const std::vector<std::shared_ptr<Re
 {
     shadowShader->use();
     shadowShader->setMatrix4("lightSpaceMatrix", lightSpaceMatrix);
+
     for (const auto &i : renderers)
     {
 
-                if (auto mesh = std::dynamic_pointer_cast<RenderableEntity>(i))
+        if (auto mesh = std::dynamic_pointer_cast<RenderableEntity>(i))
         {
             if (auto meshRef = std::dynamic_pointer_cast<MeshRenderer>(mesh->getRenderer()))
             {
@@ -45,12 +49,12 @@ void Game::renderShadows(const float delta, const std::vector<std::shared_ptr<Re
     }
 }
 
-void Game::checkTerrainCollision(const std::shared_ptr<Entity> &entity, const std::shared_ptr<TerrainMesh> &terrain)
+void Game::checkTerrainCollision(const std::shared_ptr<Entity> &entity, const std::shared_ptr<HeightMap> &heighMap)
 {
     glm::vec3 pos = entity->getPosition();
 
     // Get the height of the floor at the entity's current X, Z
-    float terrainHeight = terrain->getHeight(pos.x, pos.z);
+    float terrainHeight = heighMap->getHeight(pos.x, pos.z);
 
     // If the entity is below the ground, snap it back to the surface
     if (pos.y < terrainHeight)

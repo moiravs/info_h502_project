@@ -7,6 +7,7 @@
 #include "controllable.h"
 #include "entity.h"
 #include "../../utils/constants.h"
+#include "../culling/frustum.h"
 #include "../manager/uboProvider.h"
 
 struct CameraInfo
@@ -25,9 +26,12 @@ class Camera : public Entity, public UboProvider, public Controllable
     glm::vec3 flatFront{};
     // camera options
     float zoom;
+    Frustum _frustum {};
 
 protected:
     void updateRotation() override;
+
+    void updateFrustum();
 
 public:
     // constructor with vectors
@@ -37,7 +41,7 @@ public:
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     [[nodiscard]] glm::mat4 getViewMatrix() const;
 
-    static glm::mat4 getProjectionMatrix(float fov = 45.0, float ratio = 1.0, float near = 0.01, float far = 100.0);
+    static glm::mat4 getProjectionMatrix(float fov = FOVY, float ratio = ASPECT_RATIO, float near = NEAR, float far = FAR);
 
     [[nodiscard]] float getZoom() const;
 
@@ -50,11 +54,16 @@ public:
 
     void prepareReflection(int height);
 
+    using Entity::setPosition;
+    void setPosition(const glm::vec3& position) override;
+
     void resetCameraAfterReflection(int height);
 
     void processKeyboardRotation(float yawRot, float pitchRot, float rollRot, float deltaTime) override;
 
     void setLookAt(glm::vec3 target);
+
+    bool canView(const std::array<glm::vec3, 8> &bounds) const;
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
     void processMouseMovement(float xoffset, float yoffset, float zoffset, float deltaTime) override;
