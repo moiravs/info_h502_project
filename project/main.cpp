@@ -67,7 +67,7 @@ int main()
 
 	auto camera = MainCamera::get();
 	// Terrain
-	auto [heightMap, terrainMeshes] =
+	auto [heightMap, terrain] =
 		RenderableEntityMaker::terrainFromTexture(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
 
 	// Skybox
@@ -142,9 +142,7 @@ int main()
 	        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	        fbos->setClipPlane(refractionPlane); // One clean call
-	        Game::renderScene(delta, {trees});
-	        for (const auto& i: terrainMeshes)
-	            i->render(delta);
+	        Game::renderScene(delta, {trees, terrain});
 
 	        fbos->unbindCurrentFrameBuffer();
 	        dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
@@ -161,9 +159,8 @@ int main()
 
 		sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
 
-		Game::renderScene(delta, {trees, redLight, water, skybox, sun, firecamp, plane});
-		for (auto &i: terrainMeshes)
-		    i->render(delta);
+		Game::renderScene(delta, {trees, redLight, water, skybox, sun, firecamp, plane, terrain});
+
 	    // 	plane->getMainObject()->setPosition(glm::vec3(camera->getPosition()) + glm::vec3(0, -5, 5));
 
 		glm::vec3 cameraOffset = glm::vec3(glm::mat4(1.0f) * glm::vec4(0.0f, 5.0f, -15.0f, 1.0f));

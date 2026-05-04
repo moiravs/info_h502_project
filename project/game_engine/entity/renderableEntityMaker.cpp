@@ -1,8 +1,9 @@
 
 #include "renderableEntityMaker.h"
 #include <stb_image.h>
+#include "../prop/prop.h"
 
-std::pair<std::shared_ptr<HeightMap>, std::vector<std::shared_ptr<Object>>> RenderableEntityMaker::terrainFromTexture(const std::string& texturePath,
+std::pair<std::shared_ptr<HeightMap>, std::shared_ptr<Prop>> RenderableEntityMaker::terrainFromTexture(const std::string& texturePath,
                                                                           const float width, const float depth)
 {
     int imageWidth;
@@ -50,7 +51,7 @@ std::pair<std::shared_ptr<HeightMap>, std::vector<std::shared_ptr<Object>>> Rend
     }
 
     auto heightMap = std::make_shared<HeightMap>(width, depth, imageWidth, imageHeight, heights);
-    std::vector<std::shared_ptr<Object>> objects;
+    auto prop = std::make_shared<Prop>();
 
     for (int cz = 0; cz < imageHeight - 1; cz += CHUNK_SIZE)
     {
@@ -115,12 +116,13 @@ std::pair<std::shared_ptr<HeightMap>, std::vector<std::shared_ptr<Object>>> Rend
             mesh->addEntry(entry);
             std::shared_ptr<Object> object = Object::make(mesh, "cpu_height");
 
-            objects.push_back(object);
+            prop->addEntity(object);
+            prop->addRenderable(object);
         }
     }
 
     stbi_image_free(data);
-    return {heightMap, objects};
+    return {heightMap, prop};
 }
 
 glm::vec3 RenderableEntityMaker::calculateNormal(const int x, const int z, const int imageWidth, const int imageHeight,
