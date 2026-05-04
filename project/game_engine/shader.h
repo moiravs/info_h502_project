@@ -13,7 +13,6 @@
 class Shader
 {
     GLuint ID;
-    glm::mat4 model = glm::mat4(1.0);
 
 public:
 

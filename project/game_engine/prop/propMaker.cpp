@@ -133,8 +133,7 @@ std::shared_ptr<Prop> PropMaker::makeTrees(const std::shared_ptr<HeightMap> &hei
 
         prop->addEntity(tree);
         prop->addRenderable(tree);
-
-        auto bounds = tree->getBounds();
+        prop->setMainObject(tree);
     }
     return prop;
 }

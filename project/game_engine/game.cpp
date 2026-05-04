@@ -20,10 +20,11 @@ void Game::renderShadows(const float delta, const std::vector<std::shared_ptr<Re
 {
     shadowShader->use();
     shadowShader->setMatrix4("lightSpaceMatrix", lightSpaceMatrix);
+
     for (const auto &i : renderers)
     {
 
-                if (auto mesh = std::dynamic_pointer_cast<RenderableEntity>(i))
+        if (auto mesh = std::dynamic_pointer_cast<RenderableEntity>(i))
         {
             if (auto meshRef = std::dynamic_pointer_cast<MeshRenderer>(mesh->getRenderer()))
             {
