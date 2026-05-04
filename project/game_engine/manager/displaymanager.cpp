@@ -11,7 +11,7 @@ GLFWwindow *DisplayManager::createWindow()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow *w = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL: Terrain CPU",
+    GLFWwindow *w = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "3D Game",
                                      nullptr, nullptr);
 
     if (w == nullptr)

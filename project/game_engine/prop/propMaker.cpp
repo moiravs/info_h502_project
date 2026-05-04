@@ -133,7 +133,6 @@ std::shared_ptr<Prop> PropMaker::makeTrees(const std::shared_ptr<HeightMap> &hei
         prop->addEntity(tree);
         prop->addRenderable(tree);
 
-        std::cout << "size " << v.size() << std::endl;
         auto bounds = tree->getBounds();
         for (auto& b: bounds)
             printVec3(b);
