@@ -13,6 +13,7 @@ class ObjectRenderer : public MeshRenderer
     static std::shared_ptr<Texture> snowTex;
 
 public:
+    explicit ObjectRenderer(const std::shared_ptr<Shader> shader);
     explicit ObjectRenderer(const std::string &shaderName);
     void updateUniforms() const override;
 };
