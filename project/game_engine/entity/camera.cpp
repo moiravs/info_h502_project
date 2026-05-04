@@ -1,7 +1,5 @@
 #include "camera.h"
 
-#include <iostream>
-
 #include "glm/gtc/type_ptr.hpp"
 
 Camera::Camera(const glm::vec3 up, const float yaw, const float roll, const float pitch)
@@ -90,13 +88,40 @@ void Camera::updateRotation()
     this->flatFront = this->getFront();
     this->flatFront.y = 0;
     this->flatFront = glm::normalize(this->flatFront);
+
+    this->updateFrustum();
+}
+
+// https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
+void Camera::updateFrustum()
+{
+    const float halfVSide = FAR * tanf(FOVY * .5f);
+    const float halfHSide = halfVSide * ASPECT_RATIO;
+    const glm::vec3 frontMultFar = FAR * this->getFront();
+    auto pos = this->getPosition();
+
+    this->_frustum = Frustum(
+    Plane(pos + NEAR * this->getFront(), this->getFront()),
+    Plane(pos + frontMultFar, -this->getFront()),
+    Plane(pos, glm::cross(frontMultFar - this->getRight() * halfHSide, this->getUp())),
+    Plane(pos, glm::cross(this->getUp(),frontMultFar + this->getRight() * halfHSide)),
+    Plane(pos, glm::cross(this->getRight(), frontMultFar - this->getUp() * halfVSide)),
+    Plane(pos, glm::cross(frontMultFar + this->getUp() * halfVSide, this->getRight()))
+        );
+}
+
+void Camera::setPosition(const glm::vec3& position)
+{
+    Entity::setPosition(position);
+
+    this->updateFrustum();
 }
 
 void Camera::updateUBO() const
 {
     const CameraInfo i = {
-        .projection = Camera::getProjectionMatrix(glm::radians(this->getZoom()),
-                                                  static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), 0.1f, 100000.0f),
+        .projection = getProjectionMatrix(glm::radians(this->getZoom()),
+                                                  static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), NEAR, FAR),
         .view = this->getViewMatrix(),
         .cameraPos = glm::vec4(this->getPosition(), 0),
         .cameraRight = glm::vec4(this->getRight(), 0),
@@ -111,7 +136,7 @@ void Camera::updateUBO() const
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void Camera::setLookAt(glm::vec3 target)
+void Camera::setLookAt(const glm::vec3 target)
 {
     // 1. Calculate the direction vector from camera to target
     glm::vec3 direction = glm::normalize(target - this->getPosition());
@@ -128,4 +153,9 @@ void Camera::setLookAt(glm::vec3 target)
     // This will trigger the math needed for getFront() and updateRotation()
     this->setRotation(newYaw, newPitch, 0.0f);
     this->updateRotation();
+}
+
+bool Camera::canView(const std::array<glm::vec3, 8>& bounds) const {
+    const auto ret = this->_frustum.isInside(bounds) ;
+    return ret == Inside;
 }

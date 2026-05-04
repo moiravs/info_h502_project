@@ -8,9 +8,9 @@ class ObjectRenderer : public MeshRenderer
 {
     bool _transparent{};
 
-    Texture grassTex = Texture(PATH_TO_SRC "/../assets/textures/terrain/grass.jpg");
-    Texture rockTex = Texture(PATH_TO_SRC "/../assets/textures/terrain/rock.jpg");
-    Texture snowTex = Texture(PATH_TO_SRC "/../assets/textures/terrain/snow.jpg");
+    static std::shared_ptr<Texture> grassTex;
+    static std::shared_ptr<Texture> rockTex;
+    static std::shared_ptr<Texture> snowTex;
 
 public:
     explicit ObjectRenderer(const std::shared_ptr<Shader> shader);

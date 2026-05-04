@@ -4,9 +4,10 @@
 #include <sstream>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "renderableEntityMaker.h"
+#include "../mainCamera.h"
 #include "../renderer/objectRenderer.h"
 #include "../renderer/renderer.h"
+#include "renderableEntityMaker.h"
 
 std::shared_ptr<Object> Object::make(const std::shared_ptr<Mesh> &mesh, const std::string &shader)
 {
@@ -17,6 +18,28 @@ Object::Object(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Renderer
 {
     m_mesh = mesh;
     height = computeHeight();
+}
+
+const std::array<glm::vec3, 8>& Object::getBounds() const
+{
+    return this->_bounds;
+}
+
+void Object::setPosition(const glm::vec3& position)
+{
+    RenderableEntity::setPosition(position);
+    this->updateBounds();
+}
+
+void Object::setRotation(const float yaw, const float pitch, const float roll)
+{
+    RenderableEntity::setRotation(yaw, pitch, roll);
+    this->updateBounds();
+}
+
+bool Object::shouldRender() const
+{
+    return MainCamera::get()->canView(this->getBounds());
 }
 
 void Object::updateBounds()
@@ -35,21 +58,11 @@ void Object::updateBounds()
         {min.x, max.y, max.z}
     };
 
-    glm::vec3 worldCorners[8];
     const auto model = this->getModel();
-    this->_minBound = glm::vec3(model * glm::vec4(corners[0], 1.0));
-    this->_maxBound = glm::vec3(model * glm::vec4(corners[0], 1.0));
 
-    for (int i = 1; i < 8; ++i) {
-        auto mapped = glm::vec3(model * glm::vec4(corners[i], 1.0));
-        this->_minBound = glm::min(this->_minBound, mapped);
-        this->_maxBound = glm::max(this->_maxBound, mapped);
+    for (int i = 0; i < 8; ++i) {
+        this->_bounds.at(i) = glm::vec3(model * glm::vec4(corners[i], 1.0));
     }
-}
-
-std::pair<glm::vec3, glm::vec3> Object::getBounds() const
-{
-    return {this->_minBound, this->_maxBound};
 }
 
 float Object::computeHeight() const
@@ -65,21 +78,10 @@ float Object::getHeight() const
     return height;
 }
 
-void Object::setPosition(const glm::vec3 &position)
-{
-    this->RenderableEntity::setPosition(position);
-}
-
 void Object::setScale(const glm::vec3 &scale)
 {
     this->_scale = scale;
     this->dirty();
-}
-
-void Object::update(const float delta)
-{
-    this->updateBounds();
-    RenderableEntity::update(delta);
 }
 
 glm::mat4 Object::getModel() const

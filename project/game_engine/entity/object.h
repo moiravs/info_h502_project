@@ -5,7 +5,6 @@
 #include <glm/glm.hpp>
 
 #include "entity.h"
-#include "../culling/octree.h"
 #include <memory>
 
 #include "renderableEntity.h"
@@ -22,37 +21,34 @@ class Object : public RenderableEntity
     float height = 0;
     glm::vec3 _scale = glm::vec3(1);
     float computeHeight() const;
-    glm::vec3 _minBound{};
-    glm::vec3 _maxBound{};
 
     std::shared_ptr<Mesh> m_mesh = nullptr;
 
 protected:
-    void updateBounds();
+    std::array<glm::vec3, 8> _bounds{};
 public:
+    virtual void updateBounds();
     explicit Object(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Renderer> &renderer);
 
-    static std::shared_ptr<Object> make(const char *path, const std::shared_ptr<Renderer> &renderer = nullptr);
-    static std::shared_ptr<Object> make(float size, float height, const std::shared_ptr<Renderer> &renderer = nullptr);
     static std::shared_ptr<Object> make(const std::shared_ptr<Mesh> &mesh, const std::string &shader);
-
-    // this weird line is there so that the overloads of Entity::setPosition stay despite the override
-    using Entity::setPosition;
-    void setPosition(const glm::vec3 &position) override;
-
     void setColor(const glm::vec3 &color);
 
-    void setScale(const glm::vec3 &scale);
+    const std::array<glm::vec3, 8>& getBounds() const;
 
-    std::pair<glm::vec3, glm::vec3> getBounds() const;
+    void setRotation(float yaw, float pitch, float roll) override;
+
+    bool shouldRender() const override;
+
+    using RenderableEntity::setPosition;
+    void setPosition(const glm::vec3& position) override;
+
+    void setScale(const glm::vec3 &scale);
 
     [[nodiscard]] float getHeight() const;
 
     [[nodiscard]] glm::vec3 getColor() const;
 
     [[nodiscard]] glm::mat4 getModel() const override;
-
-    void update(float delta) override;
 
     std::shared_ptr<Mesh> getMesh() const;
 };
