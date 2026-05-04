@@ -35,10 +35,30 @@ uniform sampler2D grassTex;
 uniform sampler2D rockTex;
 uniform sampler2D snowTex;
 
+uniform sampler2D shadowMap; 
+in vec4 FragPosLightSpace;  
+
+float ShadowCalculation(vec4 fragPosLS) {
+    vec3 projCoords = fragPosLS.xyz / fragPosLS.w;
+    projCoords = projCoords * 0.5 + 0.5;
+
+    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+
+    float currentDepth = projCoords.z;
+
+    float bias = 0.001;
+    float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+
+    if(projCoords.z > 1.0) shadow = 0.0;
+
+    return shadow;
+}
+
+
 void main()
 {
     // --- 1. Base Color ---
-vec3 grass = texture(grassTex, v_texCoord).rgb;
+    vec3 grass = texture(grassTex, v_texCoord).rgb;
     vec3 rock  = texture(rockTex, v_texCoord).rgb;
     vec3  snow = texture(snowTex, v_texCoord).rgb;
 
@@ -60,7 +80,8 @@ vec3 grass = texture(grassTex, v_texCoord).rgb;
     vec3 norm = normalize(v_normal);
 
     // --- 2. Lighting ---
-    vec3 result = vec3(0.0);
+    vec3 totalLighting = vec3(0.0);
+    float shadow = ShadowCalculation(FragPosLightSpace);
 
     for (int i = 0; i < lightCount; i++)
     {
@@ -76,12 +97,21 @@ vec3 grass = texture(grassTex, v_texCoord).rgb;
         float diff = max(dot(norm, lightDir), 0.0);
         vec3 diffuse = diff * lightProperties[i].y * lightColor;
 
-        vec3 att = lightAttenuations[i].xyz;
-        float attenuation =
-        1.0 / (att.x + att.y * dist + att.z * dist * dist);
+        vec3 viewDir = normalize(cameraPos - v_fragPos);
+        vec3 reflectDir = reflect(-lightDir, norm);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), max(lightProperties[i].w, 1.0));
+        vec3 specular = lightProperties[i].z * spec * lightColor;
 
-        result += (ambient + diffuse) * baseColor * attenuation;
+        vec3 att = lightAttenuations[i].xyz;
+        float attenuation = 1.0 / (att.x + att.y * dist + att.z * dist * dist);
+
+        if (i == 0) {
+            totalLighting += (ambient + (1.0 - shadow) * (diffuse + specular)) * attenuation;
+        } else {
+            totalLighting += (ambient + diffuse + specular) * attenuation;
+        }
     }
+    
     // float dist = length(v_fragPos - cameraPos.xyz);
 
 //     float heightFactor = clamp((fogMaxHeight - v_fragPos.y) / (fogMaxHeight - fogMinHeight), 0.0, 1.0);
@@ -93,6 +123,6 @@ vec3 grass = texture(grassTex, v_texCoord).rgb;
 
 //  vec3 outColor = mix(mistColor, result, mistFactor);
 
-    FragColor = vec4(result, 1);
+    FragColor = vec4(totalLighting * baseColor, 1.0);
 
 }

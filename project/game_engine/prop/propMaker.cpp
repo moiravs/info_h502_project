@@ -79,6 +79,7 @@ std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, cons
     firecamp->attach(pg, offset);
     prop->addRenderable(firecamp);
     prop->addRenderable(pg);
+    prop->setMainObject(firecamp);
     return prop;
 }
 
@@ -134,9 +135,6 @@ std::shared_ptr<Prop> PropMaker::makeTrees(const std::shared_ptr<HeightMap> &hei
         prop->addRenderable(tree);
 
         auto bounds = tree->getBounds();
-        for (auto& b: bounds)
-            printVec3(b);
     }
-
     return prop;
 }

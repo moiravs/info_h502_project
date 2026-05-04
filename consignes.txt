@@ -12,9 +12,9 @@ LAB03)
 
 INTERMEDIATE FEATURES
 - ✅Frame buffer object effect (diffusion shader, mirror and co)
-- Particles 
-- Instancing
-- Billboarding
+- ✅Particles 
+- ✅Instancing
+- ✅Billboarding
 
 ADVANCED FEATURES
 - Bump mapping

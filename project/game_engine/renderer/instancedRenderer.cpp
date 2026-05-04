@@ -9,6 +9,7 @@ InstancedRenderer::InstancedRenderer(const std::string &shaderName) : MeshRender
 
 void InstancedRenderer::updateUniforms() const
 {
+    MeshRenderer::updateUniforms();
 }
 
 void InstancedRenderer::setInstanceMatrices(const std::vector<glm::mat4> &matrices)

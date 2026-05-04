@@ -6,6 +6,7 @@
 
 #include "../../utils/utils.h"
 #include "../entity/object.h"
+#include <glm/gtx/string_cast.hpp>
 
 MeshRenderer::MeshRenderer(const std::string &shaderName) : Renderer(generateShader(shaderName))
 {
@@ -15,8 +16,23 @@ MeshRenderer::MeshRenderer(const std::string &shaderName) : Renderer(generateSha
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &transparent);
 }
 
+MeshRenderer::MeshRenderer(const std::shared_ptr<Shader> shader) : Renderer(shader)
+{
+    glGenTextures(1, &emptyTexture);
+    glBindTexture(GL_TEXTURE_2D, emptyTexture);
+    unsigned int transparent = 0x00000000; // Alpha is 00
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &transparent);
+}
+
 void MeshRenderer::updateUniforms() const
 {
+    _shader->use();
+    _shader->setMatrix4("lightSpaceMatrix", this->lightSpaceMatrix);
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, this->shadowMapTexture);
+    _shader->setInteger("shadowMap", 4);
+
+    glActiveTexture(GL_TEXTURE0);
 }
 
 void MeshRenderer::registerEntity(const std::shared_ptr<RenderableEntity> &entity)
@@ -75,6 +91,23 @@ void MeshRenderer::setupVAOs()
                 glVertexAttribDivisor(att_model + j, 1);
             }
         }
+    }
+    glBindVertexArray(0);
+}
+
+void MeshRenderer::renderShadows(const std::shared_ptr<Shader> &shadowShader)
+{
+    shadowShader->use();
+    const auto mesh = this->getEntity<Object>()->getMesh();
+
+    for (unsigned int i = 0; i < _VAOs.size(); i++)
+    {
+        const auto &entry = mesh->getEntries()[i];
+
+        shadowShader->setMatrix4("model", this->getEntity<Object>()->getModel());
+
+        glBindVertexArray(_VAOs[i]);
+        glDrawElements(GL_TRIANGLES, entry.numIndices, GL_UNSIGNED_INT, 0);
     }
     glBindVertexArray(0);
 }

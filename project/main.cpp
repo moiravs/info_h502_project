@@ -31,16 +31,10 @@
 #include "game_engine/entity/particleGenerator.h"
 #include "game_engine/entity/renderableEntityMaker.h"
 #include "game_engine/renderer/waterRenderer.h"
+#include <glm/gtx/string_cast.hpp>
+#include "game_engine/shadow.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-
-void renderScene(const std::vector<std::shared_ptr<Renderer>> &renderers)
-{
-	for (const auto &i : renderers)
-	{
-		i->render();
-	}
-}
 
 #define CONTROL_CAMERA 1
 
@@ -64,6 +58,11 @@ int main()
 	}
 
 	glEnable(GL_DEPTH_TEST);
+
+	// make sun must be in first
+	auto sun = PropMaker::makeLamp(
+		glm::vec3(.0, 100.0, 1.5), glm::vec3(10, 10, 10), glm::vec3(1, 1, 1),
+		glm::vec4(0, 0.9, 1, 32), glm::vec3(0.005, 0.005, 0));
 
 	auto camera = MainCamera::get();
 	// Terrain
@@ -90,12 +89,8 @@ int main()
 		fbos, Mesh::createPlane(PLAN_SIZE_X / 2, WATER_HEIGHT));
 
 	auto redLight = PropMaker::makeLamp(
-		glm::vec3(1.0, 15.0, 1.5), glm::vec3(1), glm::vec3(1, 0, 0),
+		glm::vec3(1.0, 15.0, 1.5), glm::vec3(1), glm::vec3(1, 1, 1),
 		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0));
-
-	auto sun = PropMaker::makeLamp(
-		glm::vec3(.0, 100.0, 1.5), glm::vec3(10, 10, 10), glm::vec3(1, 1, 1),
-		glm::vec4(0, 0.9, 1, 32), glm::vec3(0.005, 0.005, 0));
 
 	auto plane = PropMaker::makePlane();
 
@@ -109,6 +104,8 @@ int main()
 	auto firecamp = PropMaker::makeFirecamp(5, 0, heightMap);
 	double lastTime = glfwGetTime();
 
+	Shadow shadow;
+
 	auto game = Game();
 	plane->getMainObject()->rotate(0, 0, 0);
 	while (!dm.shouldClose())
@@ -121,9 +118,30 @@ int main()
 		lightManager.updateUBO();
 		camera->updateUBO();
 
+		// == SHADOWS ==
+		glm::vec3 target = glm::vec3(0.0f, 50.0f, 0.0f); // Terrain center, some height
+		glm::mat4 lightView = glm::lookAt(sun->getMainObject()->getPosition(), target, glm::vec3(0.0f, 1.0f, 0.0f));
+
+		float orthoSize = PLAN_SIZE_X * 0.7f;
+		glm::mat4 lightProjection = glm::ortho(-300.0f, 300.0f, -100.0f, 400.0f,
+											   0.1f, 1000.0f);
+
+		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, shadow.depthMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		Game::renderShadows(delta, {trees, plane, terrain}, lightSpaceMatrix, shadow.depthMap, shadow.shadowShader);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glDrawBuffer(GL_BACK); // Reactivate color drawing
+		glReadBuffer(GL_BACK);
+		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
+
 	    if (water->shouldRender())
 	    {
-	        // 1. Reflection
+	        // == REFLECTION ==
 	        glEnable(GL_CLIP_DISTANCE0);
 	        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	        fbos->bindReflectionFrameBuffer();
@@ -133,7 +151,7 @@ int main()
 	        camera->updateUBO();
 	        fbos->setClipPlane(reflectionPlane);
 
-	        Game::renderScene(delta, {trees, skybox});
+	        Game::renderScene(delta, {trees, skybox, terrain});
 	        camera->resetCameraAfterReflection(WATER_HEIGHT);
 	        camera->updateUBO();
 
@@ -148,7 +166,7 @@ int main()
 	        dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 	    }
 
-		// Normal Scene
+		// == NORMAL ==
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glDisable(GL_CLIP_DISTANCE0);
@@ -156,6 +174,7 @@ int main()
 		float sunX = 0.0f;
 		float sunY = std::sin(currentTime * orbitSpeed) * orbitRadius;
 		float sunZ = std::cos(currentTime * orbitSpeed) * orbitRadius;
+		glBindTexture(GL_TEXTURE_2D, shadow.depthMap);
 
 		sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
 
@@ -164,6 +183,8 @@ int main()
 	    // 	plane->getMainObject()->setPosition(glm::vec3(camera->getPosition()) + glm::vec3(0, -5, 5));
 
 		glm::vec3 cameraOffset = glm::vec3(glm::mat4(1.0f) * glm::vec4(0.0f, 5.0f, -15.0f, 1.0f));
+
+		glDisable(GL_DEPTH_TEST); // Ensure it draws on top of everything
 
 		if constexpr (!CONTROL_CAMERA)
 		{

@@ -9,6 +9,9 @@ constexpr auto WORLD_UP = glm::vec3(0.0f, 1.0f, 0.0f);
 constexpr unsigned int SCR_WIDTH = 800;
 constexpr unsigned int SCR_HEIGHT = 600;
 
+const unsigned int SHADOW_WIDTH = 1024;
+const unsigned int SHADOW_HEIGHT = 1024;
+
 constexpr int PLAN_SIZE_X = 1000;
 constexpr int WATER_HEIGHT = 0;
 
