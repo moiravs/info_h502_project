@@ -2,9 +2,10 @@
 #ifndef INFOH502_CPP_RENDERABLEENTITYMAKER_H
 #define INFOH502_CPP_RENDERABLEENTITYMAKER_H
 
-#include "object.h"
 #include "../mesh/heightMap.h"
+#include "object.h"
 
+class Prop;
 class RenderableEntityMaker {
     RenderableEntityMaker()=default;
 
@@ -28,7 +29,7 @@ public:
         return obj;
     }
 
-    static std::pair<std::shared_ptr<HeightMap>, std::vector<std::shared_ptr<Object>>> terrainFromTexture(
+    static std::pair<std::shared_ptr<HeightMap>, std::shared_ptr<Prop>> terrainFromTexture(
         const std::string& texturePath, float width, float depth);
 };
 
