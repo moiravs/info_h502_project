@@ -44,8 +44,6 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
     GLuint fragment = compileShader(fragmentCode, GL_FRAGMENT_SHADER);
     this->ID = compileProgram(vertex, fragment);
 
-    this->setMatrix4("model", this->model);
-
     UboManager::get().registerShader(this);
 }
 

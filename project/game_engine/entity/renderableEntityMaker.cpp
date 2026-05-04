@@ -118,9 +118,9 @@ std::pair<std::shared_ptr<HeightMap>, std::shared_ptr<Prop>> RenderableEntityMak
 
             prop->addEntity(object);
             prop->addRenderable(object);
+            prop->setMainObject(object);
         }
     }
-
     stbi_image_free(data);
     return {heightMap, prop};
 }

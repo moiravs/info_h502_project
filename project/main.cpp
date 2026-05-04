@@ -104,7 +104,7 @@ int main()
 	auto firecamp = PropMaker::makeFirecamp(5, 0, heightMap);
 	double lastTime = glfwGetTime();
 
-	Shadow shadow;
+	auto shadow = Shadow();
 
 	auto game = Game();
 	plane->getMainObject()->rotate(0, 0, 0);
@@ -132,13 +132,12 @@ int main()
 		glBindFramebuffer(GL_FRAMEBUFFER, shadow.depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		Game::renderShadows(delta, {trees, plane, terrain}, lightSpaceMatrix, shadow.depthMap, shadow.shadowShader);
+	    Game::renderShadows(delta, {trees, plane, terrain}, lightSpaceMatrix, shadow.depthMap, shadow.shadowShader);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDrawBuffer(GL_BACK); // Reactivate color drawing
 		glReadBuffer(GL_BACK);
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
-
 	    if (water->shouldRender())
 	    {
 	        // == REFLECTION ==
