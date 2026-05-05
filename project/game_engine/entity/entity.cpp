@@ -88,16 +88,16 @@ glm::vec3 Entity::getUp() const
 void Entity::updateRotation()
 {
     // 1. Clamp Pitch
-    if (this->_pitch > 89.0f)
-        this->_pitch = 89.0f;
-    if (this->_pitch < -89.0f)
-        this->_pitch = -89.0f;
+    if (this->_pitch > 1.57) // ~pi/2
+        this->_pitch = 1.57;
+    if (this->_pitch < -1.57)
+        this->_pitch = -1.57;
 
     // 2. Calculate Direction Vector
     glm::vec3 front;
-    front.x = cos(glm::radians(_yaw)) * cos(glm::radians(_pitch));
-    front.y = sin(glm::radians(_pitch));
-    front.z = sin(glm::radians(_yaw)) * cos(glm::radians(_pitch));
+    front.x = cos(_yaw) * cos(_pitch);
+    front.y = sin(_pitch);
+    front.z = sin(_yaw) * cos(_pitch);
     _front = glm::normalize(front);
 
     // 3. Calculate Right and Up relative to World Up (Initial state)
@@ -108,7 +108,7 @@ void Entity::updateRotation()
     if (abs(this->_roll) > 0.001f)
     {
         // Rotate the Up and Right vectors around the Front axis
-        glm::mat4 rollMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(this->_roll), _front);
+        glm::mat4 rollMatrix = glm::rotate(glm::mat4(1.0f), this->_roll, _front);
         _right = glm::vec3(rollMatrix * glm::vec4(_right, 0.0f));
         _up = glm::vec3(rollMatrix * glm::vec4(_up, 0.0f));
     }

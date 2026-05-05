@@ -22,6 +22,8 @@ class DisplayManager
     double lastTime;
     int nbFrames = 0;
 
+    bool pressedTLastFrame = false;
+
     // timing
     float lastFrame = 0.0f;
 
@@ -45,8 +47,10 @@ public:
 
     static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos);
 
-    void update(std::shared_ptr<Controllable> object);
+    static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 
-    void processInput(std::shared_ptr<Controllable> object) const;
+    void update();
+
+    void processInput(const std::shared_ptr<Controllable>& object);
 };
 #endif

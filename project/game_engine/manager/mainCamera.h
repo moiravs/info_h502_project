@@ -1,7 +1,7 @@
 
 #ifndef INFOH502_CPP_MAINCAMERA_H
 #define INFOH502_CPP_MAINCAMERA_H
-#include "entity/camera.h"
+#include "../entity/camera.h"
 
 class MainCamera
 {

@@ -14,29 +14,29 @@
 
 #include <vector>
 
-#include "game_engine/shader.h"
-#include "game_engine/entity/light.h"
 #include "game_engine/entity/camera.h"
+#include "game_engine/entity/light.h"
+#include "game_engine/manager/controllerManager.h"
 #include "game_engine/manager/displaymanager.h"
-#include "game_engine/mainCamera.h"
+#include "game_engine/shader.h"
 #include "game_engine/waterFrameBuffer.h"
 
 #include "game_engine/entity/skybox.h"
 #include "game_engine/manager/lightManager.h"
 #include "game_engine/renderer/skyboxRenderer.h"
 
-#include "utils/constants.h"
-#include "game_engine/prop/propMaker.h"
-#include "game_engine/game.h"
+#include <glm/gtx/string_cast.hpp>
 #include "game_engine/entity/particleGenerator.h"
 #include "game_engine/entity/renderableEntityMaker.h"
+#include "game_engine/game.h"
+#include "game_engine/manager/mainCamera.h"
+#include "game_engine/prop/propMaker.h"
 #include "game_engine/renderer/waterRenderer.h"
-#include <glm/gtx/string_cast.hpp>
 #include "game_engine/shadow.h"
+#include "utils/constants.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
-#define CONTROL_CAMERA 1
 
 int main()
 {
@@ -94,6 +94,8 @@ int main()
 
 	auto plane = PropMaker::makePlane();
 
+    ControllerManager::get()->setPlayer(std::dynamic_pointer_cast<Player>(plane->getMainObject()));
+
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 	auto trees = PropMaker::makeTrees(heightMap);
 	auto &lightManager = LightManager::get();
@@ -107,7 +109,7 @@ int main()
 	auto shadow = Shadow();
 
 	auto game = Game();
-	plane->getMainObject()->rotate(0, 0, 0);
+
 	while (!dm.shouldClose())
 	{
 		const double currentTime = glfwGetTime();
@@ -179,22 +181,9 @@ int main()
 
 		Game::renderScene(delta, {trees, redLight, water, skybox, sun, firecamp, plane, terrain});
 
-	    // 	plane->getMainObject()->setPosition(glm::vec3(camera->getPosition()) + glm::vec3(0, -5, 5));
-
-		glm::vec3 cameraOffset = glm::vec3(glm::mat4(1.0f) * glm::vec4(0.0f, 5.0f, -15.0f, 1.0f));
-
 		glDisable(GL_DEPTH_TEST); // Ensure it draws on top of everything
 
-		if constexpr (!CONTROL_CAMERA)
-		{
-			camera->setPosition(plane->getMainObject()->getPosition() + cameraOffset);
-			camera->setLookAt(plane->getMainObject()->getPosition());
-			dm.update(std::dynamic_pointer_cast<Controllable>(plane->getMainObject()));
-		}
-		else
-		{
-			dm.update(camera);
-		}
+	    dm.update();
 	}
 
 	glfwTerminate();
