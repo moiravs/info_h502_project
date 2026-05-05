@@ -4,7 +4,7 @@
 #include <sstream>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "../mainCamera.h"
+#include "../manager/mainCamera.h"
 #include "../renderer/objectRenderer.h"
 #include "../renderer/renderer.h"
 #include "renderableEntityMaker.h"

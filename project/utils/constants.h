@@ -6,6 +6,8 @@
 
 constexpr auto WORLD_UP = glm::vec3(0.0f, 1.0f, 0.0f);
 
+constexpr bool DEFAULT_CAMERA_LOCKED_ON_PLAYER = true;
+
 constexpr unsigned int SCR_WIDTH = 800;
 constexpr unsigned int SCR_HEIGHT = 600;
 
@@ -25,13 +27,14 @@ constexpr float YAW = -90.0f;
 constexpr float PITCH = 0.0f;
 constexpr float ROLL = 0.0f;
 constexpr float MOV_SPEED = 100.0f;
-constexpr float ROT_SPEED = 5.0f;
-constexpr float SENSITIVITY = 1.f;
+constexpr float ROT_SPEED = 2.5f;
+constexpr float SENSITIVITY = .08f;
 constexpr float ZOOM = 45.0f;
 constexpr float FAR = 1000.f;
 constexpr float NEAR = 0.01f;
 constexpr float FOVY = 45.f;
-constexpr float ASPECT_RATIO = 1.f;
+constexpr float MIN_ZOOM = 0.1f;
+constexpr float MAX_ZOOM = 80.f;
 
 constexpr int MAX_LIGHTS = 128;
 constexpr int CHUNK_SIZE = 128;

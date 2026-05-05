@@ -1,9 +1,10 @@
 #include "displaymanager.h"
 
-#include "../mainCamera.h"
 #include "../../utils/constants.h"
 #include "../../utils/utils.h"
 #include "../entity/object.h"
+#include "mainCamera.h"
+#include "controllerManager.h"
 
 GLFWwindow *DisplayManager::createWindow()
 {
@@ -23,6 +24,7 @@ GLFWwindow *DisplayManager::createWindow()
     glfwMakeContextCurrent(w);
     glfwSetFramebufferSizeCallback(w, framebuffer_size_callback);
     glfwSetCursorPosCallback(w, cursor_position_callback);
+    glfwSetScrollCallback(w, scroll_callback);
 
     // tell GLFW to capture our mouse
     glfwSetInputMode(w, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -63,7 +65,7 @@ void DisplayManager::moveMouse(const double xpos, const double ypos)
 
     this->lastX = xpos;
     this->lastY = ypos;
-    MainCamera::get()->processMouseMovement(dx, dy, 0, deltaTime);
+    ControllerManager::get()->getMainControllable()->processMouseMovement(dx, dy, 0, deltaTime);
 }
 
 bool DisplayManager::shouldClose() const
@@ -83,7 +85,12 @@ void DisplayManager::cursor_position_callback(GLFWwindow *window, const double x
     dm->moveMouse(xpos, ypos);
 }
 
-void DisplayManager::update(std::shared_ptr<Controllable> object)
+void DisplayManager::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    MainCamera::get()->increaseZoom(yoffset);
+}
+
+void DisplayManager::update()
 {
     glfwSwapBuffers(this->window);
     glfwPollEvents();
@@ -92,7 +99,7 @@ void DisplayManager::update(std::shared_ptr<Controllable> object)
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    this->processInput(object);
+    this->processInput(ControllerManager::get()->getMainControllable());
 
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -110,9 +117,8 @@ void DisplayManager::update(std::shared_ptr<Controllable> object)
     }
 }
 
-void DisplayManager::processInput(std::shared_ptr<Controllable> object) const
+void DisplayManager::processInput(const std::shared_ptr<Controllable>& object)
 {
-
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
@@ -131,6 +137,17 @@ void DisplayManager::processInput(std::shared_ptr<Controllable> object) const
         object->processKeyboardMovement(JUMP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         object->processKeyboardMovement(CROUCH, deltaTime);
+
+    if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
+    {
+        if (!this->pressedTLastFrame)
+            ControllerManager::get()->toggleMainControllable();
+
+        this->pressedTLastFrame = true;
+    } else
+    {
+        this->pressedTLastFrame = false;
+    }
 
     // camera rotation
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)

@@ -41,7 +41,6 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
 std::shared_ptr<Prop> PropMaker::makePlane()
 {
     const auto plane = RenderableEntityMaker::makeRenderable<Player, ObjectRenderer>("firecamp", std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/plane/uploads_files_6592991_Model.obj"));
-
     plane->setPosition(glm::vec3(1, 30, -5));
     auto prop = std::make_shared<Prop>();
 

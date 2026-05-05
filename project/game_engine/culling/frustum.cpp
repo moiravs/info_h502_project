@@ -13,28 +13,42 @@ Plane::Plane(const glm::vec3& point, const glm::vec3& normal): _normal(glm::norm
 
 bool Plane::isInside(const glm::vec3& point) const
 {
-    return glm::dot(this->_normal, point - this->_point) >= 0;
+    return glm::dot(this->_normal, point - this->_point) >= 0.01f;
 }
 
 SignedTest Frustum::isInside(const std::array<glm::vec3, 8>& bounds) const
 {
-    for (const auto& plane: {topFace, bottomFace, rightFace, leftFace, farFace, nearFace})
+    bool intersects = false;
+
+    for (const auto& plane : {topFace, bottomFace, rightFace, leftFace, farFace, nearFace})
     {
         bool allOutside = true;
         bool allInside = true;
-        for (const auto& point: bounds)
+
+        for (const auto& point : bounds)
         {
             if (plane.isInside(point))
             {
                 allOutside = false;
-            } else
+            }
+            else
             {
                 allInside = false;
             }
-            if (!allOutside && !allInside) break;
+
+            if (!allOutside && !allInside)
+                break;
         }
-        if (allOutside) return Outside;
+
+        if (allOutside)
+            return Outside;
+
+        if (!allInside)
+            intersects = true;
     }
+
+    if (intersects)
+        return Intersects;
 
     return Inside;
 }

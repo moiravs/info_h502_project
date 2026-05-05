@@ -41,9 +41,13 @@ public:
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     [[nodiscard]] glm::mat4 getViewMatrix() const;
 
-    static glm::mat4 getProjectionMatrix(float fov = FOVY, float ratio = ASPECT_RATIO, float near = NEAR, float far = FAR);
+    void increaseZoom(double quantity);
+
+    glm::mat4 getProjectionMatrix() const;
 
     [[nodiscard]] float getZoom() const;
+    [[nodiscard]] float getFOV() const;
+    [[nodiscard]] float getAspectRatio() const;
 
     void invertPitch();
 
@@ -67,9 +71,6 @@ public:
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
     void processMouseMovement(float xoffset, float yoffset, float zoffset, float deltaTime) override;
-
-    // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-    void processMouseScroll(float yoffset);
 };
 
 #endif

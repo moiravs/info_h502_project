@@ -13,14 +13,19 @@ glm::mat4 Camera::getViewMatrix() const
     return glm::lookAt(this->getPosition(), this->getPosition() + this->getFront(), this->getUp());
 }
 
-glm::mat4 Camera::getProjectionMatrix(const float fov, const float ratio, const float near, const float far)
+glm::mat4 Camera::getProjectionMatrix() const
 {
-    return glm::perspective(fov, ratio, near, far);
+    return glm::perspective(this->getFOV(), this->getAspectRatio(), NEAR, FAR);
 }
 
 float Camera::getZoom() const
 {
     return this->zoom;
+}
+
+float Camera::getAspectRatio() const
+{
+    return SCR_WIDTH / SCR_HEIGHT;
 }
 
 void Camera::invertPitch()
@@ -73,15 +78,6 @@ void Camera::processMouseMovement(const float xoffset, const float yoffset, cons
     this->processKeyboardRotation(xoffset * SENSITIVITY, -yoffset * SENSITIVITY, 0, deltaTime);
 }
 
-void Camera::processMouseScroll(const float yoffset)
-{
-    zoom -= static_cast<float>(yoffset);
-    if (zoom < 1.0f)
-        zoom = 1.0f;
-    if (zoom > 45.0f)
-        zoom = 45.0f;
-}
-
 void Camera::updateRotation()
 {
     this->Entity::updateRotation();
@@ -92,13 +88,18 @@ void Camera::updateRotation()
     this->updateFrustum();
 }
 
+float Camera::getFOV() const
+{
+    return glm::radians(this->getZoom());
+}
+
 // https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
 void Camera::updateFrustum()
 {
-    const float halfVSide = FAR * tanf(FOVY * .5f);
-    const float halfHSide = halfVSide * ASPECT_RATIO;
+    const float halfVSide = FAR * tanf(this->getFOV() * .5f);
+    const float halfHSide = halfVSide * this->getAspectRatio();
     const glm::vec3 frontMultFar = FAR * this->getFront();
-    auto pos = this->getPosition();
+    const auto pos = this->getPosition();
 
     this->_frustum = Frustum(
     Plane(pos + NEAR * this->getFront(), this->getFront()),
@@ -120,8 +121,7 @@ void Camera::setPosition(const glm::vec3& position)
 void Camera::updateUBO() const
 {
     const CameraInfo i = {
-        .projection = getProjectionMatrix(glm::radians(this->getZoom()),
-                                                  static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT), NEAR, FAR),
+        .projection = this->getProjectionMatrix(),
         .view = this->getViewMatrix(),
         .cameraPos = glm::vec4(this->getPosition(), 0),
         .cameraRight = glm::vec4(this->getRight(), 0),
@@ -139,23 +139,31 @@ void Camera::updateUBO() const
 void Camera::setLookAt(const glm::vec3 target)
 {
     // 1. Calculate the direction vector from camera to target
-    glm::vec3 direction = glm::normalize(target - this->getPosition());
+    const glm::vec3 direction = glm::normalize(target - this->getPosition());
 
     // 2. Calculate Pitch (Vertical angle)
     // direction.y is the 'Opposite' side of the triangle
-    float newPitch = glm::degrees(asin(direction.y));
+    const float newPitch = asin(direction.y);
 
     // 3. Calculate Yaw (Horizontal angle)
     // Using atan2 handles the signs of x and z correctly
-    float newYaw = glm::degrees(atan2(direction.z, direction.x));
+    const float newYaw = atan2(direction.z, direction.x);
 
-    // 4. Update the Camera's state using your existing function
-    // This will trigger the math needed for getFront() and updateRotation()
     this->setRotation(newYaw, newPitch, 0.0f);
-    this->updateRotation();
 }
 
 bool Camera::canView(const std::array<glm::vec3, 8>& bounds) const {
     const auto ret = this->_frustum.isInside(bounds) ;
-    return ret == Inside;
+    return ret == Inside || ret == Intersects;
+}
+
+void Camera::increaseZoom(const double quantity)
+{
+    this->zoom += quantity;
+
+    if (this->zoom < MIN_ZOOM)
+        this->zoom = MIN_ZOOM;
+
+    if (this->zoom > MAX_ZOOM)
+        this->zoom = MAX_ZOOM;
 }

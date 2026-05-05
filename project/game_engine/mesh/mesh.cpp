@@ -78,7 +78,7 @@ Mesh::~Mesh()
     clear(); // Ensure textures and buffers are cleaned up
 }
 
-void Mesh::initMesh(const unsigned int Index, const aiMesh *paiMesh)
+void Mesh::initMesh(const unsigned int Index, const aiMesh *paiMesh, const glm::mat4& correction)
 {
     m_Entries[Index].materialIndex = paiMesh->mMaterialIndex;
 
@@ -88,17 +88,36 @@ void Mesh::initMesh(const unsigned int Index, const aiMesh *paiMesh)
     for (unsigned int i = 0; i < paiMesh->mNumVertices; i++)
     {
         Vertex v;
-        v.position = {paiMesh->mVertices[i].x, paiMesh->mVertices[i].y, paiMesh->mVertices[i].z};
-        v.normal = {paiMesh->mNormals[i].x, paiMesh->mNormals[i].y, paiMesh->mNormals[i].z};
+
+        glm::vec4 pos = correction * glm::vec4(
+            paiMesh->mVertices[i].x,
+            paiMesh->mVertices[i].y,
+            paiMesh->mVertices[i].z,
+            1.0f
+        );
+
+        v.position = glm::vec3(pos);
+
+        glm::vec3 normal = glm::mat3(correction) * glm::vec3(
+            paiMesh->mNormals[i].x,
+            paiMesh->mNormals[i].y,
+            paiMesh->mNormals[i].z
+        );
+
+        v.normal = glm::normalize(normal);
 
         if (paiMesh->HasTextureCoords(0))
         {
-            v.texture = {paiMesh->mTextureCoords[0][i].x, paiMesh->mTextureCoords[0][i].y};
+            v.texture = {
+                paiMesh->mTextureCoords[0][i].x,
+                paiMesh->mTextureCoords[0][i].y
+            };
         }
         else
         {
             v.texture = {0.0f, 0.0f};
         }
+
         Vertices.push_back(v);
     }
 
@@ -138,6 +157,11 @@ void Mesh::initMaterials(const aiScene *pScene, const std::string &Filename)
 
 void Mesh::initFromScene(const aiScene *pScene, const std::string &Filename)
 {
+    const glm::mat4 correction = glm::rotate(
+    glm::mat4(1.0f),
+    glm::radians(90.f),
+    glm::vec3(0, 1, 0));
+
     m_Entries.resize(pScene->mNumMeshes);
     m_Textures.resize(pScene->mNumMaterials);
 
@@ -145,7 +169,7 @@ void Mesh::initFromScene(const aiScene *pScene, const std::string &Filename)
     for (unsigned int i = 0; i < m_Entries.size(); i++)
     {
         const aiMesh *paiMesh = pScene->mMeshes[i];
-        initMesh(i, paiMesh);
+        initMesh(i, paiMesh, correction);
     }
 
     initMaterials(pScene, Filename);
