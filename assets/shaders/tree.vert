@@ -4,6 +4,7 @@ in vec2 tex_coord;
 in vec3 normal;
 in mat4 model;
 
+
 out vec2 v_t; 
 out vec3 v_normal;
 out vec3 v_fragPos;

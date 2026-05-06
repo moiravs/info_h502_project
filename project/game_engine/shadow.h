@@ -13,6 +13,7 @@ class Shadow
 public:
     Shadow();
     std::shared_ptr<Shader> shadowShader;
+    std::shared_ptr<Shader> shadowShaderInstanced;
     unsigned int depthMapFBO;
     unsigned int depthMap;
 };

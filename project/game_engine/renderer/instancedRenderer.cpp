@@ -12,6 +12,25 @@ void InstancedRenderer::updateUniforms() const
     MeshRenderer::updateUniforms();
 }
 
+void InstancedRenderer::renderShadows(const std::shared_ptr<Shader> &shadowShader)
+{
+    shadowShader->use();
+    const auto mesh = this->getEntity<Object>()->getMesh();
+    shadowShader->setMatrix4("model", this->getEntity<Object>()->getModel());
+    for (unsigned int i = 0; i < _VAOs.size(); i++)
+    {
+        glBindVertexArray(_VAOs[i]);
+
+        glDrawElementsInstanced(
+            GL_TRIANGLES,
+            mesh->getEntries()[i].numIndices,
+            GL_UNSIGNED_INT,
+            0,
+            _instanceCount);
+    }
+    glBindVertexArray(0);
+}
+
 void InstancedRenderer::setInstanceMatrices(const std::vector<glm::mat4> &matrices)
 {
     _instanceCount = matrices.size();

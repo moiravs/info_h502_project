@@ -136,7 +136,8 @@ int main()
 		glBindFramebuffer(GL_FRAMEBUFFER, shadow.depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		Game::renderShadows(delta, {trees, plane, terrain}, lightSpaceMatrix, shadow.depthMap, shadow.shadowShader);
+		Game::renderShadows(delta, {plane, terrain}, lightSpaceMatrix, shadow.depthMap, shadow.shadowShader);
+		Game::renderShadowsInstanced(delta, {trees}, lightSpaceMatrix, shadow.depthMap, shadow.shadowShaderInstanced);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDrawBuffer(GL_BACK); // Reactivate color drawing

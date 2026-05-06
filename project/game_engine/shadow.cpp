@@ -7,6 +7,7 @@
 Shadow::Shadow()
 {
     shadowShader = std::make_shared<Shader>(PATH_TO_SRC "/../assets/shaders/shadow.vert", PATH_TO_SRC "/../assets/shaders/shadow.frag");
+    shadowShaderInstanced = std::make_shared<Shader>(PATH_TO_SRC "/../assets/shaders/shadow_instanced.vert", PATH_TO_SRC "/../assets/shaders/shadow_instanced.frag");
 
     glGenFramebuffers(1, &depthMapFBO);
 
