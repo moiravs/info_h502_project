@@ -44,11 +44,18 @@ void ControllerManager::setIsPlayerControlled(const bool value)
 {
     this->_isPlayerControlled = value;
 
+    if (!this->_player)
+    {
+        ERROR("No player given to the Controller Manager.");
+    }
+
     if (this->_isPlayerControlled)
     {
-        this->_player->attach(MainCamera::get(), glm::vec3(0, 0, -30));
+        this->_player->attachCamera();
+        MainCamera::get()->forceLookAt(this->_player);
     } else
     {
         this->_player->removeAttachment(MainCamera::get());
+        MainCamera::get()->forceLookAt(nullptr);
     }
 }

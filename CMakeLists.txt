@@ -46,6 +46,9 @@ file(GLOB_RECURSE ALL_PROJECT_SOURCES
     "project/*.hpp"
 )
 
+#add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
+#add_link_options(-fsanitize=address)
+
 # Use the discovered files to create your executable
 add_executable(VRproject ${ALL_PROJECT_SOURCES})
 target_link_libraries(VRproject PUBLIC assimp::assimp OpenGL::GL glfw glad)

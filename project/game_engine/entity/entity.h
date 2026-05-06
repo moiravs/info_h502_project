@@ -19,6 +19,7 @@ protected:
 
     virtual void updateRotation();
     std::shared_ptr<Attachment> getAttachment(const std::shared_ptr<Entity> &entity);
+    void updatePositionAttached(const std::shared_ptr<Attachment> &attachment) const;
 
 private:
     size_t id;
@@ -31,9 +32,6 @@ private:
     float _pitch;
     float _roll;
     float _lastTime;
-
-    inline void updatePositionAttached(const std::shared_ptr<Attachment> &attachment) const;
-
 public:
     virtual ~Entity() = default;
     explicit Entity(glm::vec3 up = WORLD_UP);

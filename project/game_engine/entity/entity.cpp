@@ -101,11 +101,11 @@ void Entity::updateRotation()
     if (this->_roll < -glm::pi<float>())
         this->_roll += 2 * glm::pi<float>();
 
-    glm::quat qYaw   = glm::angleAxis(-_yaw,   glm::vec3(0, 1, 0));
-    glm::quat qPitch = glm::angleAxis(-_pitch, glm::vec3(1, 0, 0));
-    glm::quat qRoll  = glm::angleAxis(_roll,  glm::vec3(0, 0, 1));
+    const glm::quat qYaw   = glm::angleAxis(-_yaw,   glm::vec3(0, 1, 0));
+    const glm::quat qPitch = glm::angleAxis(-_pitch, glm::vec3(1, 0, 0));
+    const glm::quat qRoll  = glm::angleAxis(_roll,  glm::vec3(0, 0, 1));
 
-    glm::quat trans = glm::normalize(qYaw * qPitch * qRoll);
+    const glm::quat trans = glm::normalize(qYaw * qPitch * qRoll);
     _front = trans * glm::vec3(0, 0, 1);
     _right = trans * glm::vec3(-1, 0, 0);
     _up = trans * glm::vec3(0, 1, 0);
