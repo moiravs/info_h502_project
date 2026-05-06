@@ -31,8 +31,6 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
     auto prop = std::make_shared<Prop>();
 
     prop->addRenderable(sphere);
-    prop->addEntity(sphere);
-    prop->addEntity(light);
     prop->setMainObject(sphere);
 
     return prop;
@@ -44,8 +42,15 @@ std::shared_ptr<Prop> PropMaker::makePlane()
     plane->setPosition(glm::vec3(1, 30, -5));
     auto prop = std::make_shared<Prop>();
 
+    // const auto lamp = PropMaker::makeLamp(
+    //     glm::vec3(1.0, 15.0, 1.5), glm::vec3(0.1), glm::vec3(1, 0, 0),
+    //     glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0));
+    //
+    // plane->attach(lamp->getMainObject(), {0, 0, -5});
+
     prop->addRenderable(plane);
     prop->setMainObject(plane);
+    //prop->addRenderable(lamp);
     return prop;
 }
 
@@ -130,7 +135,6 @@ std::shared_ptr<Prop> PropMaker::makeTrees(const std::shared_ptr<HeightMap> &hei
 
         auto tree = InstancedObject::make(mesh, "tree", v);
 
-        prop->addEntity(tree);
         prop->addRenderable(tree);
         prop->setMainObject(tree);
     }

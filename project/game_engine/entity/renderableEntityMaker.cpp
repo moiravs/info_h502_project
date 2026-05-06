@@ -116,7 +116,6 @@ std::pair<std::shared_ptr<HeightMap>, std::shared_ptr<Prop>> RenderableEntityMak
             mesh->addEntry(entry);
             std::shared_ptr<Object> object = Object::make(mesh, "cpu_height");
 
-            prop->addEntity(object);
             prop->addRenderable(object);
             prop->setMainObject(object);
         }

@@ -38,6 +38,11 @@ constexpr float MAX_ZOOM = 120.f;
 constexpr float DEFAULT_CAMERA_DISTANCE_TO_PLAYER = 30.f;
 constexpr float MIN_CAM_DIST = 5.f;
 constexpr float MAX_CAM_DIST = 100.f;
+constexpr float PLANE_PITCH_SPEED = 2.f;
+constexpr float PLANE_ROLL_SPEED = 2.f;
+constexpr float PLANE_TURN_SPEED = 1.f;
+constexpr float PLANE_SPEED = 0.4f;
+constexpr float PLANE_ROLL_AMORTIZE = 0.01f;
 
 constexpr int MAX_LIGHTS = 128;
 constexpr int CHUNK_SIZE = 128;
