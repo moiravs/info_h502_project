@@ -17,6 +17,10 @@ class Player : public Object, public Controllable
 public:
     explicit Player(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Renderer> &renderer);
 
+    void update(float delta) override;
+
+    bool shouldUpdate() const override;
+
     void attachCamera();
 
     void processKeyboardMovement(MovementDirection direction, double deltaTime) override;

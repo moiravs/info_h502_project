@@ -9,11 +9,6 @@ void Prop::render(const float delta)
         r->render(delta);
 }
 
-void Prop::addEntity(const std::shared_ptr<Entity>& entity)
-{
-    this->_entities.push_back(entity);
-}
-
 void Prop::addRenderable(const std::shared_ptr<Renderable>& renderer)
 {
     this->_renderables.push_back(renderer);

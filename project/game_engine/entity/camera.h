@@ -37,6 +37,8 @@ protected:
 
     void updateLook();
 
+    bool shouldClampPitch() const override;
+
 public:
     // constructor with vectors
     explicit Camera(glm::vec3 up = WORLD_UP,

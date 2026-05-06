@@ -51,11 +51,7 @@ void Entity::attach(const std::shared_ptr<Entity> &entity, const glm::vec3 offse
 
 void Entity::updatePositionAttached(const std::shared_ptr<Attachment> &attachment) const
 {
-    const glm::mat3 rotation(this->_right, this->_up, this->_front);
-
-    const glm::vec3 worldOffset = rotation * attachment->offset;
-
-    attachment->entity->setPosition(this->_pos + worldOffset);
+    attachment->entity->setPosition(this->_pos + attachment->offset);
 }
 
 void Entity::setPosition(const float x, const float y, const float z)
@@ -86,12 +82,16 @@ glm::vec3 Entity::getUp() const
     return this->_up;
 }
 
+bool Entity::shouldClampPitch() const { return false; }
+
 void Entity::updateRotation()
 {
-    if (this->_pitch > 1.57) // ~pi/2
-        this->_pitch = 1.57;
-    if (this->_pitch < -1.57)
-        this->_pitch = -1.57;
+    if (this->shouldClampPitch())    // 1.57 ~= pi/2
+        this->_pitch = glm::clamp(this->_pitch, -1.57f, 1.57f);
+    if (this->_pitch > glm::pi<float>())
+        this->_pitch -= 2 * glm::pi<float>();
+    if (this->_pitch < -glm::pi<float>())
+        this->_pitch += 2 * glm::pi<float>();
     if (this->_yaw > glm::pi<float>())
         this->_yaw -= 2 * glm::pi<float>();
     if (this->_yaw < -glm::pi<float>())

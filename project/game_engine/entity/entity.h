@@ -20,6 +20,7 @@ protected:
     virtual void updateRotation();
     std::shared_ptr<Attachment> getAttachment(const std::shared_ptr<Entity> &entity);
     void updatePositionAttached(const std::shared_ptr<Attachment> &attachment) const;
+    virtual bool shouldClampPitch() const;
 
 private:
     size_t id;
