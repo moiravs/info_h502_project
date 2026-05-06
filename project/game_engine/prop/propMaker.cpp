@@ -44,7 +44,7 @@ std::shared_ptr<Prop> PropMaker::makePlane()
 
     const auto lamp = PropMaker::makeLamp(
         glm::vec3(1.0, 15.0, 1.5), glm::vec3(0.1), glm::vec3(1, 0, 0),
-        glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0));
+        glm::vec4(0.1, 0.9, 1, 32), glm::vec3(5, 0.2, 0));
 
     plane->attach(lamp->getMainObject(), {0, -0.43, -6.1}, true);
 
@@ -66,7 +66,7 @@ std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, cons
     auto prop = std::make_shared<Prop>();
     auto light = PropMaker::makeLamp(
         glm::vec3(1.0, 15.0, 1.5), glm::vec3(1, 1, 1), glm::vec3(1, 0, 0),
-        glm::vec4(0, 0.3, 0, 1), glm::vec3(1000, 3, 100));
+        glm::vec4(0, 0.3, 0, 1), glm::vec3(0.5, 0.1, 0));
 
     auto pg = ParticleGenerator::make(ParticleParams{
         .spread = 0.2,
