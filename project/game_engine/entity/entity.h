@@ -13,8 +13,9 @@ protected:
     {
         std::shared_ptr<Entity> entity;
         glm::vec3 offset{};
+        bool followsRotation = false;
         Attachment() = default;
-        Attachment(const std::shared_ptr<Entity> &entity, const glm::vec3 &offset);
+        Attachment(const std::shared_ptr<Entity> &entity, const glm::vec3 &offset, bool followsRotation=false);
     };
 
     virtual void updateRotation();
@@ -38,7 +39,7 @@ public:
     explicit Entity(glm::vec3 up = WORLD_UP);
     Entity(float yaw, float pitch, float roll, glm::vec3 up = WORLD_UP);
 
-    void attach(const std::shared_ptr<Entity> &entity, glm::vec3 offset = glm::vec3(0, 0, 0));
+    void attach(const std::shared_ptr<Entity> &entity, glm::vec3 offset = glm::vec3(0, 0, 0), bool followsRotation=false);
     [[nodiscard]] glm::vec3 getPosition() const;
     virtual void setPosition(const glm::vec3 &position);
     virtual void setPosition(float x, float y, float z);
