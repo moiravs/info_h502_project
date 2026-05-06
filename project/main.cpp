@@ -95,6 +95,7 @@ int main()
 	auto plane = PropMaker::makePlane();
 
     ControllerManager::get()->setPlayer(std::dynamic_pointer_cast<Player>(plane->getMainObject()));
+    ControllerManager::get()->setIsPlayerControlled(DEFAULT_CAMERA_LOCKED_ON_PLAYER);
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 	auto trees = PropMaker::makeTrees(heightMap);

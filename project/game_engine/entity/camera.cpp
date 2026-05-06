@@ -34,7 +34,7 @@ void Camera::invertPitch()
     this->setRotation(this->getYaw(), -this->getPitch(), this->getRoll());
 }
 
-void Camera::processKeyboardMovement(const MovementDirection direction, const float deltaTime)
+void Camera::processKeyboardMovement(const MovementDirection direction, const double deltaTime)
 {
     const float velocity = MOV_SPEED * deltaTime;
     if (direction == FORWARD)
@@ -67,16 +67,11 @@ void Camera::resetCameraAfterReflection(const int height)
     this->setPosition(pos.x, 2.0f * static_cast<float>(height) - pos.y, pos.z);
 }
 
-void Camera::processKeyboardRotation(const float yawRot, const float pitchRot, const float rollRot, const float deltaTime)
+void Camera::processRotation(const double yawRot, const double pitchRot, const double rollRot, const double deltaTime)
 {
-    const float velocity = ROT_SPEED * deltaTime;
+    const double velocity = ROT_SPEED * deltaTime;
 
     this->rotate(velocity * yawRot, velocity * pitchRot, 0);
-}
-
-void Camera::processMouseMovement(const float xoffset, const float yoffset, const float zoffset, const float deltaTime)
-{
-    this->processKeyboardRotation(xoffset * SENSITIVITY, -yoffset * SENSITIVITY, 0, deltaTime);
 }
 
 void Camera::updateRotation()
@@ -158,9 +153,9 @@ bool Camera::canView(const std::array<glm::vec3, 8>& bounds) const {
     return ret == Inside || ret == Intersects;
 }
 
-void Camera::increaseZoom(const double quantity)
+void Camera::processScroll(const double dx, const double dy)
 {
-    this->zoom += quantity;
+    this->zoom += dy;
 
     if (this->zoom < MIN_ZOOM)
         this->zoom = MIN_ZOOM;

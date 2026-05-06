@@ -44,18 +44,18 @@ float Entity::getRoll() const
 
 void Entity::attach(const std::shared_ptr<Entity> &entity, const glm::vec3 offset)
 {
-    const auto a = Attachment(entity, offset);
+    const auto a = std::make_shared<Attachment>(entity, offset);
     this->_attached.push_back(a);
     this->updatePositionAttached(a);
 }
 
-void Entity::updatePositionAttached(const Attachment &attachment) const
+void Entity::updatePositionAttached(const std::shared_ptr<Attachment> &attachment) const
 {
     const glm::mat3 rotation(this->_right, this->_up, this->_front);
 
-    const glm::vec3 worldOffset = rotation * attachment.offset;
+    const glm::vec3 worldOffset = rotation * attachment->offset;
 
-    attachment.entity->setPosition(this->_pos + worldOffset);
+    attachment->entity->setPosition(this->_pos + worldOffset);
 }
 
 void Entity::setPosition(const float x, const float y, const float z)
@@ -118,31 +118,8 @@ void Entity::updateRotation()
         _right = glm::vec3(rollMatrix * glm::vec4(_right, 0.0f));
         _up = glm::vec3(rollMatrix * glm::vec4(_up, 0.0f));
     }
-
-    this->updateRotationAttached();
 }
 
-void Entity::updateRotationAttached() const
-{
-    for (const auto &a : _attached)
-    {
-        a.entity->forceSetRotation(_front, _up, _right, _yaw, _pitch, _roll);
-        this->updatePositionAttached(a);
-    }
-}
-
-void Entity::forceSetRotation(const glm::vec3 &front, const glm::vec3 &up, const glm::vec3 &right,
-                              const float yaw, const float pitch, const float roll)
-{
-    this->_front = front;
-    this->_up = up;
-    this->_right = right;
-    this->_yaw = yaw;
-    this->_pitch = pitch;
-    this->_roll = roll;
-
-    this->updateRotationAttached();
-}
 
 void Entity::rotate(const float dyaw, const float dpitch, const float droll)
 {
@@ -165,4 +142,31 @@ bool Entity::operator==(const Entity &other) const
 
 void Entity::update(const float delta)
 {
+}
+
+void Entity::removeAttachment(const std::shared_ptr<Entity>& entity)
+{
+    auto it = this->_attached.begin();
+    for (; it != this->_attached.end(); ++it)
+    {
+        if (entity.get() == it->get()->entity.get()) break;
+    }
+
+    if (it == this->_attached.end()) return;
+
+    // Move found element to the end, then remove it
+    std::iter_swap(it, this->_attached.end() - 1);
+    this->_attached.pop_back();
+}
+
+std::shared_ptr<Entity::Attachment> Entity::getAttachment(const std::shared_ptr<Entity>& entity)
+{
+    for (auto& a: this->_attached)
+    {
+        if (a->entity.get() == entity.get())
+        {
+            return a;
+        }
+    }
+    return nullptr;
 }

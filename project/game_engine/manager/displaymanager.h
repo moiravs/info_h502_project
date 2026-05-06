@@ -14,7 +14,7 @@ class DisplayManager
 {
     GLFWwindow *window;
 
-    float deltaTime = 0.0f;
+    double deltaTime = 0.0f;
     int useWireframe = 0;
     int displayGrayscale = 0;
 
