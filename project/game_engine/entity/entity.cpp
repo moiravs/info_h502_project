@@ -8,10 +8,11 @@
 #include "glm/detail/type_quat.hpp"
 #include "glm/ext/quaternion_trigonometric.hpp"
 
-Entity::Attachment::Attachment(const std::shared_ptr<Entity> &entity, const glm::vec3 &offset)
+Entity::Attachment::Attachment(const std::shared_ptr<Entity> &entity, const glm::vec3 &offset, bool followsRotation)
 {
     this->entity = entity;
     this->offset = offset;
+    this->followsRotation = followsRotation;
 }
 
 Entity::Entity(glm::vec3 up) : Entity(0, 0, 0, up) {}
@@ -42,20 +43,22 @@ float Entity::getRoll() const
     return this->_roll;
 }
 
-void Entity::attach(const std::shared_ptr<Entity> &entity, const glm::vec3 offset)
+void Entity::attach(const std::shared_ptr<Entity> &entity, const glm::vec3 offset, const bool followsRotation)
 {
-    const auto a = std::make_shared<Attachment>(entity, offset);
+    const auto a = std::make_shared<Attachment>(entity, offset, followsRotation);
     this->_attached.push_back(a);
     this->updatePositionAttached(a);
 }
 
 void Entity::updatePositionAttached(const std::shared_ptr<Attachment> &attachment) const
 {
-    const glm::mat3 rotation(this->_right, this->_up, this->_front);
-
-    const glm::vec3 worldOffset = rotation * attachment->offset;
-
-    attachment->entity->setPosition(this->_pos + worldOffset);
+    if (attachment->followsRotation)
+    {
+        const glm::mat3 rotation(this->_right, this->_up, this->_front);
+        attachment->entity->setPosition(this->_pos + rotation * attachment->offset);
+    }
+    else
+        attachment->entity->setPosition(this->_pos + attachment->offset);
 }
 
 void Entity::setPosition(const float x, const float y, const float z)
@@ -86,12 +89,16 @@ glm::vec3 Entity::getUp() const
     return this->_up;
 }
 
+bool Entity::shouldClampPitch() const { return false; }
+
 void Entity::updateRotation()
 {
-    if (this->_pitch > 1.57) // ~pi/2
-        this->_pitch = 1.57;
-    if (this->_pitch < -1.57)
-        this->_pitch = -1.57;
+    if (this->shouldClampPitch())    // 1.57 ~= pi/2
+        this->_pitch = glm::clamp(this->_pitch, -1.57f, 1.57f);
+    if (this->_pitch > glm::pi<float>())
+        this->_pitch -= 2 * glm::pi<float>();
+    if (this->_pitch < -glm::pi<float>())
+        this->_pitch += 2 * glm::pi<float>();
     if (this->_yaw > glm::pi<float>())
         this->_yaw -= 2 * glm::pi<float>();
     if (this->_yaw < -glm::pi<float>())
@@ -110,14 +117,8 @@ void Entity::updateRotation()
     _right = trans * glm::vec3(-1, 0, 0);
     _up = trans * glm::vec3(0, 1, 0);
 
-    // 4. Apply Roll
-    if (abs(this->_roll) > 0.001f)
-    {
-        // Rotate the Up and Right vectors around the Front axis
-        glm::mat4 rollMatrix = glm::rotate(glm::mat4(1.0f), this->_roll, _front);
-        _right = glm::vec3(rollMatrix * glm::vec4(_right, 0.0f));
-        _up = glm::vec3(rollMatrix * glm::vec4(_up, 0.0f));
-    }
+    for (const auto& a: this->_attached)
+        this->updatePositionAttached(a);
 }
 
 

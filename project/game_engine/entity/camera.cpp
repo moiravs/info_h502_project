@@ -76,6 +76,8 @@ void Camera::processRotation(const double yawRot, const double pitchRot, const d
     this->rotate(velocity * yawRot, velocity * pitchRot, 0);
 }
 
+bool Camera::shouldClampPitch() const { return true; }
+
 void Camera::updateRotation()
 {
     this->Entity::updateRotation();
