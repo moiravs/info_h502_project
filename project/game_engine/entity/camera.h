@@ -52,7 +52,7 @@ public:
     void invertPitch();
 
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-    void processKeyboardMovement(MovementDirection direction, float deltaTime) override;
+    void processKeyboardMovement(MovementDirection direction, double deltaTime) override;
 
     void updateUBO() const;
 
@@ -63,14 +63,13 @@ public:
 
     void resetCameraAfterReflection(int height);
 
-    void processKeyboardRotation(float yawRot, float pitchRot, float rollRot, float deltaTime) override;
+    void processScroll(double dx, double dy) override;
+
+    void processRotation(double yawRot, double pitchRot, double rollRot, double deltaTime) override;
 
     void setLookAt(glm::vec3 target);
 
     bool canView(const std::array<glm::vec3, 8> &bounds) const;
-
-    // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-    void processMouseMovement(float xoffset, float yoffset, float zoffset, float deltaTime) override;
 };
 
 #endif

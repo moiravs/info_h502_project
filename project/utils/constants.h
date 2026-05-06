@@ -11,8 +11,8 @@ constexpr bool DEFAULT_CAMERA_LOCKED_ON_PLAYER = true;
 constexpr unsigned int SCR_WIDTH = 800;
 constexpr unsigned int SCR_HEIGHT = 600;
 
-const unsigned int SHADOW_WIDTH = 1024;
-const unsigned int SHADOW_HEIGHT = 1024;
+constexpr unsigned int SHADOW_WIDTH = 1024;
+constexpr unsigned int SHADOW_HEIGHT = 1024;
 
 constexpr int PLAN_SIZE_X = 1000;
 constexpr int WATER_HEIGHT = 0;
@@ -34,7 +34,7 @@ constexpr float FAR = 1000.f;
 constexpr float NEAR = 0.01f;
 constexpr float FOVY = 45.f;
 constexpr float MIN_ZOOM = 0.1f;
-constexpr float MAX_ZOOM = 80.f;
+constexpr float MAX_ZOOM = 120.f;
 
 constexpr int MAX_LIGHTS = 128;
 constexpr int CHUNK_SIZE = 128;

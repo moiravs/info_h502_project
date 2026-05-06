@@ -8,6 +8,7 @@
 
 class Entity : public std::enable_shared_from_this<Entity>
 {
+protected:
     struct Attachment
     {
         std::shared_ptr<Entity> entity;
@@ -16,8 +17,12 @@ class Entity : public std::enable_shared_from_this<Entity>
         Attachment(const std::shared_ptr<Entity> &entity, const glm::vec3 &offset);
     };
 
+    virtual void updateRotation();
+    std::shared_ptr<Attachment> getAttachment(const std::shared_ptr<Entity> &entity);
+
+private:
     size_t id;
-    std::vector<Attachment> _attached = {};
+    std::vector<std::shared_ptr<Attachment>> _attached = {};
     glm::vec3 _pos = glm::vec3(0, 0, 0);
     glm::vec3 _front = glm::vec3(1, 0, 0);
     glm::vec3 _up = glm::vec3(0, 0, 0);
@@ -27,12 +32,7 @@ class Entity : public std::enable_shared_from_this<Entity>
     float _roll;
     float _lastTime;
 
-    void forceSetRotation(const glm::vec3 &front, const glm::vec3 &up, const glm::vec3 &right, float yaw, float pitch, float roll);
-    inline void updateRotationAttached() const;
-    inline void updatePositionAttached(const Attachment &attachment) const;
-
-protected:
-    virtual void updateRotation();
+    inline void updatePositionAttached(const std::shared_ptr<Attachment> &attachment) const;
 
 public:
     virtual ~Entity() = default;
@@ -54,6 +54,7 @@ public:
     void rotate(float dyaw, float dpitch, float droll);
     virtual void setRotation(float yaw, float pitch, float roll);
     virtual void update(float delta);
+    void removeAttachment(const std::shared_ptr<Entity>& entity);
 
     bool operator==(const Entity &other) const;
 };

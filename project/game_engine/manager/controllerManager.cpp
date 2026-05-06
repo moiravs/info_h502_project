@@ -24,7 +24,7 @@ void ControllerManager::setPlayer(const std::shared_ptr<Player>& player)
 
 std::shared_ptr<Controllable> ControllerManager::getMainControllable() const
 {
-    if (this->_isPlayerCamera)
+    if (this->_isPlayerControlled)
     {
         if (!this->_player)
         {
@@ -35,7 +35,20 @@ std::shared_ptr<Controllable> ControllerManager::getMainControllable() const
     return MainCamera::get();
 }
 
-void ControllerManager::toggleMainControllable()
+void ControllerManager::toggleIsPlayerControlled()
 {
-    this->_isPlayerCamera = !this->_isPlayerCamera;
+    this->setIsPlayerControlled(!this->_isPlayerControlled);
+}
+
+void ControllerManager::setIsPlayerControlled(const bool value)
+{
+    this->_isPlayerControlled = value;
+
+    if (this->_isPlayerControlled)
+    {
+        this->_player->attach(MainCamera::get(), glm::vec3(0, 0, -30));
+    } else
+    {
+        this->_player->removeAttachment(MainCamera::get());
+    }
 }

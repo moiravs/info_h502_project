@@ -65,7 +65,11 @@ void DisplayManager::moveMouse(const double xpos, const double ypos)
 
     this->lastX = xpos;
     this->lastY = ypos;
-    ControllerManager::get()->getMainControllable()->processMouseMovement(dx, dy, 0, deltaTime);
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        ControllerManager::get()->getMainControllable()->processMouseMovementAlt(dx, dy, 0, deltaTime);
+    else
+        ControllerManager::get()->getMainControllable()->processMouseMovement(dx, dy, 0, deltaTime);
 }
 
 bool DisplayManager::shouldClose() const
@@ -85,9 +89,12 @@ void DisplayManager::cursor_position_callback(GLFWwindow *window, const double x
     dm->moveMouse(xpos, ypos);
 }
 
-void DisplayManager::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+void DisplayManager::scroll_callback(GLFWwindow* window, const double xoffset, const double yoffset)
 {
-    MainCamera::get()->increaseZoom(yoffset);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        ControllerManager::get()->getMainControllable()->processScrollAlt(xoffset, yoffset);
+    else
+        ControllerManager::get()->getMainControllable()->processScroll(xoffset, yoffset);
 }
 
 void DisplayManager::update()
@@ -95,7 +102,7 @@ void DisplayManager::update()
     glfwSwapBuffers(this->window);
     glfwPollEvents();
 
-    const auto currentFrame = static_cast<float>(glfwGetTime());
+    const double currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
@@ -141,7 +148,7 @@ void DisplayManager::processInput(const std::shared_ptr<Controllable>& object)
     if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
     {
         if (!this->pressedTLastFrame)
-            ControllerManager::get()->toggleMainControllable();
+            ControllerManager::get()->toggleIsPlayerControlled();
 
         this->pressedTLastFrame = true;
     } else
@@ -150,17 +157,31 @@ void DisplayManager::processInput(const std::shared_ptr<Controllable>& object)
     }
 
     // camera rotation
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-        object->processKeyboardRotation(1.0, 0.0, 0.0, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-        object->processKeyboardRotation(-1.0, 0.0, 0.0, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-        object->processKeyboardRotation(0.0, 1.0, 0.0, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        object->processKeyboardRotation(0.0, -1.0, 0.0, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+    {
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+            object->processRotationAlt(1.0, 0.0, 0.0, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+            object->processRotationAlt(-1.0, 0.0, 0.0, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+            object->processRotationAlt(0.0, 1.0, 0.0, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+            object->processRotationAlt(0.0, -1.0, 0.0, deltaTime);
+    }
+    else
+    {
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+            object->processRotation(1.0, 0.0, 0.0, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+            object->processRotation(-1.0, 0.0, 0.0, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+            object->processRotation(0.0, 1.0, 0.0, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+            object->processRotation(0.0, -1.0, 0.0, deltaTime);
+    }
 
     if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
-        object->processKeyboardRotation(0.0, 0.0, -1.0, deltaTime);
+        object->processRotation(0.0, 0.0, -1.0, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
-        object->processKeyboardRotation(0.0, 0.0, 1.0, deltaTime);
+        object->processRotation(0.0, 0.0, 1.0, deltaTime);
 }

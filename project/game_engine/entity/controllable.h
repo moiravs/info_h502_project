@@ -14,9 +14,14 @@ enum MovementDirection
 
 class Controllable {
 public:
-    virtual void processKeyboardMovement(MovementDirection direction, float deltaTime)=0;
-    virtual void processKeyboardRotation(float yawRot, float pitchRot, float rollRot, float deltaTime)=0;
-    virtual void processMouseMovement(float xoffset, float yoffset, float zoffset, float deltaTime)=0;
+    virtual ~Controllable() = default;
+    virtual void processKeyboardMovement(MovementDirection direction, double deltaTime)=0;
+    virtual void processScroll(double dx, double dy)=0;
+    virtual void processScrollAlt(double dx, double dy);
+    virtual void processRotation(double yawRot, double pitchRot, double rollRot, double deltaTime)=0;
+    virtual void processRotationAlt(double yawRot, double pitchRot, double rollRot, double deltaTime);
+    virtual void processMouseMovement(double xoffset, double yoffset, double zoffset, double deltaTime);
+    virtual void processMouseMovementAlt(double xoffset, double yoffset, double zoffset, double deltaTime);
 };
 
 
