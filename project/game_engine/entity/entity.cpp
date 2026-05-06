@@ -4,8 +4,9 @@
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "../../utils/constants.h"
 #include "../manager/idmanager.h"
+#include "glm/detail/type_quat.hpp"
+#include "glm/ext/quaternion_trigonometric.hpp"
 
 Entity::Attachment::Attachment(const std::shared_ptr<Entity> &entity, const glm::vec3 &offset)
 {
@@ -87,22 +88,27 @@ glm::vec3 Entity::getUp() const
 
 void Entity::updateRotation()
 {
-    // 1. Clamp Pitch
     if (this->_pitch > 1.57) // ~pi/2
         this->_pitch = 1.57;
     if (this->_pitch < -1.57)
         this->_pitch = -1.57;
+    if (this->_yaw > glm::pi<float>())
+        this->_yaw -= 2 * glm::pi<float>();
+    if (this->_yaw < -glm::pi<float>())
+        this->_yaw += 2 * glm::pi<float>();
+    if (this->_roll > glm::pi<float>())
+        this->_roll -= 2 * glm::pi<float>();
+    if (this->_roll < -glm::pi<float>())
+        this->_roll += 2 * glm::pi<float>();
 
-    // 2. Calculate Direction Vector
-    glm::vec3 front;
-    front.x = cos(_yaw) * cos(_pitch);
-    front.y = sin(_pitch);
-    front.z = sin(_yaw) * cos(_pitch);
-    _front = glm::normalize(front);
+    glm::quat qYaw   = glm::angleAxis(-_yaw,   glm::vec3(0, 1, 0));
+    glm::quat qPitch = glm::angleAxis(-_pitch, glm::vec3(1, 0, 0));
+    glm::quat qRoll  = glm::angleAxis(_roll,  glm::vec3(0, 0, 1));
 
-    // 3. Calculate Right and Up relative to World Up (Initial state)
-    _right = glm::normalize(glm::cross(_front, WORLD_UP));
-    _up = glm::normalize(glm::cross(_right, _front));
+    glm::quat trans = glm::normalize(qYaw * qPitch * qRoll);
+    _front = trans * glm::vec3(0, 0, 1);
+    _right = trans * glm::vec3(-1, 0, 0);
+    _up = trans * glm::vec3(0, 1, 0);
 
     // 4. Apply Roll
     if (abs(this->_roll) > 0.001f)

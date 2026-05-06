@@ -10,6 +10,8 @@ Player::Player(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<Renderer
 void Player::processKeyboardMovement(const MovementDirection direction, const float deltaTime)
 {
     printVec3(this->getFront());
+    printVec3(this->getRight());
+    printVec3(this->getUp());
 
     const float velocity = MOV_SPEED * deltaTime;
     if (direction == LEFT)

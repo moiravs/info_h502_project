@@ -34,7 +34,7 @@ struct MeshEntry
 class Mesh
 {
     void initFromScene(const aiScene *pScene, const std::string &Filename);
-    void initMesh(unsigned int Index, const aiMesh *paiMesh, const glm::mat4& correction);
+    void initMesh(unsigned int Index, const aiMesh *paiMesh);
     void initMaterials(const aiScene *pScene, const std::string &Filename);
     void clear();
 #define INVALID_MATERIAL 0xFFFFFFFF

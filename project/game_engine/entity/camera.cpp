@@ -1,5 +1,6 @@
 #include "camera.h"
 
+#include "../../utils/utils.h"
 #include "glm/gtc/type_ptr.hpp"
 
 Camera::Camera(const glm::vec3 up, const float yaw, const float roll, const float pitch)
@@ -123,9 +124,9 @@ void Camera::updateUBO() const
     const CameraInfo i = {
         .projection = this->getProjectionMatrix(),
         .view = this->getViewMatrix(),
-        .cameraPos = glm::vec4(this->getPosition(), 0),
-        .cameraRight = glm::vec4(this->getRight(), 0),
-        .cameraUp = glm::vec4(this->getUp(), 0)};
+        .cameraPos = glm::vec4(this->getPosition(), 1),
+        .cameraRight = glm::vec4(this->getRight(), 1),
+        .cameraUp = glm::vec4(this->getUp(), 1)};
 
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(i.projection));

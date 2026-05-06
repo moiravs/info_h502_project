@@ -19,8 +19,8 @@ glm::mat4 RenderableEntity::getModel() const
 
     model = glm::translate(model, this->getPosition());
 
-    model = glm::rotate(model, this->getYaw(), glm::vec3(0.0f, 1.0f, 0.0f));   // Y-axis
-    model = glm::rotate(model, this->getPitch(), glm::vec3(1.0f, 0.0f, 0.0f)); // X-axis
+    model = glm::rotate(model, -this->getYaw(), glm::vec3(0.0f, 1.0f, 0.0f));   // Y-axis
+    model = glm::rotate(model, -this->getPitch(), glm::vec3(1.0f, 0.0f, 0.0f)); // X-axis
     model = glm::rotate(model, this->getRoll(), glm::vec3(0.0f, 0.0f, 1.0f));  // X-axis
 
     return model;
