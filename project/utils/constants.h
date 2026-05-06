@@ -35,6 +35,9 @@ constexpr float NEAR = 0.01f;
 constexpr float FOVY = 45.f;
 constexpr float MIN_ZOOM = 0.1f;
 constexpr float MAX_ZOOM = 120.f;
+constexpr float DEFAULT_CAMERA_DISTANCE_TO_PLAYER = 30.f;
+constexpr float MIN_CAM_DIST = 5.f;
+constexpr float MAX_CAM_DIST = 100.f;
 
 constexpr int MAX_LIGHTS = 128;
 constexpr int CHUNK_SIZE = 128;

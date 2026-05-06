@@ -53,6 +53,7 @@ void Camera::processKeyboardMovement(const MovementDirection direction, const do
 
 void Camera::prepareReflection(const int height)
 {
+    this->lookingAt = false;
     const auto pos = this->getPosition();
     this->setPosition(pos.x, 2.0f * static_cast<float>(height) - pos.y, pos.z);
 
@@ -63,6 +64,7 @@ void Camera::resetCameraAfterReflection(const int height)
 {
     this->invertPitch();
 
+    this->lookingAt = true;
     const auto pos = this->getPosition();
     this->setPosition(pos.x, 2.0f * static_cast<float>(height) - pos.y, pos.z);
 }
@@ -110,7 +112,7 @@ void Camera::updateFrustum()
 void Camera::setPosition(const glm::vec3& position)
 {
     Entity::setPosition(position);
-
+    this->updateLook();
     this->updateFrustum();
 }
 
@@ -132,18 +134,19 @@ void Camera::updateUBO() const
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void Camera::setLookAt(const glm::vec3 target)
+void Camera::lookAt(const glm::vec3& target)
 {
-    // 1. Calculate the direction vector from camera to target
-    const glm::vec3 direction = glm::normalize(target - this->getPosition());
+    const glm::vec3 delta = target - this->getPosition();
+    const float len = glm::length(delta);
 
-    // 2. Calculate Pitch (Vertical angle)
-    // direction.y is the 'Opposite' side of the triangle
-    const float newPitch = asin(direction.y);
+    if (len < 1e-6f)
+        return;
 
-    // 3. Calculate Yaw (Horizontal angle)
-    // Using atan2 handles the signs of x and z correctly
-    const float newYaw = atan2(direction.z, direction.x);
+    const glm::vec3 direction = delta / len;
+
+    const float newPitch = asin(glm::clamp(direction.y, -1.0f, 1.0f));
+
+    const float newYaw = atan2(-direction.x, direction.z);
 
     this->setRotation(newYaw, newPitch, 0.0f);
 }
@@ -162,4 +165,17 @@ void Camera::processScroll(const double dx, const double dy)
 
     if (this->zoom > MAX_ZOOM)
         this->zoom = MAX_ZOOM;
+}
+
+void Camera::forceLookAt(const std::shared_ptr<Entity> &entity)
+{
+    this->lockedEntity = entity;
+    this->updateLook();
+}
+
+void Camera::updateLook()
+{
+    if (!this->lockedEntity || !this->lookingAt) return;
+
+    this->lookAt(this->lockedEntity->getPosition());
 }

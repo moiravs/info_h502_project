@@ -6,8 +6,18 @@
 
 class Player : public Object, public Controllable
 {
+    float _camDistance = DEFAULT_CAMERA_DISTANCE_TO_PLAYER;
+    float _yawCam = 0;
+    float _pitchCam = 0;
+
+    std::shared_ptr<Attachment> getCameraAttachment();
+
+    void updateCameraOffset();
+
 public:
     explicit Player(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Renderer> &renderer);
+
+    void attachCamera();
 
     void processKeyboardMovement(MovementDirection direction, double deltaTime) override;
 

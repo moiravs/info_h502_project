@@ -27,11 +27,15 @@ class Camera : public Entity, public UboProvider, public Controllable
     // camera options
     float zoom;
     Frustum _frustum {};
+    std::shared_ptr<Entity> lockedEntity = nullptr;
+    bool lookingAt = true;
 
 protected:
     void updateRotation() override;
 
     void updateFrustum();
+
+    void updateLook();
 
 public:
     // constructor with vectors
@@ -40,8 +44,6 @@ public:
 
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     [[nodiscard]] glm::mat4 getViewMatrix() const;
-
-    void increaseZoom(double quantity);
 
     glm::mat4 getProjectionMatrix() const;
 
@@ -67,7 +69,8 @@ public:
 
     void processRotation(double yawRot, double pitchRot, double rollRot, double deltaTime) override;
 
-    void setLookAt(glm::vec3 target);
+    void lookAt(const glm::vec3& target);
+    void forceLookAt(const std::shared_ptr<Entity> &entity);
 
     bool canView(const std::array<glm::vec3, 8> &bounds) const;
 };
