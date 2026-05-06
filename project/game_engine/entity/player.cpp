@@ -66,10 +66,10 @@ void Player::updateCameraOffset()
         this->_yawCam -= 2 * glm::pi<float>();
     if (this->_yawCam < -glm::pi<float>())
         this->_yawCam += 2 * glm::pi<float>();
-    if (this->_pitchCam > glm::pi<float>())
-        this->_pitchCam -= 2 * glm::pi<float>();
-    if (this->_pitchCam < -glm::pi<float>())
-        this->_pitchCam += 2 * glm::pi<float>();
+    if (this->_pitchCam > 1.57)
+        this->_pitchCam = 1.57;
+    if (this->_pitchCam < -1.57)
+        this->_pitchCam = -1.57;
 
     const glm::quat qYaw   = glm::angleAxis(-this->_yawCam,   glm::vec3(0, 1, 0));
     const glm::quat qPitch = glm::angleAxis(-this->_pitchCam, glm::vec3(1, 0, 0));
