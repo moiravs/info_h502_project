@@ -78,7 +78,7 @@ Mesh::~Mesh()
     clear(); // Ensure textures and buffers are cleaned up
 }
 
-void Mesh::initMesh(const unsigned int Index, const aiMesh *paiMesh, const glm::mat4& correction)
+void Mesh::initMesh(const unsigned int Index, const aiMesh *paiMesh)
 {
     m_Entries[Index].materialIndex = paiMesh->mMaterialIndex;
 
@@ -89,7 +89,7 @@ void Mesh::initMesh(const unsigned int Index, const aiMesh *paiMesh, const glm::
     {
         Vertex v;
 
-        glm::vec4 pos = correction * glm::vec4(
+        glm::vec4 pos = glm::vec4(
             paiMesh->mVertices[i].x,
             paiMesh->mVertices[i].y,
             paiMesh->mVertices[i].z,
@@ -98,7 +98,7 @@ void Mesh::initMesh(const unsigned int Index, const aiMesh *paiMesh, const glm::
 
         v.position = glm::vec3(pos);
 
-        glm::vec3 normal = glm::mat3(correction) * glm::vec3(
+        glm::vec3 normal = glm::vec3(
             paiMesh->mNormals[i].x,
             paiMesh->mNormals[i].y,
             paiMesh->mNormals[i].z
@@ -157,11 +157,6 @@ void Mesh::initMaterials(const aiScene *pScene, const std::string &Filename)
 
 void Mesh::initFromScene(const aiScene *pScene, const std::string &Filename)
 {
-    const glm::mat4 correction = glm::rotate(
-    glm::mat4(1.0f),
-    glm::radians(90.f),
-    glm::vec3(0, 1, 0));
-
     m_Entries.resize(pScene->mNumMeshes);
     m_Textures.resize(pScene->mNumMaterials);
 
@@ -169,7 +164,7 @@ void Mesh::initFromScene(const aiScene *pScene, const std::string &Filename)
     for (unsigned int i = 0; i < m_Entries.size(); i++)
     {
         const aiMesh *paiMesh = pScene->mMeshes[i];
-        initMesh(i, paiMesh, correction);
+        initMesh(i, paiMesh);
     }
 
     initMaterials(pScene, Filename);
