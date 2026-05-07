@@ -92,7 +92,7 @@ int main()
 		glm::vec3(1.0, 15.0, 1.5), glm::vec3(1), glm::vec3(1, 1, 1),
 		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0));
 
-	auto plane = PropMaker::makePlane();
+	auto plane = PropMaker::makePlane(heightMap);
 
     ControllerManager::get()->setPlayer(std::dynamic_pointer_cast<Player>(plane->getMainObject()));
     ControllerManager::get()->setIsPlayerControlled(DEFAULT_CAMERA_LOCKED_ON_PLAYER);
