@@ -83,31 +83,37 @@ glm::vec3 Player::findCameraOffset() const
     const glm::vec3 direction = glm::normalize(qYaw * qPitch) * glm::vec3(0, 0, 1);
     float maxDist = this->_camDistance;
     float minDist = MIN_CAM_DIST;
-    auto currentOffset = glm::vec3(maxDist) * direction;
+    auto currentOffset = maxDist * direction;
     auto currentPosition = currentOffset + this->getPosition();
 
-    auto isBelowTerrain = [this](const glm::vec3 &position)
+    auto isBelowTerrain = [this](const glm::vec3 &position) -> bool
     {
-        return this->_heightMap->getHeight(position.x, position.z) >= position.y - 0.5;
+        return this->_heightMap->getHeight(position.x, position.z) >= position.y - 0.5f;
     };
 
-    while (isBelowTerrain(currentPosition))
-    {
-        if (abs(maxDist - minDist) < 0.5) return currentPosition;
+    if (!isBelowTerrain(currentPosition)) return currentOffset;
 
-        auto avgDist = (maxDist + minDist) / 2;
-        currentOffset = glm::vec3(avgDist) * direction;
+    glm::vec3 bestOffset = direction * minDist;
+
+    while (abs(maxDist - minDist) > 0.5f)
+    {
+        const float avgDist = (maxDist + minDist) * 0.5f;
+
+        currentOffset = direction * avgDist;
         currentPosition = currentOffset + this->getPosition();
 
         if (isBelowTerrain(currentPosition))
         {
             maxDist = avgDist;
-        } else
+        }
+        else
         {
             minDist = avgDist;
+            bestOffset = {currentOffset.x, currentOffset.y, currentOffset.z};
         }
     }
-    return currentOffset;
+
+    return bestOffset;
 }
 
 void Player::update(const float delta)
