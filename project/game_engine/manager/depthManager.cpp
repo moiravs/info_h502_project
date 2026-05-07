@@ -1,12 +1,12 @@
-#include "shadow.h"
+#include "depthManager.h"
 
-#include <stb_image.h>
 #include <glad/glad.h>
-#include "../utils/constants.h"
+#include <stb_image.h>
+#include "../../utils/constants.h"
 
-Shadow::Shadow()
+DepthManager::DepthManager()
 {
-    shadowShader = std::make_shared<Shader>(PATH_TO_SRC "/../assets/shaders/shadow.vert", PATH_TO_SRC "/../assets/shaders/shadow.frag");
+    shader = std::make_shared<Shader>(PATH_TO_SRC "/../assets/shaders/depth.vert", PATH_TO_SRC "/../assets/shaders/depth.frag");
 
     glGenFramebuffers(1, &depthMapFBO);
 

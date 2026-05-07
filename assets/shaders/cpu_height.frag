@@ -13,7 +13,6 @@ float fogMinHeight;
 float fogDensity;  
 };
 
-
 layout(std140) uniform Lights {
     vec4 lightPositions[MAX_LIGHTS];
     vec4 lightProperties[MAX_LIGHTS];

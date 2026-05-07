@@ -95,7 +95,7 @@ void MeshRenderer::setupVAOs()
     glBindVertexArray(0);
 }
 
-void MeshRenderer::renderShadows(const std::shared_ptr<Shader> &shadowShader)
+void MeshRenderer::renderShadows(const std::shared_ptr<Shader> &shadowShader) const
 {
     shadowShader->use();
     const auto mesh = this->getEntity<Object>()->getMesh();

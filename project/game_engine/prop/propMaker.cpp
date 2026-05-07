@@ -1,13 +1,15 @@
 
 #include "propMaker.h"
 
-#include "../renderer/objectRenderer.h"
-#include "../entity/particleGenerator.h"
-#include "../entity/player.h"
 #include "../../utils/constants.h"
 #include "../entity/instancedObject.h"
-#include "../renderer/instancedRenderer.h"
+#include "../entity/light/directionalLight.h"
+#include "../entity/light/pointLight.h"
+#include "../entity/particleGenerator.h"
+#include "../entity/player.h"
 #include "../entity/renderableEntityMaker.h"
+#include "../renderer/instancedRenderer.h"
+#include "../renderer/objectRenderer.h"
 
 #include "../mesh/heightMap.h"
 
@@ -17,7 +19,7 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
     const auto sphere = Object::make(
         std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/sphere_smooth.obj"),
         "solid");
-    const auto light = Light::make();
+    const auto light = PointLight::make();
 
     sphere->attach(light);
     sphere->setColor(color);
@@ -25,6 +27,29 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
 
     light->setAttenuation(lightAttenuation.x, lightAttenuation.y, lightAttenuation.z);
     light->setProperties(lightProperties.x, lightProperties.y, lightProperties.z, lightProperties.w);
+    sphere->setPosition(position);
+    sphere->setScale(scale);
+
+    auto prop = std::make_shared<Prop>();
+
+    prop->addRenderable(sphere);
+    prop->setMainObject(sphere);
+
+    return prop;
+}
+
+std::shared_ptr<Prop> PropMaker::makeSun(const glm::vec3& position, const glm::vec3& scale, const glm::vec3& color)
+{
+    const auto sphere = Object::make(
+        std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/sphere_smooth.obj"),
+        "solid");
+    const auto light = DirectionalLight::make();
+
+    light->setTarget({0, 0, 0});
+    sphere->attach(light);
+    sphere->setColor(color);
+    light->setColor(color);
+
     sphere->setPosition(position);
     sphere->setScale(scale);
 

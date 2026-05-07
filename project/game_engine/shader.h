@@ -8,7 +8,7 @@
 #include <memory>
 
 #include "entity/camera.h"
-#include "entity/light.h"
+#include "entity/light/light.h"
 
 class Shader
 {

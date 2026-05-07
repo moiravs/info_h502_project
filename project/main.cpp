@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "game_engine/entity/camera.h"
-#include "game_engine/entity/light.h"
+#include "game_engine/entity/light/light.h"
 #include "game_engine/manager/controllerManager.h"
 #include "game_engine/manager/displaymanager.h"
 #include "game_engine/shader.h"
@@ -29,10 +29,10 @@
 #include "game_engine/entity/particleGenerator.h"
 #include "game_engine/entity/renderableEntityMaker.h"
 #include "game_engine/game.h"
+#include "game_engine/manager/depthManager.h"
 #include "game_engine/manager/mainCamera.h"
 #include "game_engine/prop/propMaker.h"
 #include "game_engine/renderer/waterRenderer.h"
-#include "game_engine/shadow.h"
 #include "utils/constants.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
@@ -107,7 +107,7 @@ int main()
 	auto firecamp = PropMaker::makeFirecamp(5, 0, heightMap);
 	double lastTime = glfwGetTime();
 
-	auto shadow = Shadow();
+	auto shadow = DepthManager();
 
 	auto game = Game();
 
@@ -125,7 +125,6 @@ int main()
 		glm::vec3 target = glm::vec3(0.0f, 50.0f, 0.0f); // Terrain center, some height
 		glm::mat4 lightView = glm::lookAt(sun->getMainObject()->getPosition(), target, glm::vec3(0.0f, 1.0f, 0.0f));
 
-		float orthoSize = PLAN_SIZE_X * 0.7f;
 		glm::mat4 lightProjection = glm::ortho(-300.0f, 300.0f, -100.0f, 400.0f,
 											   0.1f, 1000.0f);
 

@@ -4,6 +4,8 @@
 #include "uboManager.h"
 #include "../../utils/utils.h"
 
+#include "../entity/light/pointLight.h"
+
 LightManager::LightManager(): UboProvider("Lights", sizeof(LightBlock)) {}
 
 LightManager& LightManager::get()
@@ -12,15 +14,26 @@ LightManager& LightManager::get()
     return instance;
 }
 
-void LightManager::registerLight(std::shared_ptr<Light> light)
+void LightManager::registerPointLight(std::shared_ptr<PointLight> light)
 {
-    if (lights.size() == MAX_LIGHTS)
+    if (this->lights.size() == MAX_LIGHTS)
     {
         ERROR("Maximal number of lights exceeded. Cannot add a new light to the scene.");
         return;
     }
 
     this->lights.push_back(std::move(light));
+    this->notify();
+}
+
+void LightManager::registerDirectionalLight(const std::shared_ptr<DirectionalLight> &light)
+{
+    if (this->_sun)
+    {
+        FATAL("There is no support for multiple directional lights.");
+    }
+
+    this->_sun = light;
     this->notify();
 }
 

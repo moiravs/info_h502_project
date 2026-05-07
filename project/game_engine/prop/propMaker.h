@@ -19,6 +19,8 @@ public:
 
     static std::shared_ptr<Prop> makeFirecamp(float x, float z, const std::shared_ptr<HeightMap> &heightMap);
 
+    static std::shared_ptr<Prop> makeSun(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &color);
+
     static std::shared_ptr<Prop> makePlane(const std::shared_ptr<HeightMap>& heightMap);
 };
 

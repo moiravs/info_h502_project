@@ -27,7 +27,7 @@ public:
     }
 
     virtual void drawElements(int numTriangles);
-    void renderShadows(const std::shared_ptr<Shader> &shadowShader);
+    void renderShadows(const std::shared_ptr<Shader> &shadowShader) const;
 
     void render() override;
 };

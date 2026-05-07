@@ -12,7 +12,7 @@
 #include <vector>
 
 #include "../entity/camera.h"
-#include "../entity/light.h"
+#include "../entity/light/light.h"
 #include "../entity/vertex.h"
 #include "../texture.h"
 

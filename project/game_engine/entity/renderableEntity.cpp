@@ -63,11 +63,6 @@ void RenderableEntity::render(const float delta)
 
 bool RenderableEntity::shouldRender() const { return true; }
 
-void RenderableEntity::setOctreeNode(const std::shared_ptr<Octree> &node)
-{
-    this->octreeNode = node;
-}
-
 void RenderableEntity::update(const float delta)
 {
     this->_renderer->updateUniforms();
