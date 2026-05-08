@@ -11,7 +11,7 @@
 #include "manager/uboManager.h"
 #include "../utils/constants.h"
 
-Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
+Shader::Shader(const std::string &vertexPath, const std::string &fragmentPath)
 {
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
@@ -43,7 +43,6 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
     GLuint vertex = compileShader(vertexCode, GL_VERTEX_SHADER);
     GLuint fragment = compileShader(fragmentCode, GL_FRAGMENT_SHADER);
     this->ID = compileProgram(vertex, fragment);
-
     UboManager::get().registerShader(this);
 }
 
@@ -52,47 +51,47 @@ void Shader::use() const
     glUseProgram(ID);
 }
 
-void Shader::setInteger(const GLchar* name, const GLint value) const
+void Shader::setInteger(const GLchar *name, const GLint value) const
 {
     this->use();
     glUniform1i(glGetUniformLocation(ID, name), value);
 }
 
-void Shader::setFloat(const GLchar* name, const GLfloat value) const
+void Shader::setFloat(const GLchar *name, const GLfloat value) const
 {
     this->use();
 
     glUniform1f(glGetUniformLocation(ID, name), value);
 }
 
-void Shader::setVector2f(const GLchar* name, const GLfloat x, const GLfloat y) const
+void Shader::setVector2f(const GLchar *name, const GLfloat x, const GLfloat y) const
 {
     this->use();
 
     glUniform2f(glGetUniformLocation(ID, name), x, y);
 }
 
-void Shader::setVector3f(const GLchar* name, const GLfloat x, const GLfloat y, const GLfloat z) const
+void Shader::setVector3f(const GLchar *name, const GLfloat x, const GLfloat y, const GLfloat z) const
 {
     this->use();
 
     glUniform3f(glGetUniformLocation(ID, name), x, y, z);
 }
 
-void Shader::setVector3f(const GLchar* name, const glm::vec3& value) const
+void Shader::setVector3f(const GLchar *name, const glm::vec3 &value) const
 {
     this->use();
 
     glUniform3f(glGetUniformLocation(ID, name), value.x, value.y, value.z);
 }
 
-void Shader::setVector4f(const GLchar* name, const glm::vec4& value) const
+void Shader::setVector4f(const GLchar *name, const glm::vec4 &value) const
 {
     this->use();
     glUniform4f(glGetUniformLocation(ID, name), value.x, value.y, value.z, value.w);
 }
 
-void Shader::setMatrix4(const GLchar* name, const glm::mat4& matrix) const
+void Shader::setMatrix4(const GLchar *name, const glm::mat4 &matrix) const
 {
     this->use();
     glUniformMatrix4fv(glGetUniformLocation(ID, name), 1, GL_FALSE, glm::value_ptr(matrix));
@@ -103,7 +102,7 @@ GLuint Shader::getID() const
     return this->ID;
 }
 
-GLuint Shader::compileShader(const std::string& shaderCode, const GLenum shaderType)
+GLuint Shader::compileShader(const std::string &shaderCode, const GLenum shaderType)
 {
     const GLuint shader = glCreateShader(shaderType);
     const char *code = shaderCode.c_str();
