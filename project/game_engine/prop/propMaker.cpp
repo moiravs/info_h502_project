@@ -8,6 +8,7 @@
 #include "../entity/particleGenerator.h"
 #include "../entity/player.h"
 #include "../entity/renderableEntityMaker.h"
+#include "../manager/mainCamera.h"
 #include "../renderer/instancedRenderer.h"
 #include "../renderer/objectRenderer.h"
 
@@ -38,7 +39,8 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
     return prop;
 }
 
-std::shared_ptr<Prop> PropMaker::makeSun(const glm::vec3& position, const glm::vec3& scale, const glm::vec3& color)
+std::pair<std::shared_ptr<Prop>, std::shared_ptr<DirectionalLight>> PropMaker::makeSun(const glm::vec3& position,
+    const glm::vec3& scale, const glm::vec3& color)
 {
     const auto sphere = Object::make(
         std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/sphere_smooth.obj"),
@@ -58,7 +60,7 @@ std::shared_ptr<Prop> PropMaker::makeSun(const glm::vec3& position, const glm::v
     prop->addRenderable(sphere);
     prop->setMainObject(sphere);
 
-    return prop;
+    return {prop, light};
 }
 
 std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<HeightMap>& heightMap)

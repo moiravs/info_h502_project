@@ -1,12 +1,13 @@
 #version 330 core
-layout (location = 0) in vec3 aPos;
 
-uniform mat4 lightSpaceMatrix;
+layout(location = 0) in vec3 aPos;
+layout(location = 1) in vec2 aTex;
+layout(location = 2) in vec3 aNormal;
+
+uniform mat4 PV;
 uniform mat4 model;
 
-out vec2 v_t;
 void main()
 {
-    v_t = aTexCoords;
-    gl_Position = lightSpaceMatrix * model * vec4(aPos, 1.0);
-}  
+    gl_Position = PV * model * vec4(aPos, 1.0);
+}

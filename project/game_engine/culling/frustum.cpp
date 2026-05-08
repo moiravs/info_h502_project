@@ -53,4 +53,34 @@ SignedTest Frustum::isInside(const std::array<glm::vec3, 8>& bounds) const
     return Inside;
 }
 
+void Frustum::setBottom(const Plane& plane)
+{
+    this->bottomFace = plane;
+}
+
+void Frustum::setFar(const Plane& plane)
+{
+    this->farFace = plane;
+}
+
+void Frustum::setLeft(const Plane& plane)
+{
+    this->leftFace = plane;
+}
+
+void Frustum::setNear(const Plane& plane)
+{
+    this->nearFace = plane;
+}
+
+void Frustum::setRight(const Plane& plane)
+{
+    this->rightFace = plane;
+}
+
+void Frustum::setTop(const Plane& plane)
+{
+    this->topFace = plane;
+}
+
 Plane::Plane(): Plane(glm::vec3(0), glm::vec3(0, 1, 0)) {}

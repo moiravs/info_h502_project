@@ -42,6 +42,13 @@ public:
         const Plane& right, const Plane& bottom, const Plane& top);
     Frustum()=default;
 
+    void setTop(const Plane& plane);
+    void setBottom(const Plane& plane);
+    void setRight(const Plane& plane);
+    void setLeft(const Plane& plane);
+    void setFar(const Plane& plane);
+    void setNear(const Plane& plane);
+
     [[nodiscard]] SignedTest isInside(const std::array<glm::vec3, 8>& bounds) const;
 };
 

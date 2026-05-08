@@ -13,6 +13,8 @@ class InstancedRenderer : public MeshRenderer
 {
     unsigned int _instanceCount;
 
+protected:
+    void setupVAOs() override;
 public:
     explicit InstancedRenderer(const std::string& shaderName);
     void setInstanceMatrices(const std::vector<glm::mat4> &matrices);

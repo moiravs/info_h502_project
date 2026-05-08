@@ -1,7 +1,9 @@
 #version 410 core
-in vec3 position;
+layout(location = 0) in vec3 aPos;
+layout(location = 1) in vec2 aTex;
+layout(location = 2) in vec3 aNormal;
 
 uniform vec2 iResolution;
 void main(){
-	gl_Position = vec4(position, 1);
+	gl_Position = vec4(aPos, 1);
 }

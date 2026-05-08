@@ -1,6 +1,7 @@
 
 #include "renderableEntity.h"
 
+#include "../renderer/meshRenderer.h"
 #include "../renderer/renderer.h"
 
 RenderableEntity::RenderableEntity(const std::shared_ptr<Renderer> &renderer)
@@ -58,6 +59,15 @@ void RenderableEntity::render(const float delta)
     if (this->shouldRender())
     {
         this->_renderer->render();
+    }
+}
+
+void RenderableEntity::renderDepth(const std::shared_ptr<DepthMap>& depthMap)
+{
+    if (!this->shouldRender()) return;
+
+    if (const auto a = std::dynamic_pointer_cast<MeshRenderer>(this->_renderer)) {
+        a->renderDepth(depthMap);
     }
 }
 

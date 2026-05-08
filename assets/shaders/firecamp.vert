@@ -1,15 +1,15 @@
  #version 410 core
-in vec3 position; 
-in vec2 tex_coord; 
-in vec3 normal; 
+layout(location = 0) in vec3 aPos;
+layout(location = 1) in vec2 aTex;
+layout(location = 2) in vec3 aNormal;
 
 out vec2 v_t;
 out vec3 v_fragPos; 
-out vec3 v_normal; 
+out vec3 v_normal;
 
 uniform mat4 itM; 
-uniform mat4 model; 
-uniform mat4 lightSpaceMatrix; 
+uniform mat4 model;
+uniform mat4 lightSpaceMatrix;
 
 out vec4 FragPosLightSpace;
 
@@ -22,11 +22,11 @@ layout(std140) uniform CameraInfo {
  };
 
     void main(){ 
-vec4 worldPos = model*vec4(position, 1.0); 
+vec4 worldPos = model * vec4(aPos, 1.0);
 // 4. transfomr correctly the normals
-v_normal = vec3(itM * vec4(normal, 1.0)); 
+v_normal = vec3(itM * vec4(aNormal, 1.0));
 v_fragPos = worldPos.xyz; 
 gl_Position = projection*view*worldPos; 
-v_t = tex_coord;
-FragPosLightSpace = lightSpaceMatrix * model * vec4(position, 1.0);
+v_t = aTex;
+FragPosLightSpace = lightSpaceMatrix * model * vec4(aPos, 1.0);
 }

@@ -20,7 +20,7 @@ public:
     explicit RenderableEntity(const std::shared_ptr<Renderer> &renderer);
     std::shared_ptr<Renderer> getRenderer() const;
     void render(float delta) override;
-    void renderDepth() override;
+    void renderDepth(const std::shared_ptr<DepthMap> &depthMap) override;
     void setPosition(const glm::vec3 &position) override;
     void setRotation(float yaw, float pitch, float roll) override;
 };

@@ -1,6 +1,7 @@
 #version 410 core
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec2 tex_coord;
+layout(location = 0) in vec3 aPos;
+layout(location = 1) in vec2 aTex;
+layout(location = 2) in vec3 aNormal;
 
 uniform mat4 model;
 
@@ -23,9 +24,9 @@ const float tiling = 0.05;
 
 void main() {
 
-    clipSpace = projection * view * model * vec4(position.x, position.y, position.z, 1.0);
+    clipSpace = projection * view * model * vec4(aPos.xyz, 1.0);
     gl_Position = clipSpace;
 
-    TexCoord = vec2(position.x /2.0 + 0.5, position.z/2.0 + 0.5) * tiling;
+    TexCoord = vec2(aPos.x /2.0 + 0.5, aPos.z/2.0 + 0.5) * tiling;
 
 }

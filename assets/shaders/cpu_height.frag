@@ -35,7 +35,6 @@ uniform sampler2D rockTex;
 uniform sampler2D snowTex;
 
 uniform sampler2D shadowMap; 
-in vec4 FragPosLightSpace;  
 
 float ShadowCalculation(vec4 fragPosLS) {
     vec3 projCoords = fragPosLS.xyz / fragPosLS.w;
@@ -80,7 +79,6 @@ void main()
 
     // --- 2. Lighting ---
     vec3 totalLighting = vec3(0.0);
-    float shadow = ShadowCalculation(FragPosLightSpace);
 
     for (int i = 0; i < lightCount; i++)
     {
@@ -105,7 +103,7 @@ void main()
         float attenuation = 1.0 / (att.x + att.y * dist + att.z * dist * dist);
 
         if (i == 0) {
-            totalLighting += (ambient + (1.0 - shadow) * (diffuse + specular)) * attenuation;
+            totalLighting += (ambient + (diffuse + specular)) * attenuation;
         } else {
             totalLighting += (ambient + diffuse + specular) * attenuation;
         }

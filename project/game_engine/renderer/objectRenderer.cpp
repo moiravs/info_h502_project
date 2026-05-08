@@ -17,7 +17,7 @@ ObjectRenderer::ObjectRenderer(const std::string &shaderName) : MeshRenderer(sha
     }
 }
 
-ObjectRenderer::ObjectRenderer(const std::shared_ptr<Shader> shader) : MeshRenderer(shader)
+ObjectRenderer::ObjectRenderer(const std::shared_ptr<Shader>& shader) : MeshRenderer(shader)
 {
 }
 

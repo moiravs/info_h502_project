@@ -18,6 +18,7 @@ public:
 
     Shader(const std::string& vertexPath, const std::string& fragmentPath);
 
+    ~Shader();
     void use() const;
 
     [[nodiscard]] GLuint getID() const;
