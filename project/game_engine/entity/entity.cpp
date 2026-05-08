@@ -9,10 +9,11 @@
 #include "glm/ext/quaternion_trigonometric.hpp"
 
 Entity::Attachment::Attachment(const std::shared_ptr<Entity> &entity, const glm::vec3 &offset,
-    const bool followsRotation, const bool rotationLocked)
+    const bool shouldRender, const bool followsRotation, const bool rotationLocked)
 {
     this->entity = entity;
     this->offset = offset;
+    this->shouldRender = shouldRender;
     this->followsRotation = followsRotation;
     this->rotationLocked = rotationLocked;
 }
@@ -46,9 +47,9 @@ float Entity::getRoll() const
 }
 
 void Entity::attach(const std::shared_ptr<Entity> &entity, const glm::vec3 offset,
-    const bool followsRotation, const bool rotationLocked)
+    const bool shouldRender, const bool followsRotation, const bool rotationLocked)
 {
-    const auto a = std::make_shared<Attachment>(entity, offset, followsRotation, rotationLocked);
+    const auto a = std::make_shared<Attachment>(entity, offset, shouldRender, followsRotation, rotationLocked);
     this->_attached.push_back(a);
     this->updatePositionAttached(a);
 }
