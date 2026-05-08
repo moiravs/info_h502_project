@@ -1,13 +1,14 @@
 
 #include "propMaker.h"
 
-#include "../renderer/objectRenderer.h"
-#include "../entity/particleGenerator.h"
-#include "../entity/player.h"
 #include "../../utils/constants.h"
 #include "../entity/instancedObject.h"
-#include "../renderer/instancedRenderer.h"
+#include "../entity/particleGenerator.h"
+#include "../entity/player.h"
 #include "../entity/renderableEntityMaker.h"
+#include "../entity/spinner.h"
+#include "../renderer/instancedRenderer.h"
+#include "../renderer/objectRenderer.h"
 
 #include "../mesh/heightMap.h"
 
@@ -38,7 +39,8 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
 
 std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<HeightMap>& heightMap)
 {
-    const auto plane = RenderableEntityMaker::makeRenderable<Player, ObjectRenderer>("firecamp", std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/plane/uploads_files_6592991_Model.obj"), heightMap);
+    const auto plane = RenderableEntityMaker::makeRenderable<Player, ObjectRenderer>("firecamp", std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/plane/restoftheplane.obj"), heightMap);
+    const auto spinnyThing = RenderableEntityMaker::makeRenderable<Spinner, ObjectRenderer>("firecamp", std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/plane/helice.obj"), 0, 0, PLANE_SPINNER_RAD_PER_SEC);
     plane->setPosition(glm::vec3(1, 30, -5));
     auto prop = std::make_shared<Prop>();
 
@@ -47,8 +49,10 @@ std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<HeightMap>& hei
         glm::vec4(0.1, 0.9, 1, 32), glm::vec3(5, 0.2, 0));
 
     plane->attach(lamp->getMainObject(), {0, -0.43, -6.1}, true);
+    plane->attach(spinnyThing, {0, 0, 0}, true, false);
 
     prop->addRenderable(plane);
+    prop->addRenderable(spinnyThing);
     prop->setMainObject(plane);
     prop->addRenderable(lamp);
     return prop;
@@ -136,7 +140,6 @@ std::shared_ptr<Prop> PropMaker::makeTrees(const std::shared_ptr<HeightMap> &hei
         auto tree = InstancedObject::make(mesh, "tree", v);
 
         prop->addRenderable(tree);
-        prop->setMainObject(tree);
     }
     return prop;
 }

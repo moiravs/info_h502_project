@@ -59,6 +59,20 @@ void RenderableEntity::render(const float delta)
     {
         this->_renderer->render();
     }
+
+    for (const auto& a: this->getAttachments())
+    {
+        if (const auto e = std::dynamic_pointer_cast<RenderableEntity>(a->entity))
+        {
+            if (!a->rotationLocked)
+            {
+                e->rotate(this->getYaw(), this->getPitch(), this->getRoll());
+                e->render(delta);
+                e->rotate(-this->getYaw(), -this->getPitch(), -this->getRoll());
+            } else
+                e->render(delta);
+        }
+    }
 }
 
 bool RenderableEntity::shouldRender() const { return true; }

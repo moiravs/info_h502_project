@@ -8,11 +8,13 @@
 #include "glm/detail/type_quat.hpp"
 #include "glm/ext/quaternion_trigonometric.hpp"
 
-Entity::Attachment::Attachment(const std::shared_ptr<Entity> &entity, const glm::vec3 &offset, bool followsRotation)
+Entity::Attachment::Attachment(const std::shared_ptr<Entity> &entity, const glm::vec3 &offset,
+    const bool followsRotation, const bool rotationLocked)
 {
     this->entity = entity;
     this->offset = offset;
     this->followsRotation = followsRotation;
+    this->rotationLocked = rotationLocked;
 }
 
 Entity::Entity(glm::vec3 up) : Entity(0, 0, 0, up) {}
@@ -43,9 +45,10 @@ float Entity::getRoll() const
     return this->_roll;
 }
 
-void Entity::attach(const std::shared_ptr<Entity> &entity, const glm::vec3 offset, const bool followsRotation)
+void Entity::attach(const std::shared_ptr<Entity> &entity, const glm::vec3 offset,
+    const bool followsRotation, const bool rotationLocked)
 {
-    const auto a = std::make_shared<Attachment>(entity, offset, followsRotation);
+    const auto a = std::make_shared<Attachment>(entity, offset, followsRotation, rotationLocked);
     this->_attached.push_back(a);
     this->updatePositionAttached(a);
 }
@@ -170,4 +173,9 @@ std::shared_ptr<Entity::Attachment> Entity::getAttachment(const std::shared_ptr<
         }
     }
     return nullptr;
+}
+
+const std::vector<std::shared_ptr<Entity::Attachment>>& Entity::getAttachments() const
+{
+    return this->_attached;
 }
