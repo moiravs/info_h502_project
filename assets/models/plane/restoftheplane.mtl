@@ -1,0 +1,42 @@
+# Blender 5.1.1 MTL File: 'None'
+# www.blender.org
+
+newmtl 2aeae376-6a6e-4d72-922b-99cd7cd8d581
+Ns 255.000015
+Ka 1.000000 1.000000 1.000000
+Kd 0.000000 0.000000 0.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 0.170000
+illum 1
+
+newmtl 472f3782-f9b3-470e-b4ff-e31688b80d5c
+Ns 29.999998
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 1
+map_Kd aircraft_inside2_a.jpg
+map_Ks aircraft_inside2_n_s.jpg
+map_d aircraft_inside2_a_a.png
+
+newmtl 5f321460-49b9-46b9-bbf7-28677e837961
+Ns 29.999998
+Ka 1.000000 1.000000 1.000000
+Ks 0.043000 0.043000 0.043000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 2
+map_Kd barrage_balloon_rope.jpg
+map_d barrage_balloon_rope_a.png
+
+newmtl 6af6f52c-6c9c-4939-8fc0-3d12836e5d69
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd fw_190d_9_a.jpg
+map_Ks fw_190d_9_n_s.jpg
