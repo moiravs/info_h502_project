@@ -4,10 +4,12 @@
 
 #include "../../utils/utils.h"
 #include "../manager/mainCamera.h"
+#include "../mesh/heightMap.h"
 #include "glm/ext/scalar_common.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-Player::Player(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<Renderer>& renderer): Object(mesh, renderer){}
+Player::Player(const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<HeightMap>& heightMap, const std::shared_ptr<Renderer>& renderer)
+: Object(mesh, renderer), _heightMap(heightMap) {}
 
 void Player::processKeyboardMovement(const MovementDirection direction, const double deltaTime)
 {
@@ -68,13 +70,50 @@ void Player::updateCameraOffset()
         this->_yawCam += 2 * glm::pi<float>();
     this->_pitchCam = glm::clamp(this->_pitchCam, -1.57f, 1.57f);
 
+    const auto offset = this->findCameraOffset();
+    this->getCameraAttachment()->offset = offset;
+    this->updatePositionAttached(this->getCameraAttachment());
+}
+
+glm::vec3 Player::findCameraOffset() const
+{
     const glm::quat qYaw   = glm::angleAxis(-this->_yawCam,   glm::vec3(0, 1, 0));
     const glm::quat qPitch = glm::angleAxis(-this->_pitchCam, glm::vec3(1, 0, 0));
 
-    const glm::quat trans = glm::normalize(qYaw * qPitch);
-    const auto offset = glm::vec3(this->_camDistance) * (trans * glm::vec3(0, 0, 1));
-    this->getCameraAttachment()->offset = offset;
-    this->updatePositionAttached(this->getCameraAttachment());
+    const glm::vec3 direction = glm::normalize(qYaw * qPitch) * glm::vec3(0, 0, 1);
+    float maxDist = this->_camDistance;
+    float minDist = MIN_CAM_DIST;
+    auto currentOffset = maxDist * direction;
+    auto currentPosition = currentOffset + this->getPosition();
+
+    auto isBelowTerrain = [this](const glm::vec3 &position) -> bool
+    {
+        return this->_heightMap->getHeight(position.x, position.z) >= position.y - 0.5f;
+    };
+
+    if (!isBelowTerrain(currentPosition)) return currentOffset;
+
+    glm::vec3 bestOffset = direction * minDist;
+
+    while (abs(maxDist - minDist) > 0.5f)
+    {
+        const float avgDist = (maxDist + minDist) * 0.5f;
+
+        currentOffset = direction * avgDist;
+        currentPosition = currentOffset + this->getPosition();
+
+        if (isBelowTerrain(currentPosition))
+        {
+            maxDist = avgDist;
+        }
+        else
+        {
+            minDist = avgDist;
+            bestOffset = {currentOffset.x, currentOffset.y, currentOffset.z};
+        }
+    }
+
+    return bestOffset;
 }
 
 void Player::update(const float delta)

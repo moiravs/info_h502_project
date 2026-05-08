@@ -19,7 +19,7 @@ public:
 
     static std::shared_ptr<Prop> makeFirecamp(float x, float z, const std::shared_ptr<HeightMap> &heightMap);
 
-    static std::shared_ptr<Prop> makePlane();
+    static std::shared_ptr<Prop> makePlane(const std::shared_ptr<HeightMap>& heightMap);
 };
 
 #endif // INFOH502_CPP_PROPMAKER_H
