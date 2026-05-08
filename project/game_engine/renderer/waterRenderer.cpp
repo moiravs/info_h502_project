@@ -16,6 +16,7 @@ void WaterRenderer::registerEntity(const std::shared_ptr<RenderableEntity> &enti
 
 void WaterRenderer::render()
 {
+    this->_shader->setMatrix4("model", this->_entity->getModel());
     const auto o = this->getEntity<Object>();
     if (!o || !o->getMesh() || o->getMesh()->getEntries().empty())
         return;
