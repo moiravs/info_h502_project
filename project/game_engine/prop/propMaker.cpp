@@ -48,8 +48,8 @@ std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<HeightMap>& hei
         glm::vec3(1.0, 15.0, 1.5), glm::vec3(0.1), glm::vec3(1, 0, 0),
         glm::vec4(0.1, 0.9, 1, 32), glm::vec3(5, 0.2, 0));
 
-    plane->attach(lamp->getMainObject(), {0, -0.43, -6.1}, true);
-    plane->attach(spinnyThing, {0, 0, 0}, true, false);
+    plane->attach(lamp->getMainObject(), {0, -0.43, -6.1}, true, true);
+    plane->attach(spinnyThing, {0, 0, 0}, true, true, false);
 
     prop->addRenderable(plane);
     prop->addRenderable(spinnyThing);
@@ -81,9 +81,9 @@ std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, cons
         .color2 = glm::vec3(1.0f, 0.5f, 0.0f),
         .color3 = glm::vec3(0.5f, 0.0f, 0.0f)});
 
-    constexpr auto offset = glm::vec3(0, 0, 2.6);
+    constexpr auto offset = glm::vec3(2.6, 0, 0);
 
-    firecamp->attach(light->getMainObject(), offset);
+    firecamp->attach(light->getMainObject(), offset, false);
     firecamp->attach(pg, offset);
     prop->addRenderable(firecamp);
     prop->addRenderable(pg);

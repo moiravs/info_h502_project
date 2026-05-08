@@ -62,6 +62,8 @@ void RenderableEntity::render(const float delta)
 
     for (const auto& a: this->getAttachments())
     {
+        if (!a->shouldRender) continue;
+
         if (const auto e = std::dynamic_pointer_cast<RenderableEntity>(a->entity))
         {
             if (!a->rotationLocked)
