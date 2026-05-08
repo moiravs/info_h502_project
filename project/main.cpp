@@ -207,6 +207,8 @@ int main()
 
 		Game::renderScene(delta, {trees, redLight, water, skybox, sun, firecamp, plane, terrain});
 
+		Game::checkTerrainCollision(plane->getMainObject(), heightMap);
+
 		glDisable(GL_DEPTH_TEST); // Ensure it draws on top of everything
 
 		Game::renderText(text, shader, "VIONVION", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
