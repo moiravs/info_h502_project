@@ -117,7 +117,6 @@ std::pair<std::shared_ptr<HeightMap>, std::shared_ptr<Prop>> RenderableEntityMak
             std::shared_ptr<Object> object = Object::make(mesh, "cpu_height");
 
             prop->addRenderable(object);
-            prop->setMainObject(object);
         }
     }
     stbi_image_free(data);

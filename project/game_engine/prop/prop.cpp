@@ -5,8 +5,12 @@
 
 void Prop::render(const float delta)
 {
-    for (const auto& r: this->_renderables)
-        r->render(delta);
+    if (!this->getMainObject())
+    {
+        for (const auto& r: this->_renderables)
+            r->render(delta);
+    }
+    else this->getMainObject()->render(delta);
 }
 
 void Prop::addRenderable(const std::shared_ptr<Renderable>& renderer)

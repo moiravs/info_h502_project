@@ -14,14 +14,16 @@ protected:
         std::shared_ptr<Entity> entity;
         glm::vec3 offset{};
         bool followsRotation = false;
+        bool rotationLocked = true;
         Attachment() = default;
-        Attachment(const std::shared_ptr<Entity> &entity, const glm::vec3 &offset, bool followsRotation=false);
+        Attachment(const std::shared_ptr<Entity> &entity, const glm::vec3 &offset, bool followsRotation = false, bool rotationLocked = true);
     };
 
     virtual void updateRotation();
     std::shared_ptr<Attachment> getAttachment(const std::shared_ptr<Entity> &entity);
     void updatePositionAttached(const std::shared_ptr<Attachment> &attachment) const;
     virtual bool shouldClampPitch() const;
+    const std::vector<std::shared_ptr<Attachment>>& getAttachments() const;
 
 private:
     size_t id;
@@ -39,7 +41,8 @@ public:
     explicit Entity(glm::vec3 up = WORLD_UP);
     Entity(float yaw, float pitch, float roll, glm::vec3 up = WORLD_UP);
 
-    void attach(const std::shared_ptr<Entity> &entity, glm::vec3 offset = glm::vec3(0, 0, 0), bool followsRotation=false);
+    void attach(const std::shared_ptr<Entity> &entity, glm::vec3 offset = glm::vec3(0, 0, 0),
+        bool followsRotation = false, bool rotationLocked = true);
     [[nodiscard]] glm::vec3 getPosition() const;
     virtual void setPosition(const glm::vec3 &position);
     virtual void setPosition(float x, float y, float z);
