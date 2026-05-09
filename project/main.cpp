@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <freetype/ftcolor.h>
 #include "utils/utils.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -34,9 +35,10 @@
 #include "game_engine/renderer/waterRenderer.h"
 #include "game_engine/shadow.h"
 #include "utils/constants.h"
+#include <map>
+#include "game_engine/entity/text.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-
 
 int main()
 {
@@ -57,7 +59,26 @@ int main()
 		FATAL("Failed to initialize GLAD");
 	}
 
-	glEnable(GL_DEPTH_TEST);
+	FT_Library ft;
+	// All functions return a value different than 0 whenever an error occurred
+	if (FT_Init_FreeType(&ft))
+	{
+		std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+		return -1;
+	}
+
+	Shader shader(PATH_TO_SRC "/../assets/shaders/text.vert", PATH_TO_SRC "/../assets/shaders/text.frag");
+	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
+	shader.use();
+	glUniformMatrix4fv(glGetUniformLocation(shader.getID(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+	// find path to font
+	std::string font_name = PATH_TO_SRC "/../assets/fonts/gabriele_ribbon_fg_6918761(1)/gabriele-br.ttf";
+	if (font_name.empty())
+	{
+		std::cout << "ERROR::FREETYPE: Failed to load font_name" << std::endl;
+		return -1;
+	}
 
 	// make sun must be in first
 	auto sun = PropMaker::makeLamp(
@@ -94,11 +115,12 @@ int main()
 
 	auto plane = PropMaker::makePlane(heightMap);
 
-    ControllerManager::get()->setPlayer(std::dynamic_pointer_cast<Player>(plane->getMainObject()));
-    ControllerManager::get()->setIsPlayerControlled(DEFAULT_CAMERA_LOCKED_ON_PLAYER);
+	ControllerManager::get()->setPlayer(std::dynamic_pointer_cast<Player>(plane->getMainObject()));
+	ControllerManager::get()->setIsPlayerControlled(DEFAULT_CAMERA_LOCKED_ON_PLAYER);
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 	auto trees = PropMaker::makeTrees(heightMap);
+	auto flowerField = PropMaker::makeFlowers(heightMap);
 	auto &lightManager = LightManager::get();
 	float orbitRadius = PLAN_SIZE_X / 2; // Distance from the center of the scene
 	float orbitSpeed = 0.1f;			 // How fast the sun moves
@@ -107,9 +129,14 @@ int main()
 	auto firecamp = PropMaker::makeFirecamp(5, 0, heightMap);
 	double lastTime = glfwGetTime();
 
+	auto rings = PropMaker::makeRings(heightMap);
+
 	auto shadow = Shadow();
 
 	auto game = Game();
+
+	auto text = Text();
+	text.loadCharactersFromBitmap(ft, font_name);
 
 	while (!dm.shouldClose())
 	{
@@ -135,39 +162,39 @@ int main()
 		glBindFramebuffer(GL_FRAMEBUFFER, shadow.depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-	    //TODO re-enable shadows
-	    //Game::renderShadows(delta, {trees, plane, terrain}, lightSpaceMatrix, shadow.depthMap, shadow.shadowShader);
+		// TODO re-enable shadows
+		// Game::renderShadows(delta, {trees, plane, terrain}, lightSpaceMatrix, shadow.depthMap, shadow.shadowShader);
 
-	    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDrawBuffer(GL_BACK); // Reactivate color drawing
 		glReadBuffer(GL_BACK);
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
-	    if (water->shouldRender())
-	    {
-	        // == REFLECTION ==
-	        glEnable(GL_CLIP_DISTANCE0);
-	        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	        fbos->bindReflectionFrameBuffer();
-	        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		if (water->shouldRender())
+		{
+			// == REFLECTION ==
+			glEnable(GL_CLIP_DISTANCE0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			fbos->bindReflectionFrameBuffer();
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	        camera->prepareReflection(WATER_HEIGHT);
-	        camera->updateUBO();
-	        fbos->setClipPlane(reflectionPlane);
+			camera->prepareReflection(WATER_HEIGHT);
+			camera->updateUBO();
+			fbos->setClipPlane(reflectionPlane);
 
-	        Game::renderScene(delta, {trees, skybox, terrain});
-	        camera->resetCameraAfterReflection(WATER_HEIGHT);
-	        camera->updateUBO();
+			Game::renderScene(delta, {trees, skybox, terrain});
+			camera->resetCameraAfterReflection(WATER_HEIGHT);
+			camera->updateUBO();
 
-	        // 2. Refraction
-	        fbos->bindRefractionFrameBuffer();
-	        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			// 2. Refraction
+			fbos->bindRefractionFrameBuffer();
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	        fbos->setClipPlane(refractionPlane); // One clean call
-	        Game::renderScene(delta, {trees, terrain});
+			fbos->setClipPlane(refractionPlane); // One clean call
+			Game::renderScene(delta, {trees, terrain});
 
-	        fbos->unbindCurrentFrameBuffer();
-	        dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
-	    }
+			fbos->unbindCurrentFrameBuffer();
+			dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
+		}
 
 		// == NORMAL ==
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -181,11 +208,15 @@ int main()
 
 		sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
 
-		Game::renderScene(delta, {trees, redLight, water, skybox, sun, firecamp, plane, terrain});
+		Game::renderScene(delta, {trees, redLight, water, skybox, sun, firecamp, plane, terrain, flowerField, rings});
+
+		Game::checkTerrainCollision(plane->getMainObject(), heightMap);
 
 		glDisable(GL_DEPTH_TEST); // Ensure it draws on top of everything
 
-	    dm.update();
+		Game::renderText(text, shader, "VIONVION", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+
+		dm.update();
 	}
 
 	glfwTerminate();
