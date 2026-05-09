@@ -39,7 +39,7 @@ void ReflectionFrameBuffer::begin()
 {
     FrameBuffer::begin();
     glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_TRUE);
+    glEnable(GL_CLIP_DISTANCE0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     MainCamera::get()->prepareReflection(WATER_HEIGHT);
     MainCamera::get()->updateUBO();
@@ -48,6 +48,7 @@ void ReflectionFrameBuffer::begin()
 void ReflectionFrameBuffer::end()
 {
     FrameBuffer::end();
+    glDisable(GL_CLIP_DISTANCE0);
     MainCamera::get()->resetCameraAfterReflection(WATER_HEIGHT);
     MainCamera::get()->updateUBO();
 }
@@ -64,6 +65,7 @@ void ReflectionFrameBuffer::setClipPlane(const glm::vec4& plane) const
     glBufferSubData(GL_UNIFORM_BUFFER, 0,
                      sizeof(glm::vec4),
                      glm::value_ptr(plane));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 GLuint ReflectionFrameBuffer::getTexture() const

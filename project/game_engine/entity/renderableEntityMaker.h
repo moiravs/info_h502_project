@@ -29,6 +29,24 @@ public:
         return obj;
     }
 
+    template <typename T, typename Renderer, typename... EntityArgs>
+    static std::shared_ptr<T> makeRenderable(EntityArgs&&... entityArgs)
+    {
+        auto renderer = std::make_shared<Renderer>();
+
+        auto obj = std::make_shared<T>(
+            std::forward<EntityArgs>(entityArgs)...,
+            renderer
+        );
+
+        renderer->registerEntity(obj);
+
+        if (const std::shared_ptr<Object> o = std::dynamic_pointer_cast<Object>(obj))
+            o->updateBounds();
+
+        return obj;
+    }
+
     static std::pair<std::shared_ptr<HeightMap>, std::shared_ptr<Prop>> terrainFromTexture(
         const std::string& texturePath, float width, float depth);
 };

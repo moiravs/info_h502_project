@@ -30,17 +30,17 @@ void ObjectRenderer::updateUniforms() const
     this->_shader->setMatrix4("itM", inverseModel);
 
     _shader->use();
-    glUniform1i(glGetUniformLocation(_shader->getID(), "grassTex"), 1);
-    glUniform1i(glGetUniformLocation(_shader->getID(), "rockTex"), 2);
-    glUniform1i(glGetUniformLocation(_shader->getID(), "snowTex"), 3);
+    glUniform1i(glGetUniformLocation(_shader->getID(), "grassTex"), 8);
+    glUniform1i(glGetUniformLocation(_shader->getID(), "rockTex"), 9);
+    glUniform1i(glGetUniformLocation(_shader->getID(), "snowTex"), 10);
 
-    glActiveTexture(GL_TEXTURE1);
+    glActiveTexture(GL_TEXTURE8);
     glBindTexture(GL_TEXTURE_2D, grassTex->getTexture());
 
-    glActiveTexture(GL_TEXTURE2);
+    glActiveTexture(GL_TEXTURE9);
     glBindTexture(GL_TEXTURE_2D, rockTex->getTexture());
 
-    glActiveTexture(GL_TEXTURE3);
+    glActiveTexture(GL_TEXTURE10);
     glBindTexture(GL_TEXTURE_2D, snowTex->getTexture());
 
     // 3. Reset Active Texture to 0 so other code doesn't get confused

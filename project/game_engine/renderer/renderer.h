@@ -36,10 +36,12 @@ protected:
 
 public:
     explicit Renderer(std::shared_ptr<Shader> shader);
+    std::shared_ptr<Shader> getShader() const;
     virtual void updateUniforms() const = 0;
     virtual ~Renderer();
     virtual void registerEntity(const std::shared_ptr<RenderableEntity> &entity);
     virtual void render();
+    virtual void renderWithShader(const std::shared_ptr<Shader> &shader);
 };
 
 #endif

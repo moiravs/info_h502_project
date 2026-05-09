@@ -8,7 +8,7 @@
 #include "../entity/object.h"
 #include <glm/gtx/string_cast.hpp>
 
-#include "../depth/depthMap.h"
+#include "../depth/depthMapFrameBuffer.h"
 #include "objectRenderer.h"
 
 MeshRenderer::MeshRenderer(const std::string &shaderName) : Renderer(generateShader(shaderName))
@@ -97,15 +97,16 @@ void MeshRenderer::setupVAOs()
     glBindVertexArray(0);
 }
 
-void MeshRenderer::renderDepth(const std::shared_ptr<DepthMap> &depthMap) const
+void MeshRenderer::renderWithShader(const std::shared_ptr<Shader> &shader)
 {
+    shader->use();
     const auto mesh = this->getEntity<Object>()->getMesh();
 
     for (unsigned int i = 0; i < _VAOs.size(); i++)
     {
         const auto &entry = mesh->getEntries()[i];
 
-        depthMap->loadModel(this->getEntity<Object>()->getModel());
+        shader->setMatrix4("model", this->getEntity<Object>()->getModel());
 
         glBindVertexArray(_VAOs[i]);
         glDrawElements(GL_TRIANGLES, entry.numIndices, GL_UNSIGNED_INT, nullptr);

@@ -1,7 +1,7 @@
 #include "waterRenderer.h"
 
-WaterRenderer::WaterRenderer(std::shared_ptr<WaterFrameBuffer> fbos)
-    : MeshRenderer("water"), transparent(false), _fbos(std::move(fbos))
+WaterRenderer::WaterRenderer()
+    : MeshRenderer("water"), transparent(false)
 {
 }
 
@@ -44,8 +44,6 @@ void WaterRenderer::render()
 
 void WaterRenderer::updateUniforms() const
 {
-    glActiveTexture(GL_TEXTURE6);
-    glBindTexture(GL_TEXTURE_2D, _fbos->getRefractionTexture());
     glActiveTexture(GL_TEXTURE7);
     glBindTexture(GL_TEXTURE_2D, dudvMap.getTexture());
 }

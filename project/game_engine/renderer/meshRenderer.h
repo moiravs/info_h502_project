@@ -22,7 +22,7 @@ public:
     void updateUniforms() const override;
 
     virtual void drawElements(int numTriangles);
-    void renderDepth(const std::shared_ptr<DepthMap> &depthMap) const;
+    void renderWithShader(const std::shared_ptr<Shader> &shader) override;
 
     void render() override;
 };

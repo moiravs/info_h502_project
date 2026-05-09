@@ -3,20 +3,20 @@
 
 #include "../../utils/utils.h"
 
-void Prop::render(const float delta)
+void Prop::render()
 {
     if (!this->getMainObject())
     {
         for (const auto& r: this->_renderables)
-            r->render(delta);
+            r->render();
     }
-    else this->getMainObject()->render(delta);
+    else this->getMainObject()->render();
 }
 
-void Prop::renderDepth(const std::shared_ptr<DepthMap>& depthMap)
+void Prop::renderWithShader(const std::shared_ptr<Shader>& shader)
 {
     for (const auto& r: this->_renderables)
-        r->renderDepth(depthMap);
+        r->renderWithShader(shader);
 }
 
 void Prop::addRenderable(const std::shared_ptr<Renderable>& renderable)
@@ -33,6 +33,12 @@ void Prop::setPosition(const glm::vec3& position) const
     }
 
     this->_mainObject->setPosition(position);
+}
+
+void Prop::update(const float delta)
+{
+    for (const auto& r: this->_renderables)
+        r->update(delta);
 }
 
 void Prop::setMainObject(const std::shared_ptr<Object>& mainObject)
