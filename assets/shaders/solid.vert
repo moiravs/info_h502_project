@@ -1,7 +1,7 @@
  #version 330 core
-layout (location = 0) in vec3 position; 
-layout (location = 1) in vec2 tex_coord; 
-layout (location = 2) in vec3 normal; 
+layout(location = 0) in vec3 aPos;
+ layout(location = 1) in vec2 aTex;
+ layout(location = 2) in vec3 aNormal;
 
 out vec3 v_frag_coord; 
 out vec3 v_normal; 
@@ -18,10 +18,10 @@ uniform mat4 itM;
  };
 
     void main(){ 
-vec4 frag_coord = model*vec4(position, 1.0); 
+vec4 frag_coord = model * vec4(aPos, 1.0);
 gl_Position = projection*view*frag_coord; 
 // 4. transfomr correctly the normals
-v_normal = vec3(itM * vec4(normal, 1.0)); 
+v_normal = vec3(itM * vec4(aNormal, 1.0));
 v_frag_coord = frag_coord.xyz; 
     // same component in every direction
 }

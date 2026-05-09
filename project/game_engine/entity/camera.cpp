@@ -3,8 +3,9 @@
 #include "../../utils/utils.h"
 #include "glm/gtc/type_ptr.hpp"
 
-Camera::Camera(const glm::vec3 up, const float yaw, const float roll, const float pitch)
-    : Entity(yaw, pitch, roll, up), UboProvider("CameraInfo", sizeof(CameraInfo)), zoom(ZOOM)
+Camera::Camera(const glm::vec3 up, const float yaw, const float pitch, const float roll)
+    : Entity(yaw, pitch, roll, up), UboProvider("CameraInfo", sizeof(CameraInfo)), zoom(ZOOM),
+    _frustum(std::make_shared<Frustum>())
 {
     this->Camera::updateRotation();
 }
@@ -94,21 +95,19 @@ float Camera::getFOV() const
 }
 
 // https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
-void Camera::updateFrustum()
+void Camera::updateFrustum() const
 {
     const float halfVSide = FAR * tanf(this->getFOV() * .5f);
     const float halfHSide = halfVSide * this->getAspectRatio();
     const glm::vec3 frontMultFar = FAR * this->getFront();
     const auto pos = this->getPosition();
 
-    this->_frustum = Frustum(
-    Plane(pos + NEAR * this->getFront(), this->getFront()),
-    Plane(pos + frontMultFar, -this->getFront()),
-    Plane(pos, glm::cross(frontMultFar - this->getRight() * halfHSide, this->getUp())),
-    Plane(pos, glm::cross(this->getUp(),frontMultFar + this->getRight() * halfHSide)),
-    Plane(pos, glm::cross(this->getRight(), frontMultFar - this->getUp() * halfVSide)),
-    Plane(pos, glm::cross(frontMultFar + this->getUp() * halfVSide, this->getRight()))
-        );
+    this->_frustum->setNear(Plane(pos + NEAR * this->getFront(), this->getFront()));
+    this->_frustum->setFar(Plane(pos + frontMultFar, -this->getFront()));
+    this->_frustum->setLeft(Plane(pos, glm::cross(frontMultFar - this->getRight() * halfHSide, this->getUp())));
+    this->_frustum->setRight(Plane(pos, glm::cross(this->getUp(),frontMultFar + this->getRight() * halfHSide)));
+    this->_frustum->setBottom(Plane(pos, glm::cross(this->getRight(), frontMultFar - this->getUp() * halfVSide)));
+    this->_frustum->setTop(Plane(pos, glm::cross(frontMultFar + this->getUp() * halfVSide, this->getRight())));
 }
 
 void Camera::setPosition(const glm::vec3& position)
@@ -154,7 +153,7 @@ void Camera::lookAt(const glm::vec3& target)
 }
 
 bool Camera::canView(const std::array<glm::vec3, 8>& bounds) const {
-    const auto ret = this->_frustum.isInside(bounds) ;
+    const auto ret = this->_frustum->isInside(bounds) ;
     return ret == Inside || ret == Intersects;
 }
 
@@ -180,4 +179,49 @@ void Camera::updateLook()
     if (!this->lockedEntity || !this->lookingAt) return;
 
     this->lookAt(this->lockedEntity->getPosition());
+}
+
+std::shared_ptr<Frustum> Camera::getFrustum() const
+{
+    if (!this->_frustum)
+    {
+        FATAL("No frustum yet.");
+    }
+    return this->_frustum;
+}
+
+std::vector<glm::vec3> Camera::getFrustumCorners() const
+{
+    const glm::mat4 inv = glm::inverse(this->getProjectionMatrix() * this->getViewMatrix());
+
+    std::vector<glm::vec3> corners;
+
+    // generate all corners of the projection cube (-1,-1,-1)...(+1,+1,+1)
+    // and apply the inverse of PV to get the world coordinates.
+    // this works to find the world coordinates of the corners since
+    // PV (world coords) maps to said cube
+    for (int x = 0; x < 2; ++x)
+    {
+        for (int y = 0; y < 2; ++y)
+        {
+            for (int z = 0; z < 2; ++z)
+            {
+                glm::vec4 pt = inv * glm::vec4(
+                    2.0f * x - 1.0f,
+                    2.0f * y - 1.0f,
+                    2.0f * z - 1.0f,
+                    1.0f
+                );
+
+                corners.push_back(glm::vec3(pt / pt.w));
+            }
+        }
+    }
+
+    return corners;
+}
+
+glm::mat4 Camera::getPV() const
+{
+    return this->getProjectionMatrix() * this->getViewMatrix();
 }

@@ -13,7 +13,6 @@ float fogMinHeight;
 float fogDensity;  
 };
 
-
 layout(std140) uniform Lights {
     vec4 lightPositions[MAX_LIGHTS];
     vec4 lightProperties[MAX_LIGHTS];
@@ -35,8 +34,7 @@ uniform sampler2D grassTex;
 uniform sampler2D rockTex;
 uniform sampler2D snowTex;
 
-uniform sampler2D shadowMap; 
-in vec4 FragPosLightSpace;  
+uniform sampler2D shadowMap;
 
 float ShadowCalculation(vec4 fragPosLS) {
     vec3 projCoords = fragPosLS.xyz / fragPosLS.w;
@@ -128,7 +126,7 @@ void main()
             totalLighting += (ambient + diffuse + specular) * attenuation;
         }
     }
-    
+
     FragColor = vec4(totalLighting * baseColor, 1.0);
 }
 

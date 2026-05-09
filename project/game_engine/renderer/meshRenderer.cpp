@@ -8,31 +8,23 @@
 #include "../entity/object.h"
 #include <glm/gtx/string_cast.hpp>
 
+#include "../depth/depthMap.h"
+#include "objectRenderer.h"
+
 MeshRenderer::MeshRenderer(const std::string &shaderName) : Renderer(generateShader(shaderName))
 {
     glGenTextures(1, &emptyTexture);
     glBindTexture(GL_TEXTURE_2D, emptyTexture);
-    unsigned int transparent = 0x00000000; // Alpha is 00
+    constexpr unsigned int transparent = 0x00000000; // Alpha is 00
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &transparent);
 }
 
-MeshRenderer::MeshRenderer(const std::shared_ptr<Shader> shader) : Renderer(shader)
+MeshRenderer::MeshRenderer(const std::shared_ptr<Shader>& shaderName) : Renderer(shaderName)
 {
     glGenTextures(1, &emptyTexture);
     glBindTexture(GL_TEXTURE_2D, emptyTexture);
-    unsigned int transparent = 0x00000000; // Alpha is 00
+    constexpr unsigned int transparent = 0x00000000; // Alpha is 00
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &transparent);
-}
-
-void MeshRenderer::updateUniforms() const
-{
-    _shader->use();
-    _shader->setMatrix4("lightSpaceMatrix", this->lightSpaceMatrix);
-    glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_2D, this->shadowMapTexture);
-    _shader->setInteger("shadowMap", 4);
-
-    glActiveTexture(GL_TEXTURE0);
 }
 
 void MeshRenderer::registerEntity(const std::shared_ptr<RenderableEntity> &entity)
@@ -45,69 +37,78 @@ void MeshRenderer::setupVAOs()
     if (!this->getEntity<Object>() || !this->getEntity<Object>()->getMesh())
         return;
 
-    const auto &mesh = this->getEntity<Object>()->getMesh();
+    const auto& mesh = this->getEntity<Object>()->getMesh();
+
     this->createVAOs(mesh->getEntries().size());
     this->createVBOs(1);
 
     for (unsigned int i = 0; i < mesh->getEntries().size(); i++)
     {
         glBindVertexArray(_VAOs[i]);
+
+        // Bind vertex buffer
         glBindBuffer(GL_ARRAY_BUFFER, mesh->getEntries()[i].VB);
 
-        const auto att_position = glGetAttribLocation(_shader->getID(), "position");
-        if (att_position >= 0)
-        {
-            glEnableVertexAttribArray(att_position);
+        // =========================
+        // POSITION (location = 0)
+        // =========================
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(
+            0,
+            3,
+            GL_FLOAT,
+            GL_FALSE,
+            sizeof(Vertex),
+            (void*)offsetof(Vertex, position)
+        );
 
-            glVertexAttribPointer(att_position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, position)));
-        }
+        // =========================
+        // TEXCOORD (location = 1)
+        // =========================
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(
+            1,
+            2,
+            GL_FLOAT,
+            GL_FALSE,
+            sizeof(Vertex),
+            (void*)offsetof(Vertex, texture)
+        );
 
-        const auto att_tex = glGetAttribLocation(_shader->getID(), "tex_coord");
-        if (att_tex >= 0)
-        {
-            glEnableVertexAttribArray(att_tex);
-            glVertexAttribPointer(att_tex, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, texture)));
-        }
+        // =========================
+        // NORMAL (location = 2)
+        // =========================
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(
+            2,
+            3,
+            GL_FLOAT,
+            GL_FALSE,
+            sizeof(Vertex),
+            (void*)offsetof(Vertex, normal)
+        );
 
-        const auto att_normal = glGetAttribLocation(_shader->getID(), "normal");
-        if (att_normal >= 0)
-        {
-            glEnableVertexAttribArray(att_normal);
-
-            glVertexAttribPointer(att_normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, normal)));
-        }
-
+        // =========================
+        // INDEX BUFFER
+        // =========================
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->getEntries()[i].IB);
-
-        const auto att_model = glGetAttribLocation(_shader->getID(), "model");
-
-        if (att_model >= 0)
-        {
-            glBindBuffer(GL_ARRAY_BUFFER, _VBOs[0]);
-            for (unsigned int j = 0; j < 4; j++)
-            {
-                glEnableVertexAttribArray(att_model + j);
-                glVertexAttribPointer(att_model + j, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4) * j));
-                glVertexAttribDivisor(att_model + j, 1);
-            }
-        }
     }
+
     glBindVertexArray(0);
 }
 
-void MeshRenderer::renderShadows(const std::shared_ptr<Shader> &shadowShader)
+void MeshRenderer::renderDepth(const std::shared_ptr<DepthMap> &depthMap) const
 {
-    shadowShader->use();
     const auto mesh = this->getEntity<Object>()->getMesh();
 
     for (unsigned int i = 0; i < _VAOs.size(); i++)
     {
         const auto &entry = mesh->getEntries()[i];
 
-        shadowShader->setMatrix4("model", this->getEntity<Object>()->getModel());
+        depthMap->loadModel(this->getEntity<Object>()->getModel());
 
         glBindVertexArray(_VAOs[i]);
-        glDrawElements(GL_TRIANGLES, entry.numIndices, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, entry.numIndices, GL_UNSIGNED_INT, nullptr);
     }
     glBindVertexArray(0);
 }
@@ -143,3 +144,5 @@ void MeshRenderer::drawElements(const int numTriangles)
 {
     glDrawElements(GL_TRIANGLES, numTriangles, GL_UNSIGNED_INT, 0);
 }
+
+void MeshRenderer::updateUniforms() const {}

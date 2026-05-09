@@ -1,6 +1,8 @@
 #include "game.h"
-#include "renderer/meshRenderer.h"
+
+#include "depth/depthMap.h"
 #include "prop/prop.h"
+#include "renderer/meshRenderer.h"
 
 #include "mesh/heightMap.h"
 #include "entity/text.h"
@@ -64,37 +66,16 @@ void Game::renderScene(const float delta, const std::vector<std::shared_ptr<Rend
     }
 }
 
-void Game::renderShadows(const float delta, const std::vector<std::shared_ptr<Renderable>> &renderers, glm::mat4 lightSpaceMatrix, unsigned int shadowTex, const std::shared_ptr<Shader> shadowShader)
+void Game::renderShadows(const std::vector<std::shared_ptr<Renderable>> &renderables, const std::shared_ptr<DepthMap> &depthMap)
 {
-    shadowShader->use();
-    shadowShader->setMatrix4("lightSpaceMatrix", lightSpaceMatrix);
+    depthMap->prepare();
 
-    for (const auto &i : renderers)
+    for (const auto &i : renderables)
     {
-
-        if (auto mesh = std::dynamic_pointer_cast<RenderableEntity>(i))
-        {
-            if (auto meshRef = std::dynamic_pointer_cast<MeshRenderer>(mesh->getRenderer()))
-            {
-                meshRef->setShadowData(shadowTex, lightSpaceMatrix);
-                meshRef->updateUniforms();
-                meshRef->renderShadows(shadowShader);
-            }
-        }
-        if (auto mesh = std::dynamic_pointer_cast<Prop>(i))
-        {
-            if (auto meshRef = std::dynamic_pointer_cast<MeshRenderer>(mesh->getMainObject()->getRenderer()))
-            {
-                meshRef->setShadowData(shadowTex, lightSpaceMatrix);
-                meshRef->updateUniforms();
-                meshRef->renderShadows(shadowShader);
-            }
-        }
-        else
-        {
-            i->render(delta);
-        }
+        i->renderDepth(depthMap);
     }
+
+    depthMap->cleanup();
 }
 
 void Game::checkTerrainCollision(const std::shared_ptr<Entity> &entity, const std::shared_ptr<HeightMap> &heighMap)

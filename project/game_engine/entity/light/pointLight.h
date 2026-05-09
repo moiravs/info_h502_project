@@ -1,26 +1,19 @@
-#ifndef Light_H
-#define Light_H
 
-#include "entity.h"
+#ifndef INFOH502_CPP_POINTLIGHT_H
+#define INFOH502_CPP_POINTLIGHT_H
 
-class Light : public Entity
-{
+#include "light.h"
+
+class PointLight: public Light {
     float _ambient, _diffuse, _specular, _shininess;
     float _constant, _linear, _quadratic;
-    glm::vec3 _color = glm::vec3(1, 1, 1);
+    PointLight(float x, float y, float z);
 
-    Light(float x, float y, float z);
 public:
-    static std::shared_ptr<Light> make(float x, float y, float z);
-    static std::shared_ptr<Light> make();
-
+    static std::shared_ptr<PointLight> make(float x = 0, float y = 0, float z = 0);
     void setProperties(float ambient, float diffuse, float specular, float shininess);
 
     void setAttenuation(float constant, float linear, float quadratic);
-
-    void setPosition(const glm::vec3& position) override;
-
-    void setColor(const glm::vec3 &color);
 
     [[nodiscard]] float getAmbient() const;
 
@@ -35,8 +28,8 @@ public:
     [[nodiscard]] float getQuadratic() const;
 
     [[nodiscard]] float getShininess() const;
-
-    [[nodiscard]] glm::vec3 getColor() const;
 };
 
-#endif
+
+
+#endif //INFOH502_CPP_POINTLIGHT_H

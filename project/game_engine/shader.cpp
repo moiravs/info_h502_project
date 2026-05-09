@@ -147,3 +147,8 @@ GLuint Shader::compileProgram(const GLuint vertexShader, const GLuint fragmentSh
     }
     return programID;
 }
+
+Shader::~Shader()
+{
+    glDeleteProgram(this->getID());
+}

@@ -5,15 +5,12 @@
 #include "../renderable.h"
 
 class Renderer;
-class Octree;
 
 class RenderableEntity : public Entity, public Renderable
 {
     std::shared_ptr<Renderer> _renderer;
-    std::shared_ptr<Octree> octreeNode = nullptr;
     bool _dirty;
 public:
-    void setOctreeNode(const std::shared_ptr<Octree> &node);
     virtual glm::mat4 getModel() const;
     void update(float delta) override;
     virtual bool shouldUpdate() const;
@@ -23,6 +20,7 @@ public:
     explicit RenderableEntity(const std::shared_ptr<Renderer> &renderer);
     std::shared_ptr<Renderer> getRenderer() const;
     void render(float delta) override;
+    void renderDepth(const std::shared_ptr<DepthMap> &depthMap) override;
     void setPosition(const glm::vec3 &position) override;
     void setRotation(float yaw, float pitch, float roll) override;
 };

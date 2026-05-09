@@ -4,8 +4,12 @@
 
 #include <memory>
 
-#include "uboProvider.h"
 #include "../shader.h"
+#include "uboProvider.h"
+
+
+class DirectionalLight;
+class PointLight;
 
 struct LightBlock
 {
@@ -20,14 +24,16 @@ struct LightBlock
 };
 
 class LightManager : public UboProvider {
-    std::vector<std::shared_ptr<Light>> lights {};
+    std::vector<std::shared_ptr<PointLight>> lights {};
+    std::shared_ptr<DirectionalLight> _sun;
     bool needsUpdate = false;
     LightManager();
 public:
     static LightManager& get();
     void notify();
     void updateUBO();
-    void registerLight(std::shared_ptr<Light> light);
+    void registerPointLight(std::shared_ptr<PointLight> light);
+    void registerDirectionalLight(const std::shared_ptr<DirectionalLight> &light);
 };
 
 #endif //INFOH502_CPP_LIGHTMANAGER_H

@@ -5,29 +5,24 @@
 #include <glm/gtx/string_cast.hpp>
 
 class Object;
+class DepthMap;
 
 class MeshRenderer : public Renderer
 {
 
 protected:
     GLuint emptyTexture;
-    unsigned int shadowMapTexture;
-    glm::mat4 lightSpaceMatrix;
     void setupVAOs() override;
 
 public:
     explicit MeshRenderer(const std::string &shaderName);
-    explicit MeshRenderer(const std::shared_ptr<Shader> shaderName);
-    void updateUniforms() const override;
+    explicit MeshRenderer(const std::shared_ptr<Shader>& shaderName);
     void registerEntity(const std::shared_ptr<RenderableEntity> &entity) override;
-    void setShadowData(unsigned int textureID, const glm::mat4 &matrix)
-    {
-        this->shadowMapTexture = textureID;
-        this->lightSpaceMatrix = matrix;
-    }
+
+    void updateUniforms() const override;
 
     virtual void drawElements(int numTriangles);
-    void renderShadows(const std::shared_ptr<Shader> &shadowShader);
+    void renderDepth(const std::shared_ptr<DepthMap> &depthMap) const;
 
     void render() override;
 };

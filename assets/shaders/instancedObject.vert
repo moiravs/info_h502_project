@@ -1,8 +1,8 @@
 #version 410 core
-in vec3 position;
-in vec2 tex_coord;
-in vec3 normal;
-in mat4 model;
+layout(location = 0) in vec3 aPos;
+layout(location = 1) in vec2 aTex;
+layout(location = 2) in vec3 aNormal;
+layout(location = 3) in mat4 aInstModel;
 
 out vec2 v_t; 
 out vec3 v_normal;
@@ -22,13 +22,13 @@ layout(std140) uniform CameraInfo {
 
 void main() { 
     // Calculate world position
-    vec4 worldPos = model * vec4(position, 1.0);
+    vec4 worldPos = aInstModel * vec4(aPos, 1.0);
     v_fragPos = vec3(worldPos);
     
     // Transform normal to world space (remove scaling/translation influence)
-    v_normal = mat3(transpose(inverse(model))) * normal;
+    v_normal = mat3(transpose(inverse(aInstModel))) * aNormal;
     
-    v_t = tex_coord; 
+    v_t = aTex;
     gl_Position = projection * view * worldPos;
-    FragPosLightSpace = lightSpaceMatrix * model * vec4(position, 1.0);
+    FragPosLightSpace = lightSpaceMatrix * aInstModel * vec4(aPos, 1.0);
 }

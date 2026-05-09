@@ -11,8 +11,8 @@ constexpr bool DEFAULT_CAMERA_LOCKED_ON_PLAYER = true;
 constexpr unsigned int SCR_WIDTH = 800;
 constexpr unsigned int SCR_HEIGHT = 600;
 
-constexpr unsigned int SHADOW_WIDTH = 1024;
-constexpr unsigned int SHADOW_HEIGHT = 1024;
+constexpr unsigned int DEPTH_WIDTH = 1024;
+constexpr unsigned int DEPTH_HEIGHT = 1024;
 
 constexpr int PLAN_SIZE_X = 1000;
 constexpr int WATER_HEIGHT = 0;

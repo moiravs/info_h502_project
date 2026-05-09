@@ -4,11 +4,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "controllable.h"
-#include "entity.h"
 #include "../../utils/constants.h"
 #include "../culling/frustum.h"
+#include "../depth/depthCam.h"
 #include "../manager/uboProvider.h"
+#include "controllable.h"
+#include "entity.h"
 
 struct CameraInfo
 {
@@ -20,20 +21,20 @@ struct CameraInfo
 };
 
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
-class Camera : public Entity, public UboProvider, public Controllable
+class Camera : public Entity, public UboProvider, public Controllable, public DepthCam
 {
     // camera Attributes
     glm::vec3 flatFront{};
     // camera options
     float zoom;
-    Frustum _frustum {};
+    std::shared_ptr<Frustum> _frustum = nullptr;
     std::shared_ptr<Entity> lockedEntity = nullptr;
     bool lookingAt = true;
 
 protected:
     void updateRotation() override;
 
-    void updateFrustum();
+    void updateFrustum() const;
 
     void updateLook();
 
@@ -52,6 +53,8 @@ public:
     [[nodiscard]] float getZoom() const;
     [[nodiscard]] float getFOV() const;
     [[nodiscard]] float getAspectRatio() const;
+
+    glm::mat4 getPV() const override;
 
     void invertPitch();
 
@@ -75,6 +78,10 @@ public:
     void forceLookAt(const std::shared_ptr<Entity> &entity);
 
     bool canView(const std::array<glm::vec3, 8> &bounds) const;
+
+    std::shared_ptr<Frustum> getFrustum() const;
+
+    std::vector<glm::vec3> getFrustumCorners() const;
 };
 
 #endif

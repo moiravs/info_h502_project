@@ -17,6 +17,7 @@ public:
     [[nodiscard]] std::shared_ptr<Object> getMainObject();
     void setPosition(const glm::vec3& position) const;
     void render(float delta) override;
+    void renderDepth(const std::shared_ptr<DepthMap>& depthMap) override;
 };
 
 #endif //INFOH502_CPP_PROPBUILDER_H

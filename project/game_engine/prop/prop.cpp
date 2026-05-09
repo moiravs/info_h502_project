@@ -13,9 +13,15 @@ void Prop::render(const float delta)
     else this->getMainObject()->render(delta);
 }
 
-void Prop::addRenderable(const std::shared_ptr<Renderable>& renderer)
+void Prop::renderDepth(const std::shared_ptr<DepthMap>& depthMap)
 {
-    this->_renderables.push_back(renderer);
+    for (const auto& r: this->_renderables)
+        r->renderDepth(depthMap);
+}
+
+void Prop::addRenderable(const std::shared_ptr<Renderable>& renderable)
+{
+    this->_renderables.push_back(renderable);
 }
 
 void Prop::setPosition(const glm::vec3& position) const

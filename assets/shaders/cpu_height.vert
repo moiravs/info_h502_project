@@ -1,18 +1,15 @@
 #version 410 core
-in vec3 position;
-in vec3 normal; 
+layout(location = 0) in vec3 aPos;
+layout(location = 2) in vec3 aNormal;
+
 layout (std140) uniform WaterData {
     vec4 plane;
 };
-
 
 out float Height;
 out vec3 v_normal;   // Pass to fragment
 out vec3 v_fragPos;  // Pass to fragment
 out vec4 WorldPos;
-uniform mat4 lightSpaceMatrix; // Passed from MeshRenderer
-
-out vec4 FragPosLightSpace;
 
 out vec2 v_texCoord; // New output
 uniform mat4 model;
@@ -27,17 +24,15 @@ layout(std140) uniform CameraInfo {
 
 void main()
 {
-    WorldPos = model * vec4(position, 1.0);
+    WorldPos = model * vec4(aPos, 1.0);
     gl_ClipDistance[0] = dot(WorldPos, plane);
 
-    Height = position.y;
+    Height = aPos.y;
     v_fragPos = vec3(WorldPos);
-    v_texCoord = position.xz / 50.0;
+    v_texCoord = aPos.xz / 50.0;
     // Transform normal to world space
-    v_normal = mat3(transpose(inverse(model))) * normal;
+    v_normal = mat3(transpose(inverse(model))) * aNormal;
 
     //gl_Position = color;
     gl_Position = projection * view * WorldPos;
-FragPosLightSpace = lightSpaceMatrix * model * vec4(position, 1.0);
-
 }

@@ -1,6 +1,7 @@
 
 #include "renderableEntity.h"
 
+#include "../renderer/meshRenderer.h"
 #include "../renderer/renderer.h"
 
 RenderableEntity::RenderableEntity(const std::shared_ptr<Renderer> &renderer)
@@ -79,12 +80,16 @@ void RenderableEntity::render(const float delta)
     }
 }
 
-bool RenderableEntity::shouldRender() const { return true; }
-
-void RenderableEntity::setOctreeNode(const std::shared_ptr<Octree> &node)
+void RenderableEntity::renderDepth(const std::shared_ptr<DepthMap>& depthMap)
 {
-    this->octreeNode = node;
+    if (!this->shouldRender()) return;
+
+    if (const auto a = std::dynamic_pointer_cast<MeshRenderer>(this->_renderer)) {
+        a->renderDepth(depthMap);
+    }
 }
+
+bool RenderableEntity::shouldRender() const { return true; }
 
 void RenderableEntity::update(const float delta)
 {
