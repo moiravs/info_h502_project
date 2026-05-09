@@ -26,21 +26,21 @@ if(NOT glfw3_FOUND)
 endif()
 
 # Freetype
-find_package(glfw3 QUIET)
-if(NOT freetype_FOUND)
+find_package(Freetype QUIET)
+if(NOT Freetype_FOUND)
     add_subdirectory(3rdParty/freetype)
     # Use generator expressions to wrap the path
-    target_include_directories(freetype PUBLIC 
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/freetype/include>
+    target_include_directories(freetype PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/freetype/include>
     )
 endif()
 
 # Global includes
-target_include_directories(glad INTERFACE 
-    3rdParty/glad/include/
-    3rdParty/glm/
-    3rdParty/stb/
-    3rdParty/freetype/
+target_include_directories(glad INTERFACE
+        3rdParty/glad/include/
+        3rdParty/glm/
+        3rdParty/stb/
+        ${FREETYPE_INCLUDE_DIRS}
 )
 
 # Define paths as macros
@@ -51,10 +51,10 @@ add_compile_definitions(PATH_TO_SRC="${CMAKE_CURRENT_SOURCE_DIR}/project")
 add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
 
 # Solutions (conditional)
-file(GLOB_RECURSE ALL_PROJECT_SOURCES 
-    "project/*.cpp" 
-    "project/*.h" 
-    "project/*.hpp"
+file(GLOB_RECURSE ALL_PROJECT_SOURCES
+        "project/*.cpp"
+        "project/*.h"
+        "project/*.hpp"
 )
 
 #add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
@@ -62,5 +62,6 @@ file(GLOB_RECURSE ALL_PROJECT_SOURCES
 
 # Use the discovered files to create your executable
 add_executable(VRproject ${ALL_PROJECT_SOURCES})
-target_link_libraries(VRproject PUBLIC assimp::assimp OpenGL::GL glfw glad freetype)
+
+target_link_libraries(VRproject PUBLIC assimp::assimp OpenGL::GL glfw glad ${FREETYPE_LIBRARIES})
 
