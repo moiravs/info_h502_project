@@ -22,7 +22,7 @@ glm::mat4 RenderableEntity::getModel() const
 
     model = glm::rotate(model, -this->getYaw(), glm::vec3(0.0f, 1.0f, 0.0f));   // Y-axis
     model = glm::rotate(model, -this->getPitch(), glm::vec3(1.0f, 0.0f, 0.0f)); // X-axis
-    model = glm::rotate(model, this->getRoll(), glm::vec3(0.0f, 0.0f, 1.0f));  // X-axis
+    model = glm::rotate(model, this->getRoll(), glm::vec3(0.0f, 0.0f, 1.0f));   // X-axis
 
     return model;
 }
@@ -59,6 +59,24 @@ void RenderableEntity::render(const float delta)
     if (this->shouldRender())
     {
         this->_renderer->render();
+    }
+
+    for (const auto &a : this->getAttachments())
+    {
+        if (!a->shouldRender)
+            continue;
+
+        if (const auto e = std::dynamic_pointer_cast<RenderableEntity>(a->entity))
+        {
+            if (!a->rotationLocked)
+            {
+                e->rotate(this->getYaw(), this->getPitch(), this->getRoll());
+                e->render(delta);
+                e->rotate(-this->getYaw(), -this->getPitch(), -this->getRoll());
+            }
+            else
+                e->render(delta);
+        }
     }
 }
 

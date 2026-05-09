@@ -15,8 +15,7 @@ class Shader
     GLuint ID;
 
 public:
-
-    Shader(const std::string& vertexPath, const std::string& fragmentPath);
+    Shader(const std::string &vertexPath, const std::string &fragmentPath);
 
     ~Shader();
     void use() const;
@@ -38,7 +37,7 @@ public:
     void setMatrix4(const GLchar *name, const glm::mat4 &matrix) const;
 
 private:
-    static GLuint compileShader(const std::string& shaderCode, GLenum shaderType);
+    static GLuint compileShader(const std::string &shaderCode, GLenum shaderType);
 
     static GLuint compileProgram(GLuint vertexShader, GLuint fragmentShader);
 };

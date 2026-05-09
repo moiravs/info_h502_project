@@ -18,6 +18,8 @@ public:
                                           const glm::vec4 &lightProperties, const glm::vec3 &lightAttenuation);
 
     static std::shared_ptr<Prop> makeTrees(const std::shared_ptr<HeightMap> &heightMap, int nbTrees = 200, int chunkSize = 256);
+    static std::shared_ptr<Prop> makeFlowers(const std::shared_ptr<HeightMap> &heightMap, int nbTrees = 300, int chunkSize = 256);
+    static std::shared_ptr<Prop> makeRings(const std::shared_ptr<HeightMap> &heightMap);
 
     static std::shared_ptr<Prop> makeFirecamp(float x, float z, const std::shared_ptr<HeightMap> &heightMap);
 
