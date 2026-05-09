@@ -45,8 +45,8 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
     return prop;
 }
 
-std::pair<std::shared_ptr<Prop>, std::shared_ptr<DirectionalLight>> PropMaker::makeSun(const glm::vec3& position,
-    const glm::vec3& scale, const glm::vec3& color)
+std::pair<std::shared_ptr<Prop>, std::shared_ptr<DirectionalLight>> PropMaker::makeSun(const glm::vec3 &position,
+                                                                                       const glm::vec3 &scale, const glm::vec3 &color)
 {
     const auto sphere = Object::make(
         std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/sphere_smooth.obj"),
@@ -69,7 +69,7 @@ std::pair<std::shared_ptr<Prop>, std::shared_ptr<DirectionalLight>> PropMaker::m
     return {prop, light};
 }
 
-std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<HeightMap>& heightMap)
+std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<HeightMap> &heightMap)
 {
     const auto plane = RenderableEntityMaker::makeRenderable<Player, ObjectRenderer>("object", std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/plane/restoftheplane.obj"), heightMap);
     const auto spinnyThing = RenderableEntityMaker::makeRenderable<Spinner, ObjectRenderer>("object", std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/plane/helice.obj"), 0, 0, PLANE_SPINNER_RAD_PER_SEC);
@@ -229,7 +229,7 @@ std::shared_ptr<Prop> PropMaker::makeTrees(const std::shared_ptr<HeightMap> &hei
 
         model = glm::translate(model, glm::vec3(x, y, z));
         model = glm::rotate(model, static_cast<float>(rand() % 360), glm::vec3(0, 1, 0));
-        model = glm::scale(model, glm::vec3(1.5));
+        model = glm::scale(model, glm::vec3(1));
 
         const int chunkX = static_cast<int>(std::floor(x / static_cast<float>(chunkSize)));
         const int chunkY = static_cast<int>(std::floor(z / static_cast<float>(chunkSize)));
@@ -242,7 +242,7 @@ std::shared_ptr<Prop> PropMaker::makeTrees(const std::shared_ptr<HeightMap> &hei
         treeMatrices[index].push_back(model);
     }
 
-    const auto mesh = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/Tree_V10_OBJ/Tree.obj");
+    const auto mesh = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/Tree_V10_OBJ/RedDeliciousApple.obj");
     auto prop = std::make_shared<Prop>();
 
     for (const auto &v : treeMatrices)
