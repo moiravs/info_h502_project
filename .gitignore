@@ -54,4 +54,4 @@ doc/
 .vscode/
 
 
-3rdParty/freetype
+3rdParty/freetype/builds/

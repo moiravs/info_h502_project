@@ -120,6 +120,7 @@ int main()
 
 	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 	auto trees = PropMaker::makeTrees(heightMap);
+	auto flowerField = PropMaker::makeFlowers(heightMap);
 	auto &lightManager = LightManager::get();
 	float orbitRadius = PLAN_SIZE_X / 2; // Distance from the center of the scene
 	float orbitSpeed = 0.1f;			 // How fast the sun moves
@@ -127,6 +128,8 @@ int main()
 
 	auto firecamp = PropMaker::makeFirecamp(5, 0, heightMap);
 	double lastTime = glfwGetTime();
+
+	auto rings = PropMaker::makeRings(heightMap);
 
 	auto shadow = Shadow();
 
@@ -205,7 +208,9 @@ int main()
 
 		sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
 
-		Game::renderScene(delta, {trees, redLight, water, skybox, sun, firecamp, plane, terrain});
+		Game::renderScene(delta, {trees, redLight, water, skybox, sun, firecamp, plane, terrain, flowerField, rings});
+
+		Game::checkTerrainCollision(plane->getMainObject(), heightMap);
 
 		Game::checkTerrainCollision(plane->getMainObject(), heightMap);
 
