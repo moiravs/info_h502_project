@@ -54,8 +54,6 @@ void DepthMap::cleanup() const
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK); // Reactivate color drawing
     glReadBuffer(GL_BACK);
-    glDisable(GL_DEPTH_TEST);
-    glDepthMask(GL_FALSE);
 }
 
 GLuint DepthMap::getTexture() const

@@ -18,7 +18,7 @@ uniform mat4 itM;
  };
 
     void main(){ 
-vec4 frag_coord = model*vec4(aPos, 1.0);
+vec4 frag_coord = model * vec4(aPos, 1.0);
 gl_Position = projection*view*frag_coord; 
 // 4. transfomr correctly the normals
 v_normal = vec3(itM * vec4(aNormal, 1.0));
