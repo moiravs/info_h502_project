@@ -13,8 +13,7 @@ WaterFrameBuffer::~WaterFrameBuffer()
 {
     // call when closing the game
     glDeleteFramebuffers(1, &reflectionFrameBuffer);
-    glDeleteTextures(1, &reflectionTexture);
-    glDeleteRenderbuffers(1, &reflectionDepthBuffer);
+
     glDeleteFramebuffers(1, &refractionFrameBuffer);
     glDeleteTextures(1, &refractionTexture);
     glDeleteTextures(1, &refractionDepthTexture);

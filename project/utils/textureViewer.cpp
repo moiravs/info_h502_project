@@ -56,7 +56,7 @@ TextureViewer::~TextureViewer()
     glDeleteBuffers(1, &vbo);
 }
 
-void TextureViewer::render(const GLuint textureID) const
+void TextureViewer::render(const GLuint textureID, const bool isDepth) const
 {
     glUseProgram(textureShader->getID());
 
@@ -66,6 +66,11 @@ void TextureViewer::render(const GLuint textureID) const
     glUniform1i(
         glGetUniformLocation(textureShader->getID(), "tex"),
         0
+    );
+
+    glUniform1i(
+        glGetUniformLocation(textureShader->getID(), "isDepth"),
+        isDepth ? 1 : 0
     );
 
     glBindVertexArray(vao);

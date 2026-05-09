@@ -9,9 +9,10 @@ void WaterRenderer::registerEntity(const std::shared_ptr<RenderableEntity> &enti
 {
     this->MeshRenderer::registerEntity(entity);
 
-    this->_shader->setInteger("reflectionTexture", 0);
-    this->_shader->setInteger("refractionTexture", 1);
-    this->_shader->setInteger("dudvMap", 2);
+    this->_shader->use();
+    this->_shader->setInteger("reflectionTexture", 5);
+    this->_shader->setInteger("refractionTexture", 6);
+    this->_shader->setInteger("dudvMap", 7);
 }
 
 void WaterRenderer::render()
@@ -43,12 +44,8 @@ void WaterRenderer::render()
 
 void WaterRenderer::updateUniforms() const
 {
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, _fbos->getReflectionTexture());
-    glActiveTexture(GL_TEXTURE1);
+    glActiveTexture(GL_TEXTURE6);
     glBindTexture(GL_TEXTURE_2D, _fbos->getRefractionTexture());
-    glActiveTexture(GL_TEXTURE2);
+    glActiveTexture(GL_TEXTURE7);
     glBindTexture(GL_TEXTURE_2D, dudvMap.getTexture());
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }

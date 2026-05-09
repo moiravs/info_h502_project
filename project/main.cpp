@@ -27,18 +27,20 @@
 #include "game_engine/renderer/skyboxRenderer.h"
 
 #include <glm/gtx/string_cast.hpp>
+#include <map>
 #include "game_engine/depth/depthMap.h"
 #include "game_engine/entity/light/directionalLight.h"
 #include "game_engine/entity/particleGenerator.h"
 #include "game_engine/entity/renderableEntityMaker.h"
+#include "game_engine/entity/text.h"
+#include "game_engine/framebuffer/geometryFrameBuffer.h"
+#include "game_engine/framebuffer/reflectionFrameBuffer.h"
 #include "game_engine/game.h"
 #include "game_engine/manager/mainCamera.h"
 #include "game_engine/prop/propMaker.h"
 #include "game_engine/renderer/waterRenderer.h"
 #include "utils/constants.h"
 #include "utils/textureViewer.h"
-#include <map>
-#include "game_engine/entity/text.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
@@ -81,6 +83,12 @@ int main()
 		std::cout << "ERROR::FREETYPE: Failed to load font_name" << std::endl;
 		return -1;
 	}
+
+    // FBOs
+    auto geometryFBO = std::make_shared<GeometryFrameBuffer>(SCR_WIDTH, SCR_HEIGHT);
+    geometryFBO->createTextures();
+    auto waterReflectionFBO = std::make_shared<ReflectionFrameBuffer>();
+    waterReflectionFBO->createTextures();
 
 	auto [sun, sunLight] = PropMaker::makeSun(glm::vec3(.0, 100.0, 1.5), glm::vec3(10, 10, 10),
 	    glm::vec3(1, 1, 1));
@@ -143,7 +151,6 @@ int main()
 	{
 		const double currentTime = glfwGetTime();
 		const double delta = currentTime - lastTime;
-		glEnable(GL_DEPTH_TEST);
 		lastTime = currentTime;
 
 		lightManager.updateUBO();
@@ -152,32 +159,29 @@ int main()
 	    Game::renderShadows({trees, plane, terrain}, shadow);
 
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
-		if (water->shouldRender())
-		{
-			// == REFLECTION ==
-			glEnable(GL_CLIP_DISTANCE0);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			fbos->bindReflectionFrameBuffer();
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// == REFLECTION ==
+        waterReflectionFBO->begin();
+		waterReflectionFBO->setClipPlane(reflectionPlane);
 
-			camera->prepareReflection(WATER_HEIGHT);
-			camera->updateUBO();
-			fbos->setClipPlane(reflectionPlane);
+		Game::renderScene(delta, {trees, skybox, terrain});
 
-			Game::renderScene(delta, {trees, skybox, terrain});
-			camera->resetCameraAfterReflection(WATER_HEIGHT);
-			camera->updateUBO();
+		waterReflectionFBO->end();
 
-			// 2. Refraction
-			fbos->bindRefractionFrameBuffer();
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	    //dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
+	    //textureViewer.render(waterReflectionFBO->getTexture(), false);
 
-			fbos->setClipPlane(refractionPlane); // One clean call
-			Game::renderScene(delta, {trees, terrain});
+	    //dm.update();
+	    //continue;
 
-			fbos->unbindCurrentFrameBuffer();
-			dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
-		}
+		// 2. Refraction
+		fbos->bindRefractionFrameBuffer();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		waterReflectionFBO->setClipPlane(refractionPlane); // One clean call
+		Game::renderScene(delta, {trees, terrain});
+
+		fbos->unbindCurrentFrameBuffer();
+		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 
 		// == NORMAL ==
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -187,13 +191,22 @@ int main()
 		 float sunX = 0.0f;
 		 float sunY = std::sin(currentTime * orbitSpeed) * orbitRadius;
 		 float sunZ = std::cos(currentTime * orbitSpeed) * orbitRadius;
-		//glBindTexture(GL_TEXTURE_2D, shadow->depthMap);
 
 		sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
 
-		Game::renderScene(delta, {trees, redLight, water, skybox, sun, firecamp, plane, terrain, flowerField, rings});
+	    geometryFBO->begin();
 
-		Game::checkTerrainCollision(plane->getMainObject(), heightMap);
+	    waterReflectionFBO->bindTextures();
+
+		Game::renderScene(delta, {trees, redLight, water, skybox, sun, firecamp, plane, terrain, rings});
+
+	    geometryFBO->end();
+
+	    dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
+        textureViewer.render(geometryFBO->getColorTex(), false);
+
+	    dm.update();
+	    continue;
 
 		Game::checkTerrainCollision(plane->getMainObject(), heightMap);
 

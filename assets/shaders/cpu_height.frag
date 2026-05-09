@@ -1,29 +1,7 @@
 #version 410 core
 
-out vec4 FragColor;
-
-#define MAX_LIGHTS 128
-
-layout(std140) uniform Mist {
-vec3 mistColor;
-float mistDensity;
-vec3 cameraPos;
-float fogMaxHeight;  
-float fogMinHeight;   
-float fogDensity;  
-};
-
-layout(std140) uniform Lights {
-    vec4 lightPositions[MAX_LIGHTS];
-    vec4 lightProperties[MAX_LIGHTS];
-    vec4 lightAttenuations[MAX_LIGHTS];
-    vec4 lightColors[MAX_LIGHTS];
-
-    int lightCount;
-    int pad1;
-    int pad2;
-    int pad3;
-};
+layout(location = 0) out vec4 gColor;
+layout(location = 1) out vec3 gNormal;
 
 in float Height;
 in vec3 v_normal;
@@ -34,26 +12,7 @@ uniform sampler2D grassTex;
 uniform sampler2D rockTex;
 uniform sampler2D snowTex;
 
-uniform sampler2D shadowMap;
-
-float ShadowCalculation(vec4 fragPosLS) {
-    vec3 projCoords = fragPosLS.xyz / fragPosLS.w;
-    projCoords = projCoords * 0.5 + 0.5;
-
-    float closestDepth = texture(shadowMap, projCoords.xy).r; 
-
-    float currentDepth = projCoords.z;
-
-    float bias = 0.001;
-    float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
-
-    if(projCoords.z > 1.0) shadow = 0.0;
-
-    return shadow;
-}
-
-
-uniform float textureScale = 0.1; // Adjust this to tile your textures
+uniform float textureScale = 0.1;
 
 void main()
 {
@@ -98,35 +57,7 @@ void main()
     // Apply the slope-based rock override to fix stretching on cliffs
     baseColor = mix(baseColor, rock, rockSplat);
 
-    // --- 4. Lighting (Unchanged Logic) ---
-    vec3 totalLighting = vec3(0.0);
-    //float shadow = ShadowCalculation(FragPosLightSpace);
-
-    for (int i = 0; i < lightCount; i++)
-    {
-        // ... (Keep your existing lighting loop here)
-        vec3 lightPos = lightPositions[i].xyz;
-        vec3 lightColor = lightColors[i].xyz;
-        vec3 ambient = lightProperties[i].x * lightColor;
-        vec3 toLight = lightPos - v_fragPos;
-        float dist = length(toLight);
-        vec3 lightDir = toLight / max(dist, 0.0001);
-        float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = diff * lightProperties[i].y * lightColor;
-        vec3 viewDir = normalize(cameraPos - v_fragPos);
-        vec3 reflectDir = reflect(-lightDir, norm);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), max(lightProperties[i].w, 1.0));
-        vec3 specular = lightProperties[i].z * spec * lightColor;
-        vec3 att = lightAttenuations[i].xyz;
-        float attenuation = 1.0 / (att.x + att.y * dist + att.z * dist * dist);
-
-        if (i == 0) {
-            totalLighting += (ambient + (1.0) * (diffuse + specular)) * attenuation;
-        } else {
-            totalLighting += (ambient + diffuse + specular) * attenuation;
-        }
-    }
-
-    FragColor = vec4(totalLighting * baseColor, 1.0);
+    gColor = vec4(baseColor, 1);
+    gNormal = vec3(norm);
 }
 

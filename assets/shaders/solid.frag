@@ -1,9 +1,10 @@
 #version 330 core
-out vec4 FragColor;
+layout(location = 0) out vec4 gColor;
+layout(location = 1) out vec3 gNormal;
 precision mediump float; 
 
 uniform vec3 materialColour;
 
 void main() {
-    FragColor = vec4(materialColour, 1.0);
+    gColor = vec4(materialColour, 1);
 }
