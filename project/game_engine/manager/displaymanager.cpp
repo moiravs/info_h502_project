@@ -25,9 +25,10 @@ GLFWwindow *DisplayManager::createWindow()
     glfwSetFramebufferSizeCallback(w, framebuffer_size_callback);
     glfwSetCursorPosCallback(w, cursor_position_callback);
     glfwSetScrollCallback(w, scroll_callback);
+    glfwSetMouseButtonCallback(w, mouse_button_callback);
 
     // tell GLFW to capture our mouse
-    glfwSetInputMode(w, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(w, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     if (glfwRawMouseMotionSupported())
         glfwSetInputMode(w, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
@@ -86,15 +87,41 @@ void DisplayManager::framebuffer_size_callback(GLFWwindow *window, const int wid
 void DisplayManager::cursor_position_callback(GLFWwindow *window, const double xpos, const double ypos)
 {
     const auto dm = static_cast<DisplayManager *>(glfwGetWindowUserPointer(window));
+
     dm->moveMouse(xpos, ypos);
 }
 
-void DisplayManager::scroll_callback(GLFWwindow* window, const double xoffset, const double yoffset)
+void DisplayManager::scroll_callback(GLFWwindow *window, const double xoffset, const double yoffset)
 {
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         ControllerManager::get()->getMainControllable()->processScrollAlt(xoffset, yoffset);
     else
         ControllerManager::get()->getMainControllable()->processScroll(xoffset, yoffset);
+}
+
+void DisplayManager::mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
+{
+    // Route the static call to the class instance
+    const auto dm = static_cast<DisplayManager *>(glfwGetWindowUserPointer(window));
+    dm->handleMouseButton(button, action, mods);
+}
+
+void DisplayManager::handleMouseButton(int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+    {
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+
+        if (currentState == GameState::MENU)
+        {
+            // if (xpos > 300 && xpos < 500 && ypos > 250 && ypos < 350)
+            // {
+            currentState = GameState::PLAYING;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            // }
+        }
+    }
 }
 
 void DisplayManager::update()
@@ -124,7 +151,7 @@ void DisplayManager::update()
     }
 }
 
-void DisplayManager::processInput(const std::shared_ptr<Controllable>& object)
+void DisplayManager::processInput(const std::shared_ptr<Controllable> &object)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -151,7 +178,8 @@ void DisplayManager::processInput(const std::shared_ptr<Controllable>& object)
             ControllerManager::get()->toggleIsPlayerControlled();
 
         this->pressedTLastFrame = true;
-    } else
+    }
+    else
     {
         this->pressedTLastFrame = false;
     }

@@ -39,6 +39,7 @@
 #include "utils/textureViewer.h"
 #include <map>
 #include "game_engine/entity/text.h"
+#include "SFML/Audio.hpp"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
@@ -143,64 +144,86 @@ int main()
 	{
 		const double currentTime = glfwGetTime();
 		const double delta = currentTime - lastTime;
-		glEnable(GL_DEPTH_TEST);
-		lastTime = currentTime;
-
-		lightManager.updateUBO();
-		camera->updateUBO();
-
-		Game::renderShadows({trees, plane, terrain}, shadow);
-
-		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
-		if (water->shouldRender())
+		if (dm.currentState == GameState::PLAYING)
 		{
-			// == REFLECTION ==
-			glEnable(GL_CLIP_DISTANCE0);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			fbos->bindReflectionFrameBuffer();
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			camera->prepareReflection(WATER_HEIGHT);
-			camera->updateUBO();
-			fbos->setClipPlane(reflectionPlane);
+			glEnable(GL_DEPTH_TEST);
+			lastTime = currentTime;
 
-			Game::renderScene(delta, {trees, skybox, terrain});
-			camera->resetCameraAfterReflection(WATER_HEIGHT);
+			lightManager.updateUBO();
 			camera->updateUBO();
 
-			// 2. Refraction
-			fbos->bindRefractionFrameBuffer();
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			Game::renderShadows({trees, plane, terrain}, shadow);
 
-			fbos->setClipPlane(refractionPlane); // One clean call
-			Game::renderScene(delta, {trees, terrain});
-
-			fbos->unbindCurrentFrameBuffer();
 			dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
+			if (water->shouldRender())
+			{
+				// == REFLECTION ==
+				glEnable(GL_CLIP_DISTANCE0);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				fbos->bindReflectionFrameBuffer();
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+				camera->prepareReflection(WATER_HEIGHT);
+				camera->updateUBO();
+				fbos->setClipPlane(reflectionPlane);
+
+				Game::renderScene(delta, {trees, skybox, terrain});
+				camera->resetCameraAfterReflection(WATER_HEIGHT);
+				camera->updateUBO();
+
+				// 2. Refraction
+				fbos->bindRefractionFrameBuffer();
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+				fbos->setClipPlane(refractionPlane); // One clean call
+				Game::renderScene(delta, {trees, terrain});
+
+				fbos->unbindCurrentFrameBuffer();
+				dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
+			}
+
+			// == NORMAL ==
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+			glDisable(GL_CLIP_DISTANCE0);
+
+			float sunX = 0.0f;
+			float sunY = std::sin(currentTime * orbitSpeed) * orbitRadius;
+			float sunZ = std::cos(currentTime * orbitSpeed) * orbitRadius;
+			// glBindTexture(GL_TEXTURE_2D, shadow->depthMap);
+
+			sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
+
+			Game::renderScene(delta, {trees, redLight, water, skybox, sun, firecamp, plane, terrain, flowerField, rings});
+
+			Game::checkTerrainCollision(plane->getMainObject(), heightMap);
+
+			game.checkIfPlaneInRing(plane, rings, heightMap);
+
+			glDisable(GL_DEPTH_TEST); // Ensure it draws on top of everything
+
+			Game::renderText(text, shader, std::to_string(game.numberOfRings), 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
 		}
+		else if (dm.currentState == GameState::MENU)
+		{
+			// --- MENU RENDERING ---
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Dark background for menu
 
-		// == NORMAL ==
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-		glDisable(GL_CLIP_DISTANCE0);
+			float titleWidth = text.calculateStringWidth("FLYING SIMULATOR", 1.5f);
+			float playWidth = text.calculateStringWidth("PLAY", 1.0f);
 
-		float sunX = 0.0f;
-		float sunY = std::sin(currentTime * orbitSpeed) * orbitRadius;
-		float sunZ = std::cos(currentTime * orbitSpeed) * orbitRadius;
-		// glBindTexture(GL_TEXTURE_2D, shadow->depthMap);
+			Game::renderText(text, shader, "FLYING SIMULATOR",
+							 (SCR_WIDTH - titleWidth) / 2.0f,
+							 SCR_HEIGHT / 2.0f + 50.0f,
+							 1.5f, glm::vec3(1, 1, 1));
 
-		sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
-
-		Game::renderScene(delta, {trees, redLight, water, skybox, sun, firecamp, plane, terrain, flowerField, rings});
-
-		Game::checkTerrainCollision(plane->getMainObject(), heightMap);
-
-		game.checkIfPlaneInRing(plane, rings, heightMap);
-
-		glDisable(GL_DEPTH_TEST); // Ensure it draws on top of everything
-
-		Game::renderText(text, shader, std::to_string(game.numberOfRings), 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
-
+			Game::renderText(text, shader, "PLAY",
+							 (SCR_WIDTH - playWidth) / 2.0f,
+							 SCR_HEIGHT / 2.0f,
+							 1.0f, glm::vec3(0, 1, 0));
+		}
 		dm.update();
 	}
 

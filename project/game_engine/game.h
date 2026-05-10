@@ -7,12 +7,15 @@
 #include "entity/text.h"
 #include "shader.h"
 #include "prop/prop.h"
+#include "SFML/Audio.hpp"
 
 class DepthMap;
 class HeightMap;
 
 class Game
 {
+
+    sf::Music success;
 
 public:
     int numberOfRings = 0;

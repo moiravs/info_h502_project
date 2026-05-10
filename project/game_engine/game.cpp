@@ -10,6 +10,7 @@
 
 Game::Game()
 {
+    success.openFromFile(PATH_TO_SRC "/../assets/music/success.mp3");
 }
 
 void Game::checkIfPlaneInRing(const std::shared_ptr<Prop> plane, const std::shared_ptr<Prop> rings, const std::shared_ptr<HeightMap> &heightMap)
@@ -40,6 +41,8 @@ void Game::checkIfPlaneInRing(const std::shared_ptr<Prop> plane, const std::shar
         if (distToCenter < ringRadius && distToFlatSurface < 2.0f)
         {
             numberOfRings += 1;
+            success.play();
+
             const float x = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
             const float z = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
             const float y = glm::max(minHeightRandom + static_cast<float>(rand()) / RAND_MAX * (maxHeightRandom - minHeightRandom), heightMap->getHeight(x, z) + 10);

@@ -123,7 +123,6 @@ std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, cons
     return prop;
 }
 
-
 std::shared_ptr<Prop> PropMaker::makeRings(const std::shared_ptr<HeightMap> &heightMap)
 {
     auto ringMesh = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/ring/torus1.obj");
@@ -190,9 +189,8 @@ std::shared_ptr<Prop> PropMaker::makeFlowers(const std::shared_ptr<HeightMap> &h
 
         model = glm::translate(model, glm::vec3(x, y, z));
         model = glm::rotate(model, static_cast<float>(rand() % 360), glm::vec3(0, 1, 0));
-        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
 
-        model = glm::scale(model, glm::vec3(0.15));
+        model = glm::scale(model, glm::vec3(0.8));
         const int chunkX = static_cast<int>(std::floor(x / static_cast<float>(chunkSize)));
         const int chunkY = static_cast<int>(std::floor(z / static_cast<float>(chunkSize)));
 
@@ -205,12 +203,10 @@ std::shared_ptr<Prop> PropMaker::makeFlowers(const std::shared_ptr<HeightMap> &h
     }
 
     // const auto crocus = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/crocus/12974_crocus_flower_v1_l3.obj");
-    const auto daffodil = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/daffodil/12977_Daffodil_flower_v1_l2.obj");
-    const auto maki = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/maki/maki.obj");
-    const auto snowdrop = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/snowdrop/12970_snowdrop_flower_v1_l2.obj");
+    const auto sunflower = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/sunflower/Sunflowers set.obj");
     auto prop = std::make_shared<Prop>();
 
-    const std::vector<std::shared_ptr<Mesh>> meshes = {snowdrop, maki, daffodil};
+    const std::vector<std::shared_ptr<Mesh>> meshes = {sunflower};
     std::random_device rd;
     std::mt19937 eng(rd());
     std::uniform_int_distribution<> distr(0, meshes.size() - 1);
