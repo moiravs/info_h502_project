@@ -165,7 +165,7 @@ int main()
 	    float sunY = std::sin(currentTime * orbitSpeed) * orbitRadius;
 	    float sunZ = std::cos(currentTime * orbitSpeed) * orbitRadius;
 
-	    sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
+	    sun->setPosition(glm::vec3(sunX, sunY, sunZ));
 
 		lightManager.updateUBO();
 		camera->updateUBO();
@@ -190,7 +190,7 @@ int main()
 	    waterRefractionFBO->begin();
 		waterReflectionFBO->setClipPlane(refractionPlane);
 
-	    Game::renderScene({trees, terrain});
+	    Game::renderScene({terrain, skybox});
 
 		waterRefractionFBO->end();
 
@@ -201,7 +201,7 @@ int main()
 	    waterReflectionFBO->bindTextures();
 	    waterRefractionFBO->bindTextures();
 
-		Game::renderScene({trees, redLight, water, skybox, sun, firecamp, plane, terrain, rings});
+		Game::renderScene({trees, redLight, skybox, sun, firecamp, plane, terrain, rings});
 
 	    geometryFBO->end();
 

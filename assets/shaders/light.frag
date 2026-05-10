@@ -55,9 +55,7 @@ void main()
         return;
     }
 
-    // again from [0,1]^3 to [-1,1]^3
-    vec3 norm = texture(normal, TexCoords).xyz * 2.0 - 1.0;
-    norm = normalize(norm);
+    vec3 norm = texture(normal, TexCoords).xyz;
 
     vec3 viewDir = normalize(camPosition.xyz - worldPos);
 
