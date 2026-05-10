@@ -19,7 +19,7 @@
 #include "game_engine/entity/light/light.h"
 #include "game_engine/manager/controllerManager.h"
 #include "game_engine/manager/displaymanager.h"
-#include "game_engine/shader.h"
+#include "game_engine/shader/shader.h"
 
 #include "game_engine/entity/skybox.h"
 #include "game_engine/manager/lightManager.h"
@@ -33,12 +33,14 @@
 #include "game_engine/entity/renderableEntityMaker.h"
 #include "game_engine/entity/text.h"
 #include "game_engine/framebuffer/geometryFrameBuffer.h"
+#include "game_engine/framebuffer/lightFrameBuffer.h"
 #include "game_engine/framebuffer/reflectionFrameBuffer.h"
 #include "game_engine/framebuffer/refractionFrameBuffer.h"
 #include "game_engine/game.h"
 #include "game_engine/manager/mainCamera.h"
 #include "game_engine/prop/propMaker.h"
 #include "game_engine/renderer/waterRenderer.h"
+#include "game_engine/shader/lightShader.h"
 #include "utils/constants.h"
 #include "utils/textureViewer.h"
 
@@ -113,6 +115,10 @@ int main()
     waterRefractionFBO->createTextures();
     auto shadowFBO = std::make_shared<DepthMapFrameBuffer>(DEPTH_WIDTH, DEPTH_HEIGHT, sunLight);
     shadowFBO->createTextures();
+    auto lightFBO = std::make_shared<LightFrameBuffer>(SCR_WIDTH, SCR_HEIGHT);
+    lightFBO->createTextures();
+
+    auto lightShader = std::make_shared<LightShader>();
 
 	auto reflectionPlane = glm::vec4(0, 1, 0, WATER_HEIGHT);
 	auto refractionPlane = glm::vec4(0, -1, 0, WATER_HEIGHT);
@@ -199,13 +205,20 @@ int main()
 
 	    geometryFBO->end();
 
+        lightFBO->begin();
+
+	    geometryFBO->bindTextures();
+	    shadowFBO->bindTextures();
+
+	    lightShader->render();
+
+	    lightFBO->end();
+
 	    dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
-        textureViewer.render(geometryFBO->getColorTex(), false);
+	    textureViewer.render(lightFBO->getTexture(), false);
 
 	    dm.update();
 	    continue;
-
-		Game::checkTerrainCollision(plane->getMainObject(), heightMap);
 
 		glDisable(GL_DEPTH_TEST); // Ensure it draws on top of everything
 

@@ -5,7 +5,7 @@
 
 #include "entity/renderableEntity.h"
 #include "entity/text.h"
-#include "shader.h"
+#include "shader/shader.h"
 
 
 class DepthMap;

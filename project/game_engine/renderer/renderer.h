@@ -1,9 +1,9 @@
 
 #ifndef Renderer_H
 #define Renderer_H
-#include "../shader.h"
-#include "glad/glad.h"
 #include "../../utils/utils.h"
+#include "../shader/shader.h"
+#include "glad/glad.h"
 
 class RenderableEntity;
 

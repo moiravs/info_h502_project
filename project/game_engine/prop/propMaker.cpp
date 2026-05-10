@@ -48,25 +48,15 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
 std::pair<std::shared_ptr<Prop>, std::shared_ptr<DirectionalLight>> PropMaker::makeSun(const glm::vec3& position,
     const glm::vec3& scale, const glm::vec3& color)
 {
-    const auto sphere = Object::make(
-        std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/sphere_smooth.obj"),
-        "solid");
-    const auto light = DirectionalLight::make();
+    const auto ligthBall = makeLamp(position, scale, color, glm::vec4(0, 0.9, 1, 32), glm::vec3(0.005, 0.005, 0));
 
-    light->setTarget({0, 0, 0});
-    sphere->attach(light);
-    sphere->setColor(color);
-    light->setColor(color);
+    const auto directionalLight = DirectionalLight::make();
 
-    sphere->setPosition(position);
-    sphere->setScale(scale);
+    directionalLight->setTarget({0, 0, 0});
+    ligthBall->getMainObject()->attach(directionalLight);
+    directionalLight->setColor(color);
 
-    auto prop = std::make_shared<Prop>();
-
-    prop->addRenderable(sphere);
-    prop->setMainObject(sphere);
-
-    return {prop, light};
+    return {ligthBall, directionalLight};
 }
 
 std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<HeightMap>& heightMap)

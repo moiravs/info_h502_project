@@ -4,7 +4,7 @@
 
 #include <memory>
 
-#include "../shader.h"
+#include "../shader/shader.h"
 #include "uboProvider.h"
 
 

@@ -1,15 +1,15 @@
 #include "shader.h"
 
-#include <sstream>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "manager/uboManager.h"
-#include "../utils/constants.h"
+#include "../../utils/constants.h"
+#include "../manager/uboManager.h"
 
 Shader::Shader(const std::string &vertexPath, const std::string &fragmentPath)
 {

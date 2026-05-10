@@ -5,10 +5,7 @@
 
 #include <string>
 #include <fstream>
-#include <memory>
-
-#include "entity/camera.h"
-#include "entity/light/light.h"
+#include "../entity/light/light.h"
 
 class Shader
 {
@@ -17,7 +14,7 @@ class Shader
 public:
     Shader(const std::string &vertexPath, const std::string &fragmentPath);
 
-    ~Shader();
+    virtual ~Shader();
     void use() const;
 
     [[nodiscard]] GLuint getID() const;

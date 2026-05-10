@@ -1,7 +1,7 @@
 
 #ifndef INFOH502_CPP_UBOHANDLER_H
 #define INFOH502_CPP_UBOHANDLER_H
-#include "../shader.h"
+#include "../shader/shader.h"
 
 
 class UboManager {

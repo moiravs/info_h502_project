@@ -4,6 +4,7 @@
 #include <stb_image.h>
 
 #include "../../utils/utils.h"
+#include "depthCam.h"
 
 DepthMapFrameBuffer::DepthMapFrameBuffer(const int width, const int height, const std::shared_ptr<DepthCam> &depthCam) :
     FrameBuffer(width, height), _depthCam(depthCam), _tex(0)

@@ -4,7 +4,7 @@
 
 #include <memory>
 #include "../framebuffer/frameBuffer.h"
-#include "../shader.h"
+#include "../shader/shader.h"
 
 
 class DepthCam;
