@@ -64,6 +64,7 @@ void main()
     for (int i = 0; i < lightCount; i++)
     {
         vec3 lightPos = lightPositions[i].xyz;
+
         vec3 lightColor = lightColors[i].xyz;
 
         vec3 ambient = lightProperties[i].x * lightColor;
@@ -87,7 +88,7 @@ void main()
         float attenuation = 1.0 /
         (att.x + att.y * dist + att.z * dist * dist);
 
-        totalLighting += (ambient + diffuse + specular) * attenuation;
+        totalLighting += ((ambient + diffuse + specular) * attenuation) * exp(-max(0, -lightPos.y/100));
     }
 
     lColor = vec4(baseColor.rgb * totalLighting, baseColor.a);
