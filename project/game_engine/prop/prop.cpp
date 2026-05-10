@@ -7,24 +7,30 @@ void Prop::render(const float delta)
 {
     if (!this->getMainObject())
     {
-        for (const auto& r: this->_renderables)
+        for (const auto &r : this->_renderables)
             r->render(delta);
     }
-    else this->getMainObject()->render(delta);
+    else
+        this->getMainObject()->render(delta);
 }
 
-void Prop::renderDepth(const std::shared_ptr<DepthMap>& depthMap)
+std::vector<std::shared_ptr<Renderable>> Prop::getRenderables()
 {
-    for (const auto& r: this->_renderables)
+    return _renderables;
+}
+
+void Prop::renderDepth(const std::shared_ptr<DepthMap> &depthMap)
+{
+    for (const auto &r : this->_renderables)
         r->renderDepth(depthMap);
 }
 
-void Prop::addRenderable(const std::shared_ptr<Renderable>& renderable)
+void Prop::addRenderable(const std::shared_ptr<Renderable> &renderable)
 {
     this->_renderables.push_back(renderable);
 }
 
-void Prop::setPosition(const glm::vec3& position) const
+void Prop::setPosition(const glm::vec3 &position) const
 {
     if (!this->_mainObject)
     {
@@ -35,7 +41,7 @@ void Prop::setPosition(const glm::vec3& position) const
     this->_mainObject->setPosition(position);
 }
 
-void Prop::setMainObject(const std::shared_ptr<Object>& mainObject)
+void Prop::setMainObject(const std::shared_ptr<Object> &mainObject)
 {
     this->_mainObject = mainObject;
 }

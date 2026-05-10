@@ -20,12 +20,35 @@ Object::Object(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Renderer
     height = computeHeight();
 }
 
-const std::array<glm::vec3, 8>& Object::getBounds() const
+const std::array<glm::vec3, 8> &Object::getBounds() const
 {
     return this->_bounds;
 }
 
-void Object::setPosition(const glm::vec3& position)
+glm::vec3 Object::getCenter()
+{
+    // Just get the translation component of the model matrix (Column 3)
+    return glm::vec3(this->getModel()[3]);
+}
+
+float Object::getRadius()
+{
+    const auto &bounds = this->getBounds();
+
+    glm::vec3 localCenter(0.0f);
+    for (const auto &corner : bounds)
+        localCenter += corner;
+    localCenter /= 8.0f;
+
+    float localRadius = glm::distance(localCenter, bounds[0]);
+
+    glm::vec3 scale = this->_scale;
+    float maxScale = glm::max(scale.x, glm::max(scale.y, scale.z));
+
+    return localRadius * maxScale;
+}
+
+void Object::setPosition(const glm::vec3 &position)
 {
     RenderableEntity::setPosition(position);
     this->updateBounds();
@@ -44,7 +67,8 @@ bool Object::shouldRender() const
 
 void Object::updateBounds()
 {
-    if (!this->m_mesh) return;
+    if (!this->m_mesh)
+        return;
 
     auto [min, max] = this->m_mesh->getBounds();
     const glm::vec3 corners[8] = {
@@ -55,19 +79,20 @@ void Object::updateBounds()
         {min.x, min.y, max.z},
         {max.x, min.y, max.z},
         {max.x, max.y, max.z},
-        {min.x, max.y, max.z}
-    };
+        {min.x, max.y, max.z}};
 
     const auto model = this->getModel();
 
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 8; ++i)
+    {
         this->_bounds.at(i) = glm::vec3(model * glm::vec4(corners[i], 1.0));
     }
 }
 
 float Object::computeHeight() const
 {
-    if (!this->m_mesh) return 0;
+    if (!this->m_mesh)
+        return 0;
 
     auto [min, max] = this->m_mesh->getBounds();
     return max.y - min.y;

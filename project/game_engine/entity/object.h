@@ -26,6 +26,7 @@ class Object : public RenderableEntity
 
 protected:
     std::array<glm::vec3, 8> _bounds{};
+
 public:
     virtual void updateBounds();
     explicit Object(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Renderer> &renderer);
@@ -33,14 +34,18 @@ public:
     static std::shared_ptr<Object> make(const std::shared_ptr<Mesh> &mesh, const std::string &shader);
     void setColor(const glm::vec3 &color);
 
-    const std::array<glm::vec3, 8>& getBounds() const;
+    const std::array<glm::vec3, 8> &getBounds() const;
+
+    glm::vec3 getCenter();
+
+    float getRadius();
 
     void setRotation(float yaw, float pitch, float roll) override;
 
     bool shouldRender() const override;
 
     using RenderableEntity::setPosition;
-    void setPosition(const glm::vec3& position) override;
+    void setPosition(const glm::vec3 &position) override;
 
     void setScale(const glm::vec3 &scale);
 

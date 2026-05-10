@@ -83,7 +83,7 @@ int main()
 	}
 
 	auto [sun, sunLight] = PropMaker::makeSun(glm::vec3(.0, 100.0, 1.5), glm::vec3(10, 10, 10),
-	    glm::vec3(1, 1, 1));
+											  glm::vec3(1, 1, 1));
 
 	auto camera = MainCamera::get();
 	// Terrain
@@ -131,7 +131,7 @@ int main()
 
 	auto shadow = std::make_shared<DepthMap>(sunLight);
 
-    auto textureViewer = TextureViewer();
+	auto textureViewer = TextureViewer();
 	auto rings = PropMaker::makeRings(heightMap);
 
 	auto game = Game();
@@ -149,7 +149,7 @@ int main()
 		lightManager.updateUBO();
 		camera->updateUBO();
 
-	    Game::renderShadows({trees, plane, terrain}, shadow);
+		Game::renderShadows({trees, plane, terrain}, shadow);
 
 		dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
 		if (water->shouldRender())
@@ -184,10 +184,10 @@ int main()
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glDisable(GL_CLIP_DISTANCE0);
 
-		 float sunX = 0.0f;
-		 float sunY = std::sin(currentTime * orbitSpeed) * orbitRadius;
-		 float sunZ = std::cos(currentTime * orbitSpeed) * orbitRadius;
-		//glBindTexture(GL_TEXTURE_2D, shadow->depthMap);
+		float sunX = 0.0f;
+		float sunY = std::sin(currentTime * orbitSpeed) * orbitRadius;
+		float sunZ = std::cos(currentTime * orbitSpeed) * orbitRadius;
+		// glBindTexture(GL_TEXTURE_2D, shadow->depthMap);
 
 		sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
 
@@ -195,11 +195,11 @@ int main()
 
 		Game::checkTerrainCollision(plane->getMainObject(), heightMap);
 
-		Game::checkTerrainCollision(plane->getMainObject(), heightMap);
+		game.checkIfPlaneInRing(plane, rings, heightMap);
 
 		glDisable(GL_DEPTH_TEST); // Ensure it draws on top of everything
 
-		Game::renderText(text, shader, "VIONVION", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+		Game::renderText(text, shader, std::to_string(game.numberOfRings), 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
 
 		dm.update();
 	}

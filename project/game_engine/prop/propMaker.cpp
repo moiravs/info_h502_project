@@ -123,18 +123,43 @@ std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, cons
     return prop;
 }
 
+
 std::shared_ptr<Prop> PropMaker::makeRings(const std::shared_ptr<HeightMap> &heightMap)
 {
-    const auto ring = Object::make(
-        std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/ring/ring.obj"),
-        "object");
+    auto ringMesh = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/ring/torus1.obj");
 
-    ring->setPosition(glm::vec3(15, 50, 15));
-    ring->setScale(glm::vec3(15, 15, 15));
+    // Manually add a texture to the mesh's texture vector
+    // Assuming materialIndex 0 is what the torus uses
+    if (ringMesh->m_Textures.size() < 1)
+        ringMesh->m_Textures.resize(1);
+    ringMesh->m_Textures[0] = new Texture(PATH_TO_SRC "/../assets/textures/gold_diffuse.jpg");
+
+    // 2. FORCE every sub-mesh entry to point to material 0
+    for (auto &entry : ringMesh->getEntries())
+    {
+        const_cast<MeshEntry &>(entry).materialIndex = 0;
+    }
     auto prop = std::make_shared<Prop>();
 
-    prop->addRenderable(ring);
-    prop->setMainObject(ring);
+    constexpr int maxRandom = PLAN_SIZE_X / 2;
+    constexpr int minRandom = -PLAN_SIZE_X / 2;
+
+    constexpr int maxHeightRandom = 10;
+    constexpr int minHeightRandom = 50;
+
+    for (int i = 0; i < 10; i++)
+    {
+        const auto ring = Object::make(ringMesh, "object");
+        ring->setScale(glm::vec3(4, 4, 4));
+        const float x = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
+        const float z = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
+        const float y = glm::max(minHeightRandom + static_cast<float>(rand()) / RAND_MAX * (maxHeightRandom - minHeightRandom), heightMap->getHeight(x, z) + 10);
+
+        ring->setPosition(glm::vec3(x, y, z));
+        ring->rotate(0, glm::radians(90.0f), 0);
+
+        prop->addRenderable(ring);
+    }
     return prop;
 }
 
