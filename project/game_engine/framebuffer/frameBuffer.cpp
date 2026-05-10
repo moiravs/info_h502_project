@@ -81,3 +81,8 @@ void FrameBuffer::createDepthBuffer(GLuint& buf) const
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
                               GL_RENDERBUFFER, buf);
 }
+
+GLuint FrameBuffer::getID() const
+{
+    return this->_fbo;
+}

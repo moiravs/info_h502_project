@@ -8,7 +8,7 @@ class FrameBuffer {
 protected:
     int _width;
     int _height;
-    GLuint _fbo;
+    GLuint _fbo {};
 
     void createDepthTexture(GLuint& tex) const;
     void createColorTexture(GLuint& tex, GLenum attachment) const;
@@ -17,6 +17,7 @@ public:
     virtual void createTextures()=0;
     virtual void bindTextures()=0;
     virtual ~FrameBuffer();
+    [[nodiscard]] GLuint getID() const;
     FrameBuffer(int width, int height);
     virtual void begin();
     virtual void end();

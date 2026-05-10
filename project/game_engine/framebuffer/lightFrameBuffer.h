@@ -6,12 +6,12 @@
 class LightFrameBuffer: public FrameBuffer {
     GLuint _tex {};
 public:
-    LightFrameBuffer(int width, int height);
+    LightFrameBuffer(int width, int height, GLuint depthTexture);
     void begin() override;
     void end() override;
     void createTextures() override;
     void bindTextures() override;
-    GLuint getTexture() const;
+    [[nodiscard]] GLuint getTexture() const;
 };
 
 

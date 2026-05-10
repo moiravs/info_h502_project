@@ -115,7 +115,7 @@ int main()
     waterRefractionFBO->createTextures();
     auto shadowFBO = std::make_shared<DepthMapFrameBuffer>(DEPTH_WIDTH, DEPTH_HEIGHT, sunLight);
     shadowFBO->createTextures();
-    auto lightFBO = std::make_shared<LightFrameBuffer>(SCR_WIDTH, SCR_HEIGHT);
+    auto lightFBO = std::make_shared<LightFrameBuffer>(SCR_WIDTH, SCR_HEIGHT, geometryFBO->getDepthTex());
     lightFBO->createTextures();
 
     auto lightShader = std::make_shared<LightShader>();
@@ -126,10 +126,6 @@ int main()
 	// Objects
 	auto water = RenderableEntityMaker::makeRenderable<Object, WaterRenderer>(
 		Mesh::createPlane(PLAN_SIZE_X / 2, WATER_HEIGHT));
-
-	auto redLight = PropMaker::makeLamp(
-		glm::vec3(1.0, 15.0, 1.5), glm::vec3(1), glm::vec3(1, 1, 1),
-		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0));
 
 	auto plane = PropMaker::makePlane(heightMap);
 
@@ -144,7 +140,7 @@ int main()
 	float orbitSpeed = 0.1f;			 // How fast the sun moves
 	float orbitHeight = 100.0f;			 // Vertical height of the sun
 
-	auto firecamp = PropMaker::makeFirecamp(5, 0, heightMap);
+	auto [firecamp, firecampParticles] = PropMaker::makeFirecamp(5, 0, heightMap);
 	double lastTime = glfwGetTime();
 
     auto textureViewer = TextureViewer();
@@ -159,7 +155,7 @@ int main()
 		const double delta = currentTime - lastTime;
 		lastTime = currentTime;
 
-	    Game::update(delta, {trees, redLight, water, skybox, sun, firecamp, plane, terrain, rings});
+	    Game::update(delta, {trees, water, skybox, sun, firecamp, plane, terrain, rings});
 
 	    float sunX = 0.0f;
 	    float sunY = std::sin(currentTime * orbitSpeed) * orbitRadius;
@@ -198,10 +194,7 @@ int main()
 
 	    geometryFBO->begin();
 
-	    waterReflectionFBO->bindTextures();
-	    waterRefractionFBO->bindTextures();
-
-		Game::renderScene({trees, redLight, skybox, sun, firecamp, plane, terrain, rings});
+		Game::renderScene({trees, skybox, firecamp, plane, terrain, rings});
 
 	    geometryFBO->end();
 
@@ -211,6 +204,10 @@ int main()
 	    shadowFBO->bindTextures();
 
 	    lightShader->render();
+
+	    glEnable(GL_DEPTH_TEST);
+
+	    Game::renderScene({sun, firecampParticles});
 
 	    lightFBO->end();
 

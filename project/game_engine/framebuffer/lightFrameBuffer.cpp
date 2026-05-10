@@ -3,7 +3,11 @@
 
 #include "../../utils/utils.h"
 
-LightFrameBuffer::LightFrameBuffer(const int width, const int height): FrameBuffer(width, height) {  }
+LightFrameBuffer::LightFrameBuffer(const int width, const int height, const GLuint depthTexture): FrameBuffer(width, height)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, this->_fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
+}
 
 void LightFrameBuffer::bindTextures()
 {
@@ -35,7 +39,7 @@ void LightFrameBuffer::begin()
 {
     FrameBuffer::begin();
     glDisable(GL_DEPTH_TEST);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void LightFrameBuffer::end()

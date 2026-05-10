@@ -80,7 +80,7 @@ std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<HeightMap>& hei
     return prop;
 }
 
-std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, const std::shared_ptr<HeightMap> &heightMap)
+std::pair<std::shared_ptr<Prop>, std::shared_ptr<ParticleGenerator>> PropMaker::makeFirecamp(const float x, const float z, const std::shared_ptr<HeightMap> &heightMap)
 {
     const auto firecamp = Object::make(
         std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/Campfire/Campfire OBJ.obj"),
@@ -90,9 +90,9 @@ std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, cons
     firecamp->setScale(glm::vec3(0.2, 0.2, 0.2));
 
     auto prop = std::make_shared<Prop>();
-    auto light = PropMaker::makeLamp(
-        glm::vec3(1.0, 15.0, 1.5), glm::vec3(1, 1, 1), glm::vec3(1, 0, 0),
-        glm::vec4(0, 0.3, 0, 1), glm::vec3(0.5, 0.1, 0));
+    const auto light = PropMaker::makeLamp(
+        glm::vec3(1.0, 15.0, 1.5), glm::vec3(1, 1, 1), glm::vec3(1.0f, 0.5f, 0.0f),
+        glm::vec4(0.1, 2, 1, 1), glm::vec3(1, 0.1, 0));
 
     auto pg = ParticleGenerator::make(ParticleParams{
         .spread = 0.2,
@@ -106,11 +106,11 @@ std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, cons
     constexpr auto offset = glm::vec3(2.6, 0, 0);
 
     firecamp->attach(light->getMainObject(), offset, false);
-    firecamp->attach(pg, offset);
+    firecamp->attach(pg, offset, false);
     prop->addRenderable(firecamp);
     prop->addRenderable(pg);
     prop->setMainObject(firecamp);
-    return prop;
+    return {prop, pg};
 }
 
 std::shared_ptr<Prop> PropMaker::makeRings(const std::shared_ptr<HeightMap> &heightMap)
