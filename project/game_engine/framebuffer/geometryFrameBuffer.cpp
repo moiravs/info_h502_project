@@ -2,9 +2,9 @@
 #include "geometryFrameBuffer.h"
 
 #include "../../utils/utils.h"
+#include "../../utils/constants.h"
 
-GeometryFrameBuffer::GeometryFrameBuffer(const int width, const int height) :
-    FrameBuffer(width, height), _colorTex(0), _depthTex(0), _normalTex(0)
+GeometryFrameBuffer::GeometryFrameBuffer(const int width, const int height): FrameBuffer(width, height)
 {
 }
 
@@ -21,6 +21,7 @@ void GeometryFrameBuffer::createTextures()
     glBindFramebuffer(GL_FRAMEBUFFER, this->_fbo);
     createColorTexture(this->_colorTex, GL_COLOR_ATTACHMENT0);
     createColorTexture(this->_normalTex, GL_COLOR_ATTACHMENT1);
+    createColorTexture(this->_materialTex, GL_COLOR_ATTACHMENT2);
     createDepthTexture(this->_depthTex);
 
     constexpr GLuint attachments[] =
@@ -43,14 +44,17 @@ void GeometryFrameBuffer::createTextures()
 
 void GeometryFrameBuffer::bindTextures()
 {
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(COLOR_TEX);
     glBindTexture(GL_TEXTURE_2D, this->_colorTex);
 
-    glActiveTexture(GL_TEXTURE1);
+    glActiveTexture(NORMAL_TEX);
     glBindTexture(GL_TEXTURE_2D, this->_normalTex);
 
-    glActiveTexture(GL_TEXTURE2);
+    glActiveTexture(DEPTH_TEX);
     glBindTexture(GL_TEXTURE_2D, this->_depthTex);
+
+    glActiveTexture(MATERIAL_TEX);
+    glBindTexture(GL_TEXTURE_2D, this->_materialTex);
 }
 
 GLuint GeometryFrameBuffer::getColorTex() const
@@ -66,6 +70,11 @@ GLuint GeometryFrameBuffer::getDepthTex() const
 GLuint GeometryFrameBuffer::getNormalTex() const
 {
     return this->_normalTex;
+}
+
+GLuint GeometryFrameBuffer::getMaterialTex() const
+{
+    return this->_materialTex;
 }
 
 GeometryFrameBuffer::~GeometryFrameBuffer()

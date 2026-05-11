@@ -2,6 +2,7 @@
 
 #include "../manager/displaymanager.h"
 #include "../entity/object.h"
+#include "../../utils/constants.h"
 
 std::shared_ptr<Texture> ObjectRenderer::grassTex = nullptr;
 std::shared_ptr<Texture> ObjectRenderer::rockTex = nullptr;
@@ -30,17 +31,17 @@ void ObjectRenderer::updateUniforms() const
     this->_shader->setMatrix4("itM", inverseModel);
 
     _shader->use();
-    glUniform1i(glGetUniformLocation(_shader->getID(), "grassTex"), 8);
-    glUniform1i(glGetUniformLocation(_shader->getID(), "rockTex"), 9);
-    glUniform1i(glGetUniformLocation(_shader->getID(), "snowTex"), 10);
+    glUniform1i(glGetUniformLocation(_shader->getID(), "grassTex"), GRASS_TEX_IDX);
+    glUniform1i(glGetUniformLocation(_shader->getID(), "rockTex"), ROCK_TEX_IDX);
+    glUniform1i(glGetUniformLocation(_shader->getID(), "snowTex"), SNOW_TEX_IDX);
 
-    glActiveTexture(GL_TEXTURE8);
+    glActiveTexture(GRASS_TEX);
     glBindTexture(GL_TEXTURE_2D, grassTex->getTexture());
 
-    glActiveTexture(GL_TEXTURE9);
+    glActiveTexture(ROCK_TEX);
     glBindTexture(GL_TEXTURE_2D, rockTex->getTexture());
 
-    glActiveTexture(GL_TEXTURE10);
+    glActiveTexture(SNOW_TEX);
     glBindTexture(GL_TEXTURE_2D, snowTex->getTexture());
 
     // 3. Reset Active Texture to 0 so other code doesn't get confused

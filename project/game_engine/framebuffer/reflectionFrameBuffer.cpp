@@ -3,6 +3,7 @@
 #include "../../utils/utils.h"
 #include "../manager/mainCamera.h"
 #include "glm/gtc/type_ptr.hpp"
+#include "../../utils/constants.h"
 
 ReflectionFrameBuffer::ReflectionFrameBuffer(const int width, const int height) :
     FrameBuffer(width, height), UboProvider("WaterData", sizeof(glm::vec4))
@@ -31,7 +32,7 @@ void ReflectionFrameBuffer::createTextures()
 
 void ReflectionFrameBuffer::bindTextures()
 {
-    glActiveTexture(GL_TEXTURE5);
+    glActiveTexture(REFLECTION_TEX);
     glBindTexture(GL_TEXTURE_2D, this->_reflectionTexture);
 }
 

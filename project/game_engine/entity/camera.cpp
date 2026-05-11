@@ -27,7 +27,7 @@ float Camera::getZoom() const
 
 float Camera::getAspectRatio() const
 {
-    return SCR_WIDTH / SCR_HEIGHT;
+    return ASPECT_RATIO;
 }
 
 void Camera::invertPitch()

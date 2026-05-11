@@ -2,6 +2,7 @@
 #include "lightFrameBuffer.h"
 
 #include "../../utils/utils.h"
+#include "../../utils/constants.h"
 
 LightFrameBuffer::LightFrameBuffer(const int width, const int height, const GLuint depthTexture): FrameBuffer(width, height)
 {
@@ -11,7 +12,7 @@ LightFrameBuffer::LightFrameBuffer(const int width, const int height, const GLui
 
 void LightFrameBuffer::bindTextures()
 {
-    glActiveTexture(GL_TEXTURE4);
+    glActiveTexture(LIT_COLOR_TEX);
     glBindTexture(GL_TEXTURE_2D, this->_tex);
 }
 

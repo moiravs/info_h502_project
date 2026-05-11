@@ -2,6 +2,7 @@
 #include "refractionFrameBuffer.h"
 
 #include "../../utils/utils.h"
+#include "../../utils/constants.h"
 
 RefractionFrameBuffer::RefractionFrameBuffer(const int width, const int height) :
     FrameBuffer(width, height)
@@ -30,7 +31,7 @@ void RefractionFrameBuffer::createTextures()
 
 void RefractionFrameBuffer::bindTextures()
 {
-    glActiveTexture(GL_TEXTURE6);
+    glActiveTexture(REFRACTION_TEX);
     glBindTexture(GL_TEXTURE_2D, this->_refractionTexture);
 }
 

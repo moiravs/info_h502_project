@@ -1,5 +1,7 @@
 #include "waterRenderer.h"
 
+#include "../../utils/constants.h"
+
 WaterRenderer::WaterRenderer()
     : MeshRenderer("water"), transparent(false)
 {
@@ -10,9 +12,9 @@ void WaterRenderer::registerEntity(const std::shared_ptr<RenderableEntity> &enti
     this->MeshRenderer::registerEntity(entity);
 
     this->_shader->use();
-    this->_shader->setInteger("reflectionTexture", 5);
-    this->_shader->setInteger("refractionTexture", 6);
-    this->_shader->setInteger("dudvMap", 7);
+    this->_shader->setInteger("reflectionTexture", REFLECTION_TEX_IDX);
+    this->_shader->setInteger("refractionTexture", REFRACTION_TEX_IDX);
+    this->_shader->setInteger("dudvMap", DUDV_TEX_IDX);
 }
 
 void WaterRenderer::render()
@@ -44,6 +46,6 @@ void WaterRenderer::render()
 
 void WaterRenderer::updateUniforms() const
 {
-    glActiveTexture(GL_TEXTURE7);
+    glActiveTexture(DUDV_TEX);
     glBindTexture(GL_TEXTURE_2D, dudvMap.getTexture());
 }

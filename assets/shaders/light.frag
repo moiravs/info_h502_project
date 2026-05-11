@@ -108,13 +108,13 @@ void main()
         (att.x + att.y * dist + att.z * dist * dist);
 
         vec3 contribution = ((ambient + diffuse + specular) * attenuation) * exp(-max(0, -lightPos.y/100));
-        if (i == 0)
+        if (i == 0) {
             totalLighting += shade(worldPos, contribution);
-        else
+        }
+        else {
             totalLighting += contribution;
+        }
     }
 
-    vec3 shadedLighting = shade(worldPos, totalLighting);
-
-    lColor = vec4(baseColor.rgb * shadedLighting, baseColor.a);
+    lColor = vec4(baseColor.rgb * totalLighting, baseColor.a);
 }
