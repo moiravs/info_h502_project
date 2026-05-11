@@ -8,8 +8,9 @@ LightShader::LightShader()
 void LightShader::linkTextures() const
 {
     this->use();
-    glUniform1i(glGetUniformLocation(this->getID(), "color"), 0);
-    glUniform1i(glGetUniformLocation(this->getID(), "normal"), 1);
-    glUniform1i(glGetUniformLocation(this->getID(), "depth"), 2);
-    glUniform1i(glGetUniformLocation(this->getID(), "shadow"), 3);
+    glUniform1i(glGetUniformLocation(this->getID(), "color"), COLOR_TEX_IDX);
+    glUniform1i(glGetUniformLocation(this->getID(), "normal"), NORMAL_TEX_IDX);
+    glUniform1i(glGetUniformLocation(this->getID(), "depth"), DEPTH_TEX_IDX);
+    glUniform1i(glGetUniformLocation(this->getID(), "material"), MATERIAL_TEX_IDX);
+    glUniform1i(glGetUniformLocation(this->getID(), "shadow"), SHADOW_TEX_IDX);
 }

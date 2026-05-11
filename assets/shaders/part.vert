@@ -4,11 +4,13 @@ in vec4 center;
 in vec4 col;
 
 layout(std140) uniform CameraInfo {
-	mat4 projection;
-	mat4 view;
-	vec4 camPosition;
-	vec4 camRight;
-	vec4 camUp;
+    mat4 projection;
+    mat4 iProj;
+    mat4 view;
+    mat4 iView;
+    vec4 camPosition;
+    vec4 camRight;
+    vec4 camUp;
 };
 
 out vec4 color;

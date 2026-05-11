@@ -17,6 +17,7 @@ class Renderer;
 class Object : public RenderableEntity
 {
     glm::vec3 _color{};
+    glm::vec2 _material = glm::vec2(0, 0);
 
     float height = 0;
     glm::vec3 _scale = glm::vec3(1);
@@ -34,6 +35,9 @@ public:
     void setColor(const glm::vec3 &color);
 
     const std::array<glm::vec3, 8>& getBounds() const;
+
+    void setMaterial(float specularStrength, float shininess);
+    [[nodiscard]] glm::vec2 getMaterial() const;
 
     void setRotation(float yaw, float pitch, float roll) override;
 

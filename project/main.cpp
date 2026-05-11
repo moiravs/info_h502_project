@@ -95,7 +95,7 @@ int main()
 	auto camera = MainCamera::get();
 	// Terrain
 	auto [heightMap, terrain] =
-		RenderableEntityMaker::terrainFromTexture(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
+		PropMaker::terrainFromTexture(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
 
 	// Skybox
 	auto skybox = RenderableEntityMaker::makeRenderable<Skybox, SkyboxRenderer>(
@@ -180,6 +180,7 @@ int main()
 		Game::renderScene({trees, skybox, terrain});
 
 		waterReflectionFBO->end();
+
 
 		// == REFRACTION ==
 

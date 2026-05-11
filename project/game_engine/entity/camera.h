@@ -14,7 +14,9 @@
 struct CameraInfo
 {
     glm::mat4 projection;
+    glm::mat4 iProj;
     glm::mat4 view;
+    glm::mat4 iView;
     glm::vec4 cameraPos;
     glm::vec4 cameraRight;
     glm::vec4 cameraUp;

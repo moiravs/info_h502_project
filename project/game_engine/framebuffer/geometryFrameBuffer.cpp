@@ -27,12 +27,14 @@ void GeometryFrameBuffer::createTextures()
     constexpr GLuint attachments[] =
     {
         GL_COLOR_ATTACHMENT0,
-        GL_COLOR_ATTACHMENT1
+        GL_COLOR_ATTACHMENT1,
+        GL_COLOR_ATTACHMENT2
     };
 
     // this says that if the shader writes in location 0, it's mapped to
-    // attachment 0 (here the color texture) and if in location 1, the normal tex.
-    glDrawBuffers(2, attachments);
+    // attachment 0 (here the color texture) and if in location 1, the normal tex
+    // and 2 the material tex
+    glDrawBuffers(3, attachments);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {

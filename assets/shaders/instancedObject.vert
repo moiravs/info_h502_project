@@ -12,7 +12,9 @@ out vec4 FragPosLightSpace;
 
 layout(std140) uniform CameraInfo {
     mat4 projection;
+    mat4 iProj;
     mat4 view;
+    mat4 iView;
     vec4 camPosition;
     vec4 camRight;
     vec4 camUp;

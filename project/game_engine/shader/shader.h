@@ -24,6 +24,7 @@ public:
     void setFloat(const GLchar *name, GLfloat value) const;
 
     void setVector2f(const GLchar *name, GLfloat x, GLfloat y) const;
+    void setVector2f(const GLchar *name, const glm::vec2& vec2) const;
 
     void setVector3f(const GLchar *name, GLfloat x, GLfloat y, GLfloat z) const;
 

@@ -53,7 +53,7 @@ void LightManager::updateUBO()
     for (int i = 0; i < g.count; i++) {
         g.positions[i] = glm::vec4(lights[i]->getPosition(), 0);
         g.properties[i] = glm::vec4(lights[i]->getAmbient(), lights[i]->getDiffuse(),
-            lights[i]->getSpecular(), lights[i]->getShininess());
+            lights[i]->getSpecular(), 0);
         g.attenuations[i] = glm::vec4(lights[i]->getConstant(), lights[i]->getLinear(),
             lights[i]->getQuadratic(), 0);
         g.colors[i] = glm::vec4(lights[i]->getColor(), 0);

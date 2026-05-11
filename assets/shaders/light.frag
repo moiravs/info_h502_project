@@ -20,7 +20,9 @@ layout(std140) uniform Lights {
 
 layout(std140) uniform CameraInfo {
     mat4 projection;
+    mat4 iProj;
     mat4 view;
+    mat4 iView;
     vec4 camPosition;
     vec4 camRight;
     vec4 camUp;
@@ -31,6 +33,7 @@ in vec2 TexCoords;
 uniform sampler2D color;
 uniform sampler2D normal;
 uniform sampler2D depth;
+uniform sampler2D material;
 uniform sampler2D shadow;
 
 vec3 getWorldPos(vec2 uv, float depthValue)
@@ -39,10 +42,10 @@ vec3 getWorldPos(vec2 uv, float depthValue)
     vec4 clip = vec4(uv * 2.0 - 1.0, depthValue * 2.0 - 1.0, 1.0);
 
     // clip = PV * WorldPos, then, just solve for WorldPos
-    vec4 viewPos = inverse(projection) * clip;
+    vec4 viewPos = iProj * clip;
     viewPos /= viewPos.w;
 
-    vec4 worldPos = inverse(view) * viewPos;
+    vec4 worldPos = iView * viewPos;
     return worldPos.xyz;
 }
 
@@ -53,11 +56,18 @@ vec3 shade(vec3 worldPos, vec3 lighting)
     vec3 projCoords = sunSpacePos.xyz / sunSpacePos.w;
     projCoords = projCoords * 0.5 + 0.5;
 
+    if(projCoords.x < 0.0 || projCoords.x > 1.0 ||
+        projCoords.y < 0.0 || projCoords.y > 1.0 ||
+        projCoords.z < 0.0 || projCoords.z > 1.0)
+    {
+        return lighting;
+    }
+
     float closestDepth = texture(shadow, projCoords.xy).r;
     float currentDepth = projCoords.z;
 
     if (closestDepth < currentDepth - 0.01) {
-        return vec3(0, 0, 0);
+        return 0.5 * lighting;
     }
 
     return lighting;
@@ -68,6 +78,9 @@ void main()
     float depth = texture(depth, TexCoords).r;
     vec3 worldPos = getWorldPos(TexCoords, depth);
     vec4 baseColor = texture(color, TexCoords);
+    vec2 mat = texture(material, TexCoords).rg;
+    float specStrengthMat = mat.x;
+    float shininessMat = mix(4.0, 256.0, mat.y);;
 
     if (depth >= 1.0) {
         lColor = baseColor;
@@ -96,18 +109,18 @@ void main()
         vec3 diffuse = diff * lightProperties[i].y * lightColor;
 
         vec3 reflectDir = reflect(-lightDir, norm);
-        float spec = pow(
+        float shine = pow(
             max(dot(viewDir, reflectDir), 0.0),
-            lightProperties[i].w
+            shininessMat
         );
 
-        vec3 specular = lightProperties[i].z * spec * lightColor;
+        vec3 specular = specStrengthMat * lightProperties[i].z * shine * lightColor;
 
         vec3 att = lightAttenuations[i].xyz;
         float attenuation = 1.0 /
         (att.x + att.y * dist + att.z * dist * dist);
 
-        vec3 contribution = ((ambient + diffuse + specular) * attenuation) * exp(-max(0, -lightPos.y/100));
+        vec3 contribution = (ambient + diffuse + specular) * attenuation * exp(-max(0, -lightPos.y/100));
         if (i == 0) {
             totalLighting += shade(worldPos, contribution);
         }

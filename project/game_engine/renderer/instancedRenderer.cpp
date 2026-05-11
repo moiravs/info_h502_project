@@ -1,7 +1,7 @@
 #include "instancedRenderer.h"
 
-#include "../manager/displaymanager.h"
 #include "../entity/object.h"
+#include "../manager/displaymanager.h"
 
 InstancedRenderer::InstancedRenderer(const std::string &shaderName) : MeshRenderer(shaderName), _instanceCount(0)
 {
@@ -10,6 +10,7 @@ InstancedRenderer::InstancedRenderer(const std::string &shaderName) : MeshRender
 void InstancedRenderer::updateUniforms() const
 {
     MeshRenderer::updateUniforms();
+    this->_shader->setVector2f("material", this->getEntity<Object>()->getMaterial());
 }
 
 void InstancedRenderer::setInstanceMatrices(const std::vector<glm::mat4> &matrices)

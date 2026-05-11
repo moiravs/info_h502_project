@@ -12,7 +12,7 @@ class DepthMapFrameBuffer: public FrameBuffer
 {
     std::shared_ptr<DepthCam> _depthCam;
     std::shared_ptr<Shader> _shader;
-    GLuint _tex;
+    GLuint _tex {};
 public:
     explicit DepthMapFrameBuffer(int width, int height, const std::shared_ptr<DepthCam>& depthCam);
 

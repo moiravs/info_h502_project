@@ -7,7 +7,7 @@
 #include "depthCam.h"
 
 DepthMapFrameBuffer::DepthMapFrameBuffer(const int width, const int height, const std::shared_ptr<DepthCam> &depthCam) :
-    FrameBuffer(width, height), _depthCam(depthCam), _tex(0)
+    FrameBuffer(width, height), _depthCam(depthCam)
 {
     this->_shader = std::make_shared<Shader>(PATH_TO_SRC "/../assets/shaders/depth.vert",
                                                  PATH_TO_SRC "/../assets/shaders/depth.frag");
@@ -45,7 +45,7 @@ void DepthMapFrameBuffer::end()
 
 void DepthMapFrameBuffer::bindTextures()
 {
-    glActiveTexture(GL_TEXTURE3);
+    glActiveTexture(SHADOW_TEX);
     glBindTexture(GL_TEXTURE_2D, this->_tex);
 }
 

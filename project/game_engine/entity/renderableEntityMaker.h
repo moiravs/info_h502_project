@@ -8,8 +8,6 @@
 class Prop;
 class RenderableEntityMaker {
     RenderableEntityMaker()=default;
-
-    static glm::vec3 calculateNormal(int x, int z, int imageWidth, int imageHeight, const std::vector<float>& vertices);
 public:
     template <typename T, typename Renderer, typename RendererArg, typename... EntityArgs>
     static std::shared_ptr<T> makeRenderable(const RendererArg& rendererArg, EntityArgs&&... entityArgs)
@@ -46,9 +44,6 @@ public:
 
         return obj;
     }
-
-    static std::pair<std::shared_ptr<HeightMap>, std::shared_ptr<Prop>> terrainFromTexture(
-        const std::string& texturePath, float width, float depth);
 };
 
 

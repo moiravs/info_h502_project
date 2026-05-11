@@ -2,6 +2,7 @@
 
 layout(location = 0) out vec4 gColor;
 layout(location = 1) out vec3 gNormal;
+layout(location = 2) out vec4 gMaterial;
 
 in float Height;
 in vec3 v_normal;
@@ -12,6 +13,7 @@ uniform sampler2D grassTex;
 uniform sampler2D rockTex;
 uniform sampler2D snowTex;
 
+uniform vec2 material;
 uniform float textureScale = 0.1;
 
 void main()
@@ -59,5 +61,6 @@ void main()
 
     gColor = vec4(baseColor, 1);
     gNormal = vec3(norm);
+    gMaterial = vec4(material, 0, 0);
 }
 
