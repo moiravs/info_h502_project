@@ -9,7 +9,8 @@ layout(std140) uniform Lights {
     vec4 lightProperties[MAX_LIGHTS];
     vec4 lightAttenuations[MAX_LIGHTS];
     vec4 lightColors[MAX_LIGHTS];
-    vec4 sunPos;
+
+    mat4 sunPV;
 
     int lightCount;
     int pad1;
@@ -43,6 +44,23 @@ vec3 getWorldPos(vec2 uv, float depthValue)
 
     vec4 worldPos = inverse(view) * viewPos;
     return worldPos.xyz;
+}
+
+vec3 shade(vec3 worldPos, vec3 lighting)
+{
+    vec4 sunSpacePos = sunPV * vec4(worldPos, 1);
+
+    vec3 projCoords = sunSpacePos.xyz / sunSpacePos.w;
+    projCoords = projCoords * 0.5 + 0.5;
+
+    float closestDepth = texture(shadow, projCoords.xy).r;
+    float currentDepth = projCoords.z;
+
+    if (closestDepth < currentDepth - 0.01) {
+        return vec3(0, 0, 0);
+    }
+
+    return lighting;
 }
 
 void main()
@@ -89,8 +107,14 @@ void main()
         float attenuation = 1.0 /
         (att.x + att.y * dist + att.z * dist * dist);
 
-        totalLighting += ((ambient + diffuse + specular) * attenuation) * exp(-max(0, -lightPos.y/100));
+        vec3 contribution = ((ambient + diffuse + specular) * attenuation) * exp(-max(0, -lightPos.y/100));
+        if (i == 0)
+            totalLighting += shade(worldPos, contribution);
+        else
+            totalLighting += contribution;
     }
 
-    lColor = vec4(baseColor.rgb * totalLighting, baseColor.a);
+    vec3 shadedLighting = shade(worldPos, totalLighting);
+
+    lColor = vec4(baseColor.rgb * shadedLighting, baseColor.a);
 }

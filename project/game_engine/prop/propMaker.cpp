@@ -48,9 +48,9 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
 std::pair<std::shared_ptr<Prop>, std::shared_ptr<DirectionalLight>> PropMaker::makeSun(const glm::vec3& position,
     const glm::vec3& scale, const glm::vec3& color)
 {
-    const auto ligthBall = makeLamp(position, scale, color, glm::vec4(0, 0.9, 1, 32), glm::vec3(1, 0, 0));
-
     const auto directionalLight = DirectionalLight::make();
+
+    const auto ligthBall = makeLamp(position, scale, color, glm::vec4(0, 0.9, 1, 32), glm::vec3(1, 0, 0));
 
     directionalLight->setTarget({0, 0, 0});
     ligthBall->getMainObject()->attach(directionalLight);

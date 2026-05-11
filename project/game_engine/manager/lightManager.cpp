@@ -48,7 +48,7 @@ void LightManager::updateUBO()
     if (!this->needsUpdate) return;
     LightBlock g{};
     g.count = static_cast<int>(lights.size());
-    g.sunPos = glm::vec4(this->_sun->getPosition(), 0);
+    g.sunPV = this->_sun->getPV();
 
     for (int i = 0; i < g.count; i++) {
         g.positions[i] = glm::vec4(lights[i]->getPosition(), 0);

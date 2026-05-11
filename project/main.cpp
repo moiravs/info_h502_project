@@ -88,7 +88,7 @@ int main()
 
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
-
+    // the sun must be created first.
 	auto [sun, sunLight] = PropMaker::makeSun(glm::vec3(.0, 100.0, 1.5), glm::vec3(10, 10, 10),
 	    glm::vec3(1, 1, 1));
 
