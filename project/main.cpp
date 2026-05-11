@@ -206,9 +206,14 @@ int main()
 	    lightShader->render();
 
 	    glEnable(GL_DEPTH_TEST);
+	    glDepthMask(GL_FALSE);
 
-	    Game::renderScene({sun, firecampParticles});
+	    waterReflectionFBO->bindTextures();
+	    waterRefractionFBO->bindTextures();
 
+	    Game::renderScene({sun, firecampParticles, water});
+
+	    glDepthMask(GL_TRUE);
 	    lightFBO->end();
 
 	    dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
