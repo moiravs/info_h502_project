@@ -1,8 +1,9 @@
 
 #include "lightManager.h"
 
-#include "uboManager.h"
 #include "../../utils/utils.h"
+#include "../entity/light/directionalLight.h"
+#include "uboManager.h"
 
 #include "../entity/light/pointLight.h"
 
@@ -47,6 +48,7 @@ void LightManager::updateUBO()
     if (!this->needsUpdate) return;
     LightBlock g{};
     g.count = static_cast<int>(lights.size());
+    g.sunPos = glm::vec4(this->_sun->getPosition(), 0);
 
     for (int i = 0; i < g.count; i++) {
         g.positions[i] = glm::vec4(lights[i]->getPosition(), 0);

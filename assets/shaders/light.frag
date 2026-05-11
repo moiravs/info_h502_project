@@ -9,6 +9,7 @@ layout(std140) uniform Lights {
     vec4 lightProperties[MAX_LIGHTS];
     vec4 lightAttenuations[MAX_LIGHTS];
     vec4 lightColors[MAX_LIGHTS];
+    vec4 sunPos;
 
     int lightCount;
     int pad1;
