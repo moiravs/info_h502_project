@@ -10,6 +10,46 @@
 
 Game::Game()
 {
+    success.openFromFile(PATH_TO_SRC "/../assets/music/success.mp3");
+}
+
+void Game::checkIfPlaneInRing(const std::shared_ptr<Prop> plane, const std::shared_ptr<Prop> rings, const std::shared_ptr<HeightMap> &heightMap)
+{
+    auto planeObj = plane->getMainObject();
+    glm::vec3 planePos = planeObj->getPosition();
+
+    std::shared_ptr<Renderable> toRemove = nullptr;
+
+    constexpr int maxRandom = PLAN_SIZE_X / 2;
+    constexpr int minRandom = -PLAN_SIZE_X / 2;
+
+    constexpr int maxHeightRandom = 10;
+    constexpr int minHeightRandom = 50;
+
+    for (auto &renderable : rings->getRenderables())
+    {
+        auto ring = std::dynamic_pointer_cast<Object>(renderable);
+        if (!ring)
+            continue;
+
+        glm::vec3 ringCenter = ring->getCenter();
+        float ringRadius = ring->getRadius();
+        float distToCenter = glm::distance(planePos, ringCenter);
+        glm::vec3 ringNormal = glm::normalize(glm::vec3(ring->getModel()[1]));
+        float distToFlatSurface = glm::abs(glm::dot(planePos - ringCenter, ringNormal));
+
+        if (distToCenter < ringRadius && distToFlatSurface < 2.0f)
+        {
+            numberOfRings += 1;
+            success.play();
+
+            const float x = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
+            const float z = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
+            const float y = glm::max(minHeightRandom + static_cast<float>(rand()) / RAND_MAX * (maxHeightRandom - minHeightRandom), heightMap->getHeight(x, z) + 10);
+
+            ring->setPosition(glm::vec3(x, y, z));
+        }
+    }
 }
 
 void Game::renderText(Text characters, Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color)

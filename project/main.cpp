@@ -43,6 +43,9 @@
 #include "game_engine/shader/lightShader.h"
 #include "utils/constants.h"
 #include "utils/textureViewer.h"
+#include <map>
+#include "game_engine/entity/text.h"
+#include "SFML/Audio.hpp"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
@@ -90,7 +93,7 @@ int main()
 
     // the sun must be created first.
 	auto [sun, sunLight] = PropMaker::makeSun(glm::vec3(.0, 100.0, 1.5), glm::vec3(10, 10, 10),
-	    glm::vec3(1, 1, 1));
+											  glm::vec3(1, 1, 1));
 
 	auto camera = MainCamera::get();
 	// Terrain
@@ -146,6 +149,8 @@ int main()
     auto textureViewer = TextureViewer();
 	auto rings = PropMaker::makeRings(heightMap);
 
+    auto game = Game();
+
 	auto text = Text();
 	text.loadCharactersFromBitmap(ft, font_name);
 
@@ -153,7 +158,11 @@ int main()
 	{
 		const double currentTime = glfwGetTime();
 		const double delta = currentTime - lastTime;
-		lastTime = currentTime;
+		if (dm.currentState == GameState::PLAYING)
+		{
+
+			glEnable(GL_DEPTH_TEST);
+			lastTime = currentTime;
 
 	    Game::update(delta, {trees, water, skybox, sun, firecamp, plane, terrain, rings});
 
@@ -223,10 +232,31 @@ int main()
 	    dm.update();
 	    continue;
 
-		glDisable(GL_DEPTH_TEST); // Ensure it draws on top of everything
+			game.checkIfPlaneInRing(plane, rings, heightMap);
 
-		Game::renderText(text, shader, "VIONVION", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+			glDisable(GL_DEPTH_TEST); // Ensure it draws on top of everything
 
+			Game::renderText(text, shader, std::to_string(game.numberOfRings), 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+		}
+		else if (dm.currentState == GameState::MENU)
+		{
+			// --- MENU RENDERING ---
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Dark background for menu
+
+			float titleWidth = text.calculateStringWidth("FLYING SIMULATOR", 1.5f);
+			float playWidth = text.calculateStringWidth("PLAY", 1.0f);
+
+			Game::renderText(text, shader, "FLYING SIMULATOR",
+							 (SCR_WIDTH - titleWidth) / 2.0f,
+							 SCR_HEIGHT / 2.0f + 50.0f,
+							 1.5f, glm::vec3(1, 1, 1));
+
+			Game::renderText(text, shader, "PLAY",
+							 (SCR_WIDTH - playWidth) / 2.0f,
+							 SCR_HEIGHT / 2.0f,
+							 1.0f, glm::vec3(0, 1, 0));
+		}
 		dm.update();
 	}
 

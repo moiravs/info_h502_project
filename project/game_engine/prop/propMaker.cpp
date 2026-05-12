@@ -196,7 +196,7 @@ std::pair<std::shared_ptr<Prop>, std::shared_ptr<DirectionalLight>> PropMaker::m
     return {ligthBall, directionalLight};
 }
 
-std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<HeightMap>& heightMap)
+std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<HeightMap> &heightMap)
 {
     const auto plane = RenderableEntityMaker::makeRenderable<Player, ObjectRenderer>("object", std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/plane/restoftheplane.obj"), heightMap);
     const auto spinnyThing = RenderableEntityMaker::makeRenderable<Spinner, ObjectRenderer>("object", std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/plane/helice.obj"), 0, 0, PLANE_SPINNER_RAD_PER_SEC);
@@ -256,17 +256,40 @@ std::pair<std::shared_ptr<Prop>, std::shared_ptr<ParticleGenerator>> PropMaker::
 
 std::shared_ptr<Prop> PropMaker::makeRings(const std::shared_ptr<HeightMap> &heightMap)
 {
-    const auto ring = Object::make(
-        std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/ring/ring.obj"),
-        "object");
+    auto ringMesh = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/ring/torus1.obj");
 
-    ring->setPosition(glm::vec3(15, 50, 15));
-    ring->setScale(glm::vec3(15, 15, 15));
-    ring->setMaterial(1, 256);
+    // Manually add a texture to the mesh's texture vector
+    // Assuming materialIndex 0 is what the torus uses
+    if (ringMesh->m_Textures.size() < 1)
+        ringMesh->m_Textures.resize(1);
+    ringMesh->m_Textures[0] = new Texture(PATH_TO_SRC "/../assets/textures/gold_diffuse.jpg");
+
+    // 2. FORCE every sub-mesh entry to point to material 0
+    for (auto &entry : ringMesh->getEntries())
+    {
+        const_cast<MeshEntry &>(entry).materialIndex = 0;
+    }
     auto prop = std::make_shared<Prop>();
 
-    prop->addRenderable(ring);
-    prop->setMainObject(ring);
+    constexpr int maxRandom = PLAN_SIZE_X / 2;
+    constexpr int minRandom = -PLAN_SIZE_X / 2;
+
+    constexpr int maxHeightRandom = 10;
+    constexpr int minHeightRandom = 50;
+
+    for (int i = 0; i < 10; i++)
+    {
+        const auto ring = Object::make(ringMesh, "object");
+        ring->setScale(glm::vec3(4, 4, 4));
+        const float x = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
+        const float z = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
+        const float y = glm::max(minHeightRandom + static_cast<float>(rand()) / RAND_MAX * (maxHeightRandom - minHeightRandom), heightMap->getHeight(x, z) + 10);
+
+        ring->setPosition(glm::vec3(x, y, z));
+        ring->rotate(0, glm::radians(90.0f), 0);
+        ring->setMaterial(1, 256);
+        prop->addRenderable(ring);
+    }
     return prop;
 }
 
@@ -297,9 +320,8 @@ std::shared_ptr<Prop> PropMaker::makeFlowers(const std::shared_ptr<HeightMap> &h
 
         model = glm::translate(model, glm::vec3(x, y, z));
         model = glm::rotate(model, static_cast<float>(rand() % 360), glm::vec3(0, 1, 0));
-        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
 
-        model = glm::scale(model, glm::vec3(0.15));
+        model = glm::scale(model, glm::vec3(0.8));
         const int chunkX = static_cast<int>(std::floor(x / static_cast<float>(chunkSize)));
         const int chunkY = static_cast<int>(std::floor(z / static_cast<float>(chunkSize)));
 
@@ -312,12 +334,10 @@ std::shared_ptr<Prop> PropMaker::makeFlowers(const std::shared_ptr<HeightMap> &h
     }
 
     // const auto crocus = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/crocus/12974_crocus_flower_v1_l3.obj");
-    const auto daffodil = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/daffodil/12977_Daffodil_flower_v1_l2.obj");
-    const auto maki = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/maki/maki.obj");
-    const auto snowdrop = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/snowdrop/12970_snowdrop_flower_v1_l2.obj");
+    const auto sunflower = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/sunflower/Sunflowers set.obj");
     auto prop = std::make_shared<Prop>();
 
-    const std::vector<std::shared_ptr<Mesh>> meshes = {snowdrop, maki, daffodil};
+    const std::vector<std::shared_ptr<Mesh>> meshes = {sunflower};
     std::random_device rd;
     std::mt19937 eng(rd());
     std::uniform_int_distribution<> distr(0, meshes.size() - 1);
@@ -361,7 +381,7 @@ std::shared_ptr<Prop> PropMaker::makeTrees(const std::shared_ptr<HeightMap> &hei
 
         model = glm::translate(model, glm::vec3(x, y, z));
         model = glm::rotate(model, static_cast<float>(rand() % 360), glm::vec3(0, 1, 0));
-        model = glm::scale(model, glm::vec3(1.5));
+        model = glm::scale(model, glm::vec3(1));
 
         const int chunkX = static_cast<int>(std::floor(x / static_cast<float>(chunkSize)));
         const int chunkY = static_cast<int>(std::floor(z / static_cast<float>(chunkSize)));
@@ -374,7 +394,7 @@ std::shared_ptr<Prop> PropMaker::makeTrees(const std::shared_ptr<HeightMap> &hei
         treeMatrices[index].push_back(model);
     }
 
-    const auto mesh = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/Tree_V10_OBJ/Tree.obj");
+    const auto mesh = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/Tree_V10_OBJ/RedDeliciousApple.obj");
     auto prop = std::make_shared<Prop>();
 
     for (const auto &v : treeMatrices)

@@ -13,18 +13,23 @@ void Prop::render()
     else this->getMainObject()->render();
 }
 
+std::vector<std::shared_ptr<Renderable>> Prop::getRenderables()
+{
+    return _renderables;
+}
+
 void Prop::renderWithShader(const std::shared_ptr<Shader>& shader)
 {
     for (const auto& r: this->_renderables)
         r->renderWithShader(shader);
 }
 
-void Prop::addRenderable(const std::shared_ptr<Renderable>& renderable)
+void Prop::addRenderable(const std::shared_ptr<Renderable> &renderable)
 {
     this->_renderables.push_back(renderable);
 }
 
-void Prop::setPosition(const glm::vec3& position) const
+void Prop::setPosition(const glm::vec3 &position) const
 {
     if (!this->_mainObject)
     {
@@ -41,7 +46,7 @@ void Prop::update(const float delta)
         r->update(delta);
 }
 
-void Prop::setMainObject(const std::shared_ptr<Object>& mainObject)
+void Prop::setMainObject(const std::shared_ptr<Object> &mainObject)
 {
     this->_mainObject = mainObject;
 }

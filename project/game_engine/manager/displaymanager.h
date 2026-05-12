@@ -10,8 +10,14 @@
 #include <glm/glm.hpp>
 #include "../entity/player.h"
 
+enum class GameState
+{
+    MENU,
+    PLAYING
+};
 class DisplayManager
 {
+
     GLFWwindow *window;
 
     double deltaTime = 0.0f;
@@ -32,6 +38,8 @@ class DisplayManager
     GLFWwindow *createWindow();
 
 public:
+    GameState currentState = GameState::MENU;
+
     double lastX = 800;
     double lastY = 600;
     float frameTimeSeconds = 0;
@@ -49,8 +57,11 @@ public:
 
     static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 
+    // Add to public section of DisplayManager class
+    static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods);
+    void handleMouseButton(int button, int action, int mods);
     void update();
 
-    void processInput(const std::shared_ptr<Controllable>& object);
+    void processInput(const std::shared_ptr<Controllable> &object);
 };
 #endif

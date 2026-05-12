@@ -15,6 +15,17 @@ Text::Text()
     glEnable(GL_DEPTH_TEST);
 }
 
+float Text::calculateStringWidth(std::string text, float scale)
+{
+    float width = 0.0f;
+    for (std::string::const_iterator c = text.begin(); c != text.end(); c++)
+    {
+        Character ch = Characters[*c];
+        width += (ch.Advance >> 6) * scale;
+    }
+    return width;
+}
+
 void Text::loadCharactersFromBitmap(FT_Library ft, std::string font_name)
 {
     FT_Face face;

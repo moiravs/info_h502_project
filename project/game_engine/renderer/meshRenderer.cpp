@@ -15,11 +15,11 @@ MeshRenderer::MeshRenderer(const std::string &shaderName) : Renderer(generateSha
 {
     glGenTextures(1, &emptyTexture);
     glBindTexture(GL_TEXTURE_2D, emptyTexture);
-    constexpr unsigned int transparent = 0x00000000; // Alpha is 00
+    constexpr unsigned int transparent = 0x00000000;
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &transparent);
 }
 
-MeshRenderer::MeshRenderer(const std::shared_ptr<Shader>& shaderName) : Renderer(shaderName)
+MeshRenderer::MeshRenderer(const std::shared_ptr<Shader> &shaderName) : Renderer(shaderName)
 {
     glGenTextures(1, &emptyTexture);
     glBindTexture(GL_TEXTURE_2D, emptyTexture);
@@ -37,7 +37,7 @@ void MeshRenderer::setupVAOs()
     if (!this->getEntity<Object>() || !this->getEntity<Object>()->getMesh())
         return;
 
-    const auto& mesh = this->getEntity<Object>()->getMesh();
+    const auto &mesh = this->getEntity<Object>()->getMesh();
 
     this->createVAOs(mesh->getEntries().size());
     this->createVBOs(1);
@@ -59,8 +59,7 @@ void MeshRenderer::setupVAOs()
             GL_FLOAT,
             GL_FALSE,
             sizeof(Vertex),
-            (void*)offsetof(Vertex, position)
-        );
+            (void *)offsetof(Vertex, position));
 
         // =========================
         // TEXCOORD (location = 1)
@@ -72,8 +71,7 @@ void MeshRenderer::setupVAOs()
             GL_FLOAT,
             GL_FALSE,
             sizeof(Vertex),
-            (void*)offsetof(Vertex, texture)
-        );
+            (void *)offsetof(Vertex, texture));
 
         // =========================
         // NORMAL (location = 2)
@@ -85,8 +83,7 @@ void MeshRenderer::setupVAOs()
             GL_FLOAT,
             GL_FALSE,
             sizeof(Vertex),
-            (void*)offsetof(Vertex, normal)
-        );
+            (void *)offsetof(Vertex, normal));
 
         // =========================
         // INDEX BUFFER

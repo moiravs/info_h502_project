@@ -27,6 +27,8 @@ public:
 
     Text();
 
+    float calculateStringWidth(std::string text, float scale);
+
     void loadCharactersFromBitmap(FT_Library ft, std::string font_name);
 };
 
