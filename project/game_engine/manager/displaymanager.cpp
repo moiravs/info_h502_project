@@ -101,13 +101,11 @@ void DisplayManager::cursor_position_callback(GLFWwindow *window, const double x
     dm->moveMouse(xpos, ypos);
 }
 
-int DisplayManager::getWidth()
-{
+int DisplayManager::getWidth() const {
     return width;
 }
 
-int DisplayManager::getHeight()
-{
+int DisplayManager::getHeight() const {
     return height;
 }
 
