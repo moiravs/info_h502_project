@@ -22,7 +22,6 @@ public:
     void render() override;
     std::vector<std::shared_ptr<Renderable>> getRenderables();
     void renderWithShader(const std::shared_ptr<Shader> &shader) override;
-    void removeRenderable(std::shared_ptr<Renderable> indexToRemove);
 };
 
 #endif // INFOH502_CPP_PROPBUILDER_H
