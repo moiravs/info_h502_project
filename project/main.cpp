@@ -209,7 +209,7 @@ int main()
 
 			geometryFBO->begin();
 
-			Game::renderScene({trees, skybox, firecamp, plane, terrain, rings});
+			Game::renderScene({trees, skybox, firecamp, plane, terrain, rings, water});
 
 			geometryFBO->end();
 
@@ -226,7 +226,7 @@ int main()
 			waterReflectionFBO->bindTextures();
 			waterRefractionFBO->bindTextures();
 
-			Game::renderScene({sun, firecampParticles, water});
+			Game::renderScene({sun, firecampParticles});
 
 			glDepthMask(GL_TRUE);
 			lightFBO->end();
@@ -234,20 +234,21 @@ int main()
 			dm.resizeViewport(dm.getWidth(), dm.getHeight());
 			textureViewer.render(lightFBO->getTexture(), false);
 
-			dm.update();
-			continue;
-
 			game.checkIfPlaneInRing(plane, rings, heightMap);
 
 			glDisable(GL_DEPTH_TEST); // Ensure it draws on top of everything
 
-			Game::renderText(text, shader, std::to_string(game.numberOfRings), 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+			Game::renderText(text, shader, std::to_string(game.numberOfRings), 25.0f, 25.0f, 5.0f, glm::vec3(0.5, 0.8f, 0.2f));
+
+			glEnable(GL_DEPTH_TEST); // Ensure it draws on top of everything
 		}
 		else if (dm.currentState == GameState::MENU)
 		{
+			glDisable(GL_DEPTH_TEST); // Ensure it draws on top of everything
+
 			// --- MENU RENDERING ---
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Dark background for menu
+			glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Dark background for menu
 
 			float titleWidth = text.calculateStringWidth("FLYING SIMULATOR", 2.0f);
 			float playWidth = text.calculateStringWidth("PLAY", 1.0f);

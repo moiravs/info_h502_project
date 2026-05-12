@@ -16,8 +16,8 @@
 #include <random>
 #include <stb_image.h>
 
-std::pair<std::shared_ptr<HeightMap>, std::shared_ptr<Prop>> PropMaker::terrainFromTexture(const std::string& texturePath,
-                                                                          const float width, const float depth)
+std::pair<std::shared_ptr<HeightMap>, std::shared_ptr<Prop>> PropMaker::terrainFromTexture(const std::string &texturePath,
+                                                                                           const float width, const float depth)
 {
     int imageWidth;
     int imageHeight;
@@ -56,7 +56,7 @@ std::pair<std::shared_ptr<HeightMap>, std::shared_ptr<Prop>> PropMaker::terrainF
     {
         for (int x = 0; x < imageWidth; x++)
         {
-            normals[idx(x,z)] = calculateNormal(x, z,
+            normals[idx(x, z)] = calculateNormal(x, z,
                                                  imageWidth,
                                                  imageHeight,
                                                  heights);
@@ -138,7 +138,7 @@ std::pair<std::shared_ptr<HeightMap>, std::shared_ptr<Prop>> PropMaker::terrainF
 }
 
 glm::vec3 PropMaker::calculateNormal(const int x, const int z, const int imageWidth, const int imageHeight,
-                                       const std::vector<float> &heights)
+                                     const std::vector<float> &heights)
 {
     auto idx = [&](const int _x, const int _z)
     {
@@ -155,7 +155,6 @@ glm::vec3 PropMaker::calculateNormal(const int x, const int z, const int imageWi
     const glm::vec3 normal = glm::normalize(glm::vec3(hL - hR, 2.0f, hD - hU));
     return normal;
 }
-
 
 std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &color,
                                           const glm::vec3 &lightProperties, const glm::vec3 &lightAttenuation)
@@ -182,8 +181,8 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
     return prop;
 }
 
-std::pair<std::shared_ptr<Prop>, std::shared_ptr<DirectionalLight>> PropMaker::makeSun(const glm::vec3& position,
-    const glm::vec3& scale, const glm::vec3& color)
+std::pair<std::shared_ptr<Prop>, std::shared_ptr<DirectionalLight>> PropMaker::makeSun(const glm::vec3 &position,
+                                                                                       const glm::vec3 &scale, const glm::vec3 &color)
 {
     const auto directionalLight = DirectionalLight::make();
 

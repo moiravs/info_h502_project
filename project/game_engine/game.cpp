@@ -96,6 +96,9 @@ void Game::renderText(Text characters, Shader &shader, std::string text, float x
     }
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_BLEND);
 }
 
 void Game::renderScene(const std::vector<std::shared_ptr<Renderable>> &renderers)
