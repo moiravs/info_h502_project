@@ -13,10 +13,13 @@ out vec4 WorldPos;
 
 out vec2 v_texCoord; // New output
 uniform mat4 model;
+uniform mat4 itM;
 
 layout(std140) uniform CameraInfo {
     mat4 projection;
+    mat4 iProj;
     mat4 view;
+    mat4 iView;
     vec4 camPosition;
     vec4 camRight;
     vec4 camUp;
@@ -31,7 +34,7 @@ void main()
     v_fragPos = vec3(WorldPos);
     v_texCoord = aPos.xz / 50.0;
     // Transform normal to world space
-    v_normal = mat3(transpose(inverse(model))) * aNormal;
+    v_normal = mat3(itM) * aNormal;
 
     //gl_Position = color;
     gl_Position = projection * view * WorldPos;

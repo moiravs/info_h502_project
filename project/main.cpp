@@ -19,22 +19,28 @@
 #include "game_engine/entity/light/light.h"
 #include "game_engine/manager/controllerManager.h"
 #include "game_engine/manager/displaymanager.h"
-#include "game_engine/shader.h"
-#include "game_engine/waterFrameBuffer.h"
+#include "game_engine/shader/shader.h"
 
 #include "game_engine/entity/skybox.h"
 #include "game_engine/manager/lightManager.h"
 #include "game_engine/renderer/skyboxRenderer.h"
 
 #include <glm/gtx/string_cast.hpp>
-#include "game_engine/depth/depthMap.h"
+#include <map>
+#include "game_engine/depth/depthMapFrameBuffer.h"
 #include "game_engine/entity/light/directionalLight.h"
 #include "game_engine/entity/particleGenerator.h"
 #include "game_engine/entity/renderableEntityMaker.h"
+#include "game_engine/entity/text.h"
+#include "game_engine/framebuffer/geometryFrameBuffer.h"
+#include "game_engine/framebuffer/lightFrameBuffer.h"
+#include "game_engine/framebuffer/reflectionFrameBuffer.h"
+#include "game_engine/framebuffer/refractionFrameBuffer.h"
 #include "game_engine/game.h"
 #include "game_engine/manager/mainCamera.h"
 #include "game_engine/prop/propMaker.h"
 #include "game_engine/renderer/waterRenderer.h"
+#include "game_engine/shader/lightShader.h"
 #include "utils/constants.h"
 #include "utils/textureViewer.h"
 #include <map>
@@ -83,13 +89,16 @@ int main()
 		return -1;
 	}
 
+    glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+
+    // the sun must be created first.
 	auto [sun, sunLight] = PropMaker::makeSun(glm::vec3(.0, 100.0, 1.5), glm::vec3(10, 10, 10),
 											  glm::vec3(1, 1, 1));
 
 	auto camera = MainCamera::get();
 	// Terrain
 	auto [heightMap, terrain] =
-		RenderableEntityMaker::terrainFromTexture(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
+		PropMaker::terrainFromTexture(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
 
 	// Skybox
 	auto skybox = RenderableEntityMaker::makeRenderable<Skybox, SkyboxRenderer>(
@@ -100,19 +109,26 @@ int main()
 										   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/front.jpg",
 										   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/back.jpg"});
 
-	// Water
-	auto fbos = std::make_shared<WaterFrameBuffer>();
+    // FBOs
+    auto geometryFBO = std::make_shared<GeometryFrameBuffer>(SCR_WIDTH, SCR_HEIGHT);
+    geometryFBO->createTextures();
+    auto waterReflectionFBO = std::make_shared<ReflectionFrameBuffer>();
+    waterReflectionFBO->createTextures();
+    auto waterRefractionFBO = std::make_shared<RefractionFrameBuffer>();
+    waterRefractionFBO->createTextures();
+    auto shadowFBO = std::make_shared<DepthMapFrameBuffer>(DEPTH_WIDTH, DEPTH_HEIGHT, sunLight);
+    shadowFBO->createTextures();
+    auto lightFBO = std::make_shared<LightFrameBuffer>(SCR_WIDTH, SCR_HEIGHT, geometryFBO->getDepthTex());
+    lightFBO->createTextures();
+
+    auto lightShader = std::make_shared<LightShader>();
 
 	auto reflectionPlane = glm::vec4(0, 1, 0, WATER_HEIGHT);
 	auto refractionPlane = glm::vec4(0, -1, 0, WATER_HEIGHT);
 
 	// Objects
 	auto water = RenderableEntityMaker::makeRenderable<Object, WaterRenderer>(
-		fbos, Mesh::createPlane(PLAN_SIZE_X / 2, WATER_HEIGHT));
-
-	auto redLight = PropMaker::makeLamp(
-		glm::vec3(1.0, 15.0, 1.5), glm::vec3(1), glm::vec3(1, 1, 1),
-		glm::vec4(0.1, 0.9, 1, 32), glm::vec3(0.5, 0.01, 0));
+		Mesh::createPlane(PLAN_SIZE_X / 2, WATER_HEIGHT));
 
 	auto plane = PropMaker::makePlane(heightMap);
 
@@ -127,15 +143,13 @@ int main()
 	float orbitSpeed = 0.1f;			 // How fast the sun moves
 	float orbitHeight = 100.0f;			 // Vertical height of the sun
 
-	auto firecamp = PropMaker::makeFirecamp(5, 0, heightMap);
+	auto [firecamp, firecampParticles] = PropMaker::makeFirecamp(5, 0, heightMap);
 	double lastTime = glfwGetTime();
 
-	auto shadow = std::make_shared<DepthMap>(sunLight);
-
-	auto textureViewer = TextureViewer();
+    auto textureViewer = TextureViewer();
 	auto rings = PropMaker::makeRings(heightMap);
 
-	auto game = Game();
+    auto game = Game();
 
 	auto text = Text();
 	text.loadCharactersFromBitmap(ft, font_name);
@@ -150,54 +164,73 @@ int main()
 			glEnable(GL_DEPTH_TEST);
 			lastTime = currentTime;
 
-			lightManager.updateUBO();
-			camera->updateUBO();
+	    Game::update(delta, {trees, water, skybox, sun, firecamp, plane, terrain, rings});
 
-			Game::renderShadows({trees, plane, terrain}, shadow);
+	    float sunX = 0.0f;
+	    float sunY = std::sin(currentTime * orbitSpeed) * orbitRadius;
+	    float sunZ = std::cos(currentTime * orbitSpeed) * orbitRadius;
 
-			dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
-			if (water->shouldRender())
-			{
-				// == REFLECTION ==
-				glEnable(GL_CLIP_DISTANCE0);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				fbos->bindReflectionFrameBuffer();
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	    sun->setPosition(glm::vec3(sunX, sunY, sunZ));
 
-				camera->prepareReflection(WATER_HEIGHT);
-				camera->updateUBO();
-				fbos->setClipPlane(reflectionPlane);
+		lightManager.updateUBO();
+		camera->updateUBO();
 
-				Game::renderScene(delta, {trees, skybox, terrain});
-				camera->resetCameraAfterReflection(WATER_HEIGHT);
-				camera->updateUBO();
+	    // == SHADOWS ==
+	    shadowFBO->begin();
 
-				// 2. Refraction
-				fbos->bindRefractionFrameBuffer();
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	    Game::renderSceneWithShader({trees, terrain}, shadowFBO->getShader());
 
-				fbos->setClipPlane(refractionPlane); // One clean call
-				Game::renderScene(delta, {trees, terrain});
+	    shadowFBO->end();
 
-				fbos->unbindCurrentFrameBuffer();
-				dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
-			}
+		// == REFLECTION ==
+        waterReflectionFBO->begin();
+		waterReflectionFBO->setClipPlane(reflectionPlane);
 
-			// == NORMAL ==
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-			glDisable(GL_CLIP_DISTANCE0);
+		Game::renderScene({trees, skybox, terrain});
 
-			float sunX = 0.0f;
-			float sunY = std::sin(currentTime * orbitSpeed) * orbitRadius;
-			float sunZ = std::cos(currentTime * orbitSpeed) * orbitRadius;
-			// glBindTexture(GL_TEXTURE_2D, shadow->depthMap);
+		waterReflectionFBO->end();
 
-			sun->getMainObject()->setPosition(glm::vec3(sunX, sunY, sunZ));
 
-			Game::renderScene(delta, {trees, redLight, water, skybox, sun, firecamp, plane, terrain, flowerField, rings});
+		// == REFRACTION ==
 
-			Game::checkTerrainCollision(plane->getMainObject(), heightMap);
+	    waterRefractionFBO->begin();
+		waterReflectionFBO->setClipPlane(refractionPlane);
+
+	    Game::renderScene({terrain, skybox});
+
+		waterRefractionFBO->end();
+
+		// == GEOMETRY ==
+
+	    geometryFBO->begin();
+
+		Game::renderScene({trees, skybox, firecamp, plane, terrain, rings});
+
+	    geometryFBO->end();
+
+        lightFBO->begin();
+
+	    geometryFBO->bindTextures();
+	    shadowFBO->bindTextures();
+
+	    lightShader->render();
+
+	    glEnable(GL_DEPTH_TEST);
+	    glDepthMask(GL_FALSE);
+
+	    waterReflectionFBO->bindTextures();
+	    waterRefractionFBO->bindTextures();
+
+	    Game::renderScene({sun, firecampParticles, water});
+
+	    glDepthMask(GL_TRUE);
+	    lightFBO->end();
+
+	    dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
+	    textureViewer.render(lightFBO->getTexture(), false);
+
+	    dm.update();
+	    continue;
 
 			game.checkIfPlaneInRing(plane, rings, heightMap);
 

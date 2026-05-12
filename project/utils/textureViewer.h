@@ -17,7 +17,7 @@ public:
     TextureViewer();
     ~TextureViewer();
 
-    void render(GLuint textureID) const;
+    void render(GLuint textureID, bool isDepth=false) const;
 };
 
 #endif //INFOH502_CPP_TEXTUREVIEWER_H

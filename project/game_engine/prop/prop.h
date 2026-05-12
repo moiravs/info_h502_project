@@ -13,14 +13,14 @@ class Prop : public Renderable
     std::shared_ptr<Object> _mainObject = nullptr;
 
 public:
-    Prop() = default;
-    void addRenderable(const std::shared_ptr<Renderable> &renderable);
-    void setMainObject(const std::shared_ptr<Object> &mainObject);
+    Prop()=default;
+    void addRenderable(const std::shared_ptr<Renderable>& renderable);
+    void setMainObject(const std::shared_ptr<Object>& mainObject);
+    void update(float delta) override;
     [[nodiscard]] std::shared_ptr<Object> getMainObject();
-    void setPosition(const glm::vec3 &position) const;
-    void render(float delta) override;
-    void renderDepth(const std::shared_ptr<DepthMap> &depthMap) override;
-    std::vector<std::shared_ptr<Renderable>> getRenderables();
+    void setPosition(const glm::vec3& position) const;
+    void render() override;
+    void renderWithShader(const std::shared_ptr<Shader>& shader) override;
     void removeRenderable(std::shared_ptr<Renderable> indexToRemove);
 };
 

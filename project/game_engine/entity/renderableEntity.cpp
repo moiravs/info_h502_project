@@ -49,11 +49,8 @@ bool RenderableEntity::isDirty() const
     return this->_dirty;
 }
 
-void RenderableEntity::render(const float delta)
+void RenderableEntity::render()
 {
-    if (this->shouldUpdate())
-        this->update(delta);
-
     this->_dirty = false;
 
     if (this->shouldRender())
@@ -71,21 +68,40 @@ void RenderableEntity::render(const float delta)
             if (!a->rotationLocked)
             {
                 e->rotate(this->getYaw(), this->getPitch(), this->getRoll());
-                e->render(delta);
+                e->render();
                 e->rotate(-this->getYaw(), -this->getPitch(), -this->getRoll());
             }
             else
-                e->render(delta);
+                e->render();
         }
     }
 }
 
-void RenderableEntity::renderDepth(const std::shared_ptr<DepthMap>& depthMap)
+void RenderableEntity::renderWithShader(const std::shared_ptr<Shader>& shader)
 {
-    if (!this->shouldRender()) return;
+    this->_dirty = false;
 
-    if (const auto a = std::dynamic_pointer_cast<MeshRenderer>(this->_renderer)) {
-        a->renderDepth(depthMap);
+    if (this->shouldRender())
+    {
+        this->_renderer->renderWithShader(shader);
+    }
+
+    for (const auto &a : this->getAttachments())
+    {
+        if (!a->shouldRender)
+            continue;
+
+        if (const auto e = std::dynamic_pointer_cast<RenderableEntity>(a->entity))
+        {
+            if (!a->rotationLocked)
+            {
+                e->rotate(this->getYaw(), this->getPitch(), this->getRoll());
+                e->renderWithShader(shader);
+                e->rotate(-this->getYaw(), -this->getPitch(), -this->getRoll());
+            }
+            else
+                e->renderWithShader(shader);
+        }
     }
 }
 
@@ -93,6 +109,8 @@ bool RenderableEntity::shouldRender() const { return true; }
 
 void RenderableEntity::update(const float delta)
 {
+    if (!this->shouldUpdate()) return;
+
     this->_renderer->updateUniforms();
 }
 

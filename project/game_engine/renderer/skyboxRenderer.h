@@ -4,9 +4,9 @@
 #include <vector>
 
 #include <glm/glm.hpp>
-#include "renderer.h"
-#include "../shader.h"
 #include "../entity/skybox.h"
+#include "../shader/shader.h"
+#include "renderer.h"
 
 class SkyboxRenderer : public Renderer
 {

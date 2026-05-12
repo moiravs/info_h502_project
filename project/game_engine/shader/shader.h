@@ -5,10 +5,7 @@
 
 #include <string>
 #include <fstream>
-#include <memory>
-
-#include "entity/camera.h"
-#include "entity/light/light.h"
+#include "../entity/light/light.h"
 
 class Shader
 {
@@ -17,7 +14,7 @@ class Shader
 public:
     Shader(const std::string &vertexPath, const std::string &fragmentPath);
 
-    ~Shader();
+    virtual ~Shader();
     void use() const;
 
     [[nodiscard]] GLuint getID() const;
@@ -27,6 +24,7 @@ public:
     void setFloat(const GLchar *name, GLfloat value) const;
 
     void setVector2f(const GLchar *name, GLfloat x, GLfloat y) const;
+    void setVector2f(const GLchar *name, const glm::vec2& vec2) const;
 
     void setVector3f(const GLchar *name, GLfloat x, GLfloat y, GLfloat z) const;
 

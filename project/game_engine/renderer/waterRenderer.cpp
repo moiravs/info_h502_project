@@ -1,7 +1,9 @@
 #include "waterRenderer.h"
 
-WaterRenderer::WaterRenderer(std::shared_ptr<WaterFrameBuffer> fbos)
-    : MeshRenderer("water"), transparent(false), _fbos(std::move(fbos))
+#include "../../utils/constants.h"
+
+WaterRenderer::WaterRenderer()
+    : MeshRenderer("water"), transparent(false)
 {
 }
 
@@ -9,9 +11,10 @@ void WaterRenderer::registerEntity(const std::shared_ptr<RenderableEntity> &enti
 {
     this->MeshRenderer::registerEntity(entity);
 
-    this->_shader->setInteger("reflectionTexture", 0);
-    this->_shader->setInteger("refractionTexture", 1);
-    this->_shader->setInteger("dudvMap", 2);
+    this->_shader->use();
+    this->_shader->setInteger("reflectionTexture", REFLECTION_TEX_IDX);
+    this->_shader->setInteger("refractionTexture", REFRACTION_TEX_IDX);
+    this->_shader->setInteger("dudvMap", DUDV_TEX_IDX);
 }
 
 void WaterRenderer::render()
@@ -43,12 +46,6 @@ void WaterRenderer::render()
 
 void WaterRenderer::updateUniforms() const
 {
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, _fbos->getReflectionTexture());
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, _fbos->getRefractionTexture());
-    glActiveTexture(GL_TEXTURE2);
+    glActiveTexture(DUDV_TEX);
     glBindTexture(GL_TEXTURE_2D, dudvMap.getTexture());
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }

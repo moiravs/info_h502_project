@@ -74,3 +74,11 @@ void Renderer::render()
     this->updateUniforms();
     this->_shader->use();
 }
+
+void Renderer::renderWithShader(const std::shared_ptr<Shader>& shader)
+{}
+
+std::shared_ptr<Shader> Renderer::getShader() const
+{
+    return this->_shader;
+}

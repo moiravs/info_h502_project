@@ -27,7 +27,7 @@ float Camera::getZoom() const
 
 float Camera::getAspectRatio() const
 {
-    return SCR_WIDTH / SCR_HEIGHT;
+    return ASPECT_RATIO;
 }
 
 void Camera::invertPitch()
@@ -119,19 +119,25 @@ void Camera::setPosition(const glm::vec3& position)
 
 void Camera::updateUBO() const
 {
+    const auto proj = this->getProjectionMatrix();
+    const auto view = this->getViewMatrix();
     const CameraInfo i = {
         .projection = this->getProjectionMatrix(),
+        .iProj = glm::inverse(proj),
         .view = this->getViewMatrix(),
+        .iView = glm::inverse(view),
         .cameraPos = glm::vec4(this->getPosition(), 1),
         .cameraRight = glm::vec4(this->getRight(), 1),
         .cameraUp = glm::vec4(this->getUp(), 1)};
 
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(i.projection));
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(i.view));
-    glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::vec4), glm::value_ptr(i.cameraPos));
-    glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + sizeof(glm::vec4), sizeof(glm::vec4), glm::value_ptr(i.cameraRight));
-    glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + 2 * sizeof(glm::vec4), sizeof(glm::vec4), glm::value_ptr(i.cameraUp));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(i.iProj));
+    glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(i.view));
+    glBufferSubData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(i.iView));
+    glBufferSubData(GL_UNIFORM_BUFFER, 4 * sizeof(glm::mat4), sizeof(glm::vec4), glm::value_ptr(i.cameraPos));
+    glBufferSubData(GL_UNIFORM_BUFFER, 4 * sizeof(glm::mat4) + sizeof(glm::vec4), sizeof(glm::vec4), glm::value_ptr(i.cameraRight));
+    glBufferSubData(GL_UNIFORM_BUFFER, 4 * sizeof(glm::mat4) + 2 * sizeof(glm::vec4), sizeof(glm::vec4), glm::value_ptr(i.cameraUp));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 

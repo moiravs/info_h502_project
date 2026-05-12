@@ -1,9 +1,8 @@
 
-#include "textureViewer.h"
+#include "postProcessingShader.h"
 
-#include "../game_engine/shader/shader.h"
-
-TextureViewer::TextureViewer()
+PostProcessingShader::PostProcessingShader(const std::string& vertexPath, const std::string& fragmentPath)
+: Shader(vertexPath, fragmentPath)
 {
     constexpr float quad[] =
     {
@@ -44,36 +43,21 @@ TextureViewer::TextureViewer()
         4 * sizeof(float),
         (void*)(2 * sizeof(float))
     );
-
-    textureShader = std::make_shared<Shader>(
-        PATH_TO_SRC "/../assets/shaders/debugtexture.vert",
-        PATH_TO_SRC "/../assets/shaders/debugtexture.frag");
 }
 
-TextureViewer::~TextureViewer()
+void PostProcessingShader::render() const
 {
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo);
-}
+    glUseProgram(this->getID());
 
-void TextureViewer::render(const GLuint textureID, const bool isDepth) const
-{
-    glUseProgram(textureShader->getID());
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-
-    glUniform1i(
-        glGetUniformLocation(textureShader->getID(), "tex"),
-        0
-    );
-
-    glUniform1i(
-        glGetUniformLocation(textureShader->getID(), "isDepth"),
-        isDepth ? 1 : 0
-    );
+    this->linkTextures();
 
     glBindVertexArray(vao);
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+PostProcessingShader::~PostProcessingShader()
+{
+    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &vbo);
 }

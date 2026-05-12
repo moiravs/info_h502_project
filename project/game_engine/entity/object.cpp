@@ -129,3 +129,15 @@ std::shared_ptr<Mesh> Object::getMesh() const
 {
     return this->m_mesh;
 }
+
+void Object::setMaterial(const float specular, const float shininess)
+{
+    const float spec = glm::clamp(specular, 0.f, 1.f);
+    const float shin = glm::clamp(shininess, 0.f, 256.f);
+    this->_material = glm::vec2(spec, shin / 256);
+}
+
+glm::vec2 Object::getMaterial() const
+{
+    return this->_material;
+}

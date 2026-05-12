@@ -5,7 +5,6 @@
 
 #include "meshRenderer.h"
 #include "../entity/object.h"
-#include "../waterFrameBuffer.h"
 #include "renderer.h"
 #include "../texture.h"
 
@@ -16,10 +15,9 @@ class WaterRenderer : public MeshRenderer
     float moveFactor = 0;
 
     bool transparent;
-    std::shared_ptr<WaterFrameBuffer> _fbos;
 
 public:
-    explicit WaterRenderer(std::shared_ptr<WaterFrameBuffer> fbos);
+    WaterRenderer();
     void updateUniforms() const override;
     void registerEntity(const std::shared_ptr<RenderableEntity> &entity) override;
     void render() override;
