@@ -35,6 +35,7 @@
 #include "game_engine/manager/mainCamera.h"
 #include "game_engine/prop/propMaker.h"
 #include "game_engine/renderer/waterRenderer.h"
+#include "game_engine/renderer/spriteRenderer.h"
 #include "utils/constants.h"
 #include "utils/textureViewer.h"
 #include <map>
@@ -70,8 +71,12 @@ int main()
 		return -1;
 	}
 
+	MainCamera::init(dm.getWidth(), dm.getHeight());
+
+	auto camera = MainCamera::get();
+
 	Shader shader(PATH_TO_SRC "/../assets/shaders/text.vert", PATH_TO_SRC "/../assets/shaders/text.frag");
-	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
+	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(dm.getWidth()), 0.0f, static_cast<float>(dm.getHeight()));
 	shader.use();
 	glUniformMatrix4fv(glGetUniformLocation(shader.getID(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
@@ -86,7 +91,6 @@ int main()
 	auto [sun, sunLight] = PropMaker::makeSun(glm::vec3(.0, 100.0, 1.5), glm::vec3(10, 10, 10),
 											  glm::vec3(1, 1, 1));
 
-	auto camera = MainCamera::get();
 	// Terrain
 	auto [heightMap, terrain] =
 		RenderableEntityMaker::terrainFromTexture(PATH_TO_SRC "/../assets/textures/iceland_heightmap.png", PLAN_SIZE_X, PLAN_SIZE_X);
@@ -119,7 +123,7 @@ int main()
 	ControllerManager::get()->setPlayer(std::dynamic_pointer_cast<Player>(plane->getMainObject()));
 	ControllerManager::get()->setIsPlayerControlled(DEFAULT_CAMERA_LOCKED_ON_PLAYER);
 
-	dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
+	dm.resizeViewport(dm.getWidth(), dm.getHeight());
 	auto trees = PropMaker::makeTrees(heightMap);
 	auto flowerField = PropMaker::makeFlowers(heightMap);
 	auto &lightManager = LightManager::get();
@@ -136,6 +140,8 @@ int main()
 	auto rings = PropMaker::makeRings(heightMap);
 
 	auto game = Game();
+	auto spriteRenderer = new SpriteRenderer("sprite");
+	Texture spriteTexture(PATH_TO_SRC "/../assets/textures/avion.png");
 
 	auto text = Text();
 	text.loadCharactersFromBitmap(ft, font_name);
@@ -155,7 +161,7 @@ int main()
 
 			Game::renderShadows({trees, plane, terrain}, shadow);
 
-			dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
+			dm.resizeViewport(dm.getWidth(), dm.getHeight());
 			if (water->shouldRender())
 			{
 				// == REFLECTION ==
@@ -180,7 +186,7 @@ int main()
 				Game::renderScene(delta, {trees, terrain});
 
 				fbos->unbindCurrentFrameBuffer();
-				dm.resizeViewport(SCR_WIDTH, SCR_HEIGHT);
+				dm.resizeViewport(dm.getWidth(), dm.getHeight());
 			}
 
 			// == NORMAL ==
@@ -209,20 +215,22 @@ int main()
 		{
 			// --- MENU RENDERING ---
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Dark background for menu
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Dark background for menu
 
-			float titleWidth = text.calculateStringWidth("FLYING SIMULATOR", 1.5f);
+			float titleWidth = text.calculateStringWidth("FLYING SIMULATOR", 2.0f);
 			float playWidth = text.calculateStringWidth("PLAY", 1.0f);
 
 			Game::renderText(text, shader, "FLYING SIMULATOR",
-							 (SCR_WIDTH - titleWidth) / 2.0f,
-							 SCR_HEIGHT / 2.0f + 50.0f,
-							 1.5f, glm::vec3(1, 1, 1));
+							 (dm.getWidth() - titleWidth) / 2.0f,
+							 dm.getHeight() / 2.0f + 400.0f,
+							 2.0f, glm::vec3(1, 1, 1));
 
 			Game::renderText(text, shader, "PLAY",
-							 (SCR_WIDTH - playWidth) / 2.0f,
-							 SCR_HEIGHT / 2.0f,
-							 1.0f, glm::vec3(0, 1, 0));
+							 (dm.getWidth() - playWidth) / 2.0f,
+							 dm.getHeight() / 2.0f,
+							 1.0f, glm::vec3(1, 1, 1));
+
+			spriteRenderer->render(spriteTexture, glm::vec2(500.0f, 500.0f), glm::vec2(500.0f, 397.0f), 0.0f);
 		}
 		dm.update();
 	}

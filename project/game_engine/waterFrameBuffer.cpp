@@ -32,19 +32,18 @@ void WaterFrameBuffer::bindRefractionFrameBuffer() const
     bindFrameBuffer(refractionFrameBuffer, REFRACTION_WIDTH, REFRACTION_HEIGHT);
 }
 
-void WaterFrameBuffer::setClipPlane(const glm::vec4& plane) const
+void WaterFrameBuffer::setClipPlane(const glm::vec4 &plane) const
 {
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, 0,
-                     sizeof(glm::vec4),
-                     glm::value_ptr(plane));
+                    sizeof(glm::vec4),
+                    glm::value_ptr(plane));
 }
 
 void WaterFrameBuffer::unbindCurrentFrameBuffer()
 {
     // call to switch to default frame buffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 }
 
 GLuint WaterFrameBuffer::getReflectionTexture() const

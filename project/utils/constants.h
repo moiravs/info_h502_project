@@ -8,9 +8,6 @@ constexpr auto WORLD_UP = glm::vec3(0.0f, 1.0f, 0.0f);
 
 constexpr bool DEFAULT_CAMERA_LOCKED_ON_PLAYER = true;
 
-constexpr unsigned int SCR_WIDTH = 800;
-constexpr unsigned int SCR_HEIGHT = 600;
-
 constexpr unsigned int DEPTH_WIDTH = 1024;
 constexpr unsigned int DEPTH_HEIGHT = 1024;
 

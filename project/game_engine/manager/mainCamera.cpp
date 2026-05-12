@@ -2,10 +2,15 @@
 
 std::shared_ptr<Camera> MainCamera::instance = nullptr;
 
-std::shared_ptr<Camera> MainCamera::get()
+void MainCamera::init(int width, int height)
 {
     if (instance == nullptr)
-        instance = std::make_shared<Camera>();
+    {
+        instance = std::make_shared<Camera>(width, height);
+    }
+}
 
-    return instance;
+std::shared_ptr<Camera> MainCamera::get()
+{
+    return instance; // Note: Might return nullptr if init() wasn't called!
 }

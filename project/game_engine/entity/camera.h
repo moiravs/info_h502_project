@@ -30,6 +30,8 @@ class Camera : public Entity, public UboProvider, public Controllable, public De
     std::shared_ptr<Frustum> _frustum = nullptr;
     std::shared_ptr<Entity> lockedEntity = nullptr;
     bool lookingAt = true;
+    int _width;
+    int _height;
 
 protected:
     void updateRotation() override;
@@ -42,7 +44,7 @@ protected:
 
 public:
     // constructor with vectors
-    explicit Camera(glm::vec3 up = WORLD_UP,
+    explicit Camera(int src_width, int src_height, glm::vec3 up = WORLD_UP,
                     float yaw = YAW, float pitch = PITCH, float roll = ROLL);
 
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
@@ -66,7 +68,7 @@ public:
     void prepareReflection(int height);
 
     using Entity::setPosition;
-    void setPosition(const glm::vec3& position) override;
+    void setPosition(const glm::vec3 &position) override;
 
     void resetCameraAfterReflection(int height);
 
@@ -74,7 +76,7 @@ public:
 
     void processRotation(double yawRot, double pitchRot, double rollRot, double deltaTime) override;
 
-    void lookAt(const glm::vec3& target);
+    void lookAt(const glm::vec3 &target);
     void forceLookAt(const std::shared_ptr<Entity> &entity);
 
     bool canView(const std::array<glm::vec3, 8> &bounds) const;

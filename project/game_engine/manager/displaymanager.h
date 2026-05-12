@@ -28,6 +28,8 @@ class DisplayManager
     double lastTime;
     int nbFrames = 0;
 
+    int width;
+    int height;
     bool pressedTLastFrame = false;
 
     // timing
@@ -54,6 +56,10 @@ public:
     static void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
     static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos);
+
+    int getWidth();
+
+    int getHeight();
 
     static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 

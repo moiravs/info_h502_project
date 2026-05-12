@@ -3,10 +3,12 @@
 #include "../../utils/utils.h"
 #include "glm/gtc/type_ptr.hpp"
 
-Camera::Camera(const glm::vec3 up, const float yaw, const float pitch, const float roll)
+Camera::Camera(int src_width, int src_height, const glm::vec3 up, const float yaw, const float pitch, const float roll)
     : Entity(yaw, pitch, roll, up), UboProvider("CameraInfo", sizeof(CameraInfo)), zoom(ZOOM),
-    _frustum(std::make_shared<Frustum>())
+      _frustum(std::make_shared<Frustum>())
 {
+    _width = src_width;
+    _height = src_height;
     this->Camera::updateRotation();
 }
 
@@ -27,7 +29,7 @@ float Camera::getZoom() const
 
 float Camera::getAspectRatio() const
 {
-    return SCR_WIDTH / SCR_HEIGHT;
+    return _width / _height;
 }
 
 void Camera::invertPitch()
@@ -105,12 +107,12 @@ void Camera::updateFrustum() const
     this->_frustum->setNear(Plane(pos + NEAR * this->getFront(), this->getFront()));
     this->_frustum->setFar(Plane(pos + frontMultFar, -this->getFront()));
     this->_frustum->setLeft(Plane(pos, glm::cross(frontMultFar - this->getRight() * halfHSide, this->getUp())));
-    this->_frustum->setRight(Plane(pos, glm::cross(this->getUp(),frontMultFar + this->getRight() * halfHSide)));
+    this->_frustum->setRight(Plane(pos, glm::cross(this->getUp(), frontMultFar + this->getRight() * halfHSide)));
     this->_frustum->setBottom(Plane(pos, glm::cross(this->getRight(), frontMultFar - this->getUp() * halfVSide)));
     this->_frustum->setTop(Plane(pos, glm::cross(frontMultFar + this->getUp() * halfVSide, this->getRight())));
 }
 
-void Camera::setPosition(const glm::vec3& position)
+void Camera::setPosition(const glm::vec3 &position)
 {
     Entity::setPosition(position);
     this->updateLook();
@@ -135,7 +137,7 @@ void Camera::updateUBO() const
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void Camera::lookAt(const glm::vec3& target)
+void Camera::lookAt(const glm::vec3 &target)
 {
     const glm::vec3 delta = target - this->getPosition();
     const float len = glm::length(delta);
@@ -152,8 +154,9 @@ void Camera::lookAt(const glm::vec3& target)
     this->setRotation(newYaw, newPitch, 0.0f);
 }
 
-bool Camera::canView(const std::array<glm::vec3, 8>& bounds) const {
-    const auto ret = this->_frustum->isInside(bounds) ;
+bool Camera::canView(const std::array<glm::vec3, 8> &bounds) const
+{
+    const auto ret = this->_frustum->isInside(bounds);
     return ret == Inside || ret == Intersects;
 }
 
@@ -176,7 +179,8 @@ void Camera::forceLookAt(const std::shared_ptr<Entity> &entity)
 
 void Camera::updateLook()
 {
-    if (!this->lockedEntity || !this->lookingAt) return;
+    if (!this->lockedEntity || !this->lookingAt)
+        return;
 
     this->lookAt(this->lockedEntity->getPosition());
 }
@@ -207,11 +211,10 @@ std::vector<glm::vec3> Camera::getFrustumCorners() const
             for (int z = 0; z < 2; ++z)
             {
                 glm::vec4 pt = inv * glm::vec4(
-                    2.0f * x - 1.0f,
-                    2.0f * y - 1.0f,
-                    2.0f * z - 1.0f,
-                    1.0f
-                );
+                                         2.0f * x - 1.0f,
+                                         2.0f * y - 1.0f,
+                                         2.0f * z - 1.0f,
+                                         1.0f);
 
                 corners.push_back(glm::vec3(pt / pt.w));
             }

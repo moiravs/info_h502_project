@@ -7,8 +7,10 @@ class MainCamera
 {
     MainCamera() = default;
     static std::shared_ptr<Camera> instance;
+
 public:
+    static void init(int width, int height);
     static std::shared_ptr<Camera> get();
 };
 
-#endif //INFOH502_CPP_MAINCAMERA_H
+#endif // INFOH502_CPP_MAINCAMERA_H
