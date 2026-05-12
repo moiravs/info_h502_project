@@ -1,14 +1,19 @@
-#version 330 core
+#version 410 core
 
 in vec2 TexCoords;
 
 out vec4 FragColor;
 
 uniform sampler2D tex;
+uniform bool isDepth;
 
 void main()
 {
-    float value = texture(tex, TexCoords).r;
-
-    FragColor = vec4(vec3(value), 1.0);
+    if (!isDepth) {
+        FragColor = texture(tex, TexCoords).rgba;
+    } else {
+        float d = texture(tex, TexCoords).r;
+//        float d = (((texture(tex, TexCoords).r - 0.99) * 100) - 0.99) * 100;
+        FragColor = vec4(vec3(d), 1);
+    }
 }

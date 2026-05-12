@@ -8,13 +8,13 @@ out vec2 v_t;
 out vec3 v_normal;
 out vec3 v_fragPos;
 
-uniform mat4 lightSpaceMatrix;
-
 out vec4 FragPosLightSpace;
 
 layout(std140) uniform CameraInfo {
     mat4 projection;
+    mat4 iProj;
     mat4 view;
+    mat4 iView;
     vec4 camPosition;
     vec4 camRight;
     vec4 camUp;
@@ -30,5 +30,4 @@ void main() {
     
     v_t = aTex;
     gl_Position = projection * view * worldPos;
-    FragPosLightSpace = lightSpaceMatrix * aInstModel * vec4(aPos, 1.0);
 }

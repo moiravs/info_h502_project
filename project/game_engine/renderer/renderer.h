@@ -1,9 +1,9 @@
 
 #ifndef Renderer_H
 #define Renderer_H
-#include "../shader.h"
-#include "glad/glad.h"
 #include "../../utils/utils.h"
+#include "../shader/shader.h"
+#include "glad/glad.h"
 
 class RenderableEntity;
 
@@ -36,10 +36,12 @@ protected:
 
 public:
     explicit Renderer(std::shared_ptr<Shader> shader);
+    std::shared_ptr<Shader> getShader() const;
     virtual void updateUniforms() const = 0;
     virtual ~Renderer();
     virtual void registerEntity(const std::shared_ptr<RenderableEntity> &entity);
     virtual void render();
+    virtual void renderWithShader(const std::shared_ptr<Shader> &shader);
 };
 
 #endif

@@ -11,16 +11,15 @@ std::shared_ptr<PointLight> PointLight::make(const float x, const float y, const
 }
 
 PointLight::PointLight(const float x, const float y, const float z)
-: Light(x, y, z), _ambient(0), _diffuse(0), _specular(0), _shininess(1),
+: Light(x, y, z), _ambient(0), _diffuse(0), _specular(0),
 _constant(0), _linear(0), _quadratic(0)
 {}
 
-void PointLight::setProperties(const float ambient, const float diffuse, const float specular, const float shininess)
+void PointLight::setProperties(const float ambient, const float diffuse, const float specular)
 {
     this->_ambient = ambient;
     this->_diffuse = diffuse;
     this->_specular = specular;
-    this->_shininess = shininess;
 
     LightManager::get().notify();
 }
@@ -62,9 +61,4 @@ float PointLight::getLinear() const
 float PointLight::getQuadratic() const
 {
     return this->_quadratic;
-}
-
-float PointLight::getShininess() const
-{
-    return this->_shininess;
 }

@@ -1,5 +1,6 @@
 #version 410 core
-out vec4 FragColor;
+layout(location = 0) out vec4 gColor;
+layout(location = 1) out vec3 gNormal;
 
 in vec4 clipSpace;
 
@@ -27,7 +28,6 @@ void main() {
 
     vec2 totalDistortion = distortion1 + distortion2;
 
-
     reflectTexCoords += totalDistortion;
     refractTexCoords += totalDistortion;
 
@@ -39,6 +39,7 @@ void main() {
     vec4 refractColour = texture(refractionTexture, refractTexCoords);
     // Define water colors
 
-    FragColor = mix(reflectColour, refractColour, 0.5); 
- //FragColor = texture(dudvMap, TexCoord); 
+    gColor = mix(reflectColour, refractColour, 0.5);
+    gNormal = vec3(0, 1, 0);
+ //FragColor = texture(dudvMap, TexCoord);
 }

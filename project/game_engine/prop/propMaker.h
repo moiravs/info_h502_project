@@ -5,22 +5,28 @@
 
 #include "prop.h"
 
+class ParticleGenerator;
 class DirectionalLight;
 class HeightMap;
 
 class PropMaker
 {
     PropMaker() = default;
+    static glm::vec3 calculateNormal(int x, int z, int imageWidth, int imageHeight, const std::vector<float> &vertices);
 
 public:
     static std::shared_ptr<Prop> makeLamp(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &color,
-                                          const glm::vec4 &lightProperties, const glm::vec3 &lightAttenuation);
+                                          const glm::vec3 &lightProperties, const glm::vec3 &lightAttenuation);
 
     static std::shared_ptr<Prop> makeTrees(const std::shared_ptr<HeightMap> &heightMap, int nbTrees = 200, int chunkSize = 256);
     static std::shared_ptr<Prop> makeFlowers(const std::shared_ptr<HeightMap> &heightMap, int nbTrees = 300, int chunkSize = 256);
     static std::shared_ptr<Prop> makeRings(const std::shared_ptr<HeightMap> &heightMap);
 
-    static std::shared_ptr<Prop> makeFirecamp(float x, float z, const std::shared_ptr<HeightMap> &heightMap);
+    static std::pair<std::shared_ptr<HeightMap>, std::shared_ptr<Prop>> terrainFromTexture(
+        const std::string &texturePath, float width, float depth);
+
+    static std::pair<std::shared_ptr<Prop>, std::shared_ptr<ParticleGenerator>> makeFirecamp(float x, float z,
+                                                                                             const std::shared_ptr<HeightMap> &heightMap);
 
     static std::pair<std::shared_ptr<Prop>, std::shared_ptr<DirectionalLight>> makeSun(const glm::vec3 &position,
                                                                                        const glm::vec3 &scale, const glm::vec3 &color);

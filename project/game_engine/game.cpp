@@ -1,6 +1,6 @@
 #include "game.h"
 
-#include "depth/depthMap.h"
+#include "depth/depthMapFrameBuffer.h"
 #include "prop/prop.h"
 #include "renderer/meshRenderer.h"
 
@@ -98,24 +98,29 @@ void Game::renderText(Text characters, Shader &shader, std::string text, float x
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Game::renderScene(const float delta, const std::vector<std::shared_ptr<Renderable>> &renderers)
+void Game::renderScene(const std::vector<std::shared_ptr<Renderable>> &renderers)
 {
     for (const auto &i : renderers)
     {
-        i->render(delta);
+        i->render();
     }
 }
 
-void Game::renderShadows(const std::vector<std::shared_ptr<Renderable>> &renderables, const std::shared_ptr<DepthMap> &depthMap)
+void Game::renderSceneWithShader(const std::vector<std::shared_ptr<Renderable>> &renderers,
+                                 const std::shared_ptr<Shader> &shader)
 {
-    depthMap->prepare();
-
-    for (const auto &i : renderables)
+    for (const auto &i : renderers)
     {
-        i->renderDepth(depthMap);
+        i->renderWithShader(shader);
     }
+}
 
-    depthMap->cleanup();
+void Game::update(float delta, const std::vector<std::shared_ptr<Renderable>> &renderers)
+{
+    for (const auto &i : renderers)
+    {
+        i->update(delta);
+    }
 }
 
 void Game::checkTerrainCollision(const std::shared_ptr<Entity> &entity, const std::shared_ptr<HeightMap> &heighMap)

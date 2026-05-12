@@ -17,7 +17,7 @@
 
 #include "meshRenderer.h"
 #include "../texture.h"
-#include "../shader.h"
+#include "../shader/shader.h"
 
 class SpriteRenderer : public MeshRenderer
 {

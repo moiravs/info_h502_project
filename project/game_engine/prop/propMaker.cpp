@@ -7,21 +7,158 @@
 #include "../entity/light/pointLight.h"
 #include "../entity/particleGenerator.h"
 #include "../entity/player.h"
-#include "../entity/particleGenerator.h"
-#include "../entity/player.h"
 #include "../entity/renderableEntityMaker.h"
-#include "../manager/mainCamera.h"
 #include "../renderer/instancedRenderer.h"
 #include "../renderer/objectRenderer.h"
 #include "../entity/spinner.h"
-#include "../renderer/instancedRenderer.h"
-#include "../renderer/objectRenderer.h"
 
 #include "../mesh/heightMap.h"
 #include <random>
+#include <stb_image.h>
+
+std::pair<std::shared_ptr<HeightMap>, std::shared_ptr<Prop>> PropMaker::terrainFromTexture(const std::string& texturePath,
+                                                                          const float width, const float depth)
+{
+    int imageWidth;
+    int imageHeight;
+    stbi_set_flip_vertically_on_load(true);
+    int nrChannels;
+    unsigned char *data = stbi_load(texturePath.c_str(), &imageWidth, &imageHeight, &nrChannels, 0);
+    if (!data)
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+
+    std::vector<float> heights(imageWidth * imageHeight);
+
+    constexpr float yScale = 64.0f / 256.0f;
+
+    auto idx = [&](const int x, const int z)
+    {
+        return z * imageWidth + x;
+    };
+
+    for (int z = 0; z < imageHeight; z++)
+    {
+        for (int x = 0; x < imageWidth; x++)
+        {
+            constexpr float yShift = 16.0f;
+            const unsigned char *pixel = data + (x + imageWidth * z) * nrChannels;
+            const float h = pixel[0] * yScale - yShift;
+
+            heights[idx(x, z)] = h;
+        }
+    }
+
+    std::vector<glm::vec3> normals(imageWidth * imageHeight);
+
+    for (int z = 0; z < imageHeight; z++)
+    {
+        for (int x = 0; x < imageWidth; x++)
+        {
+            normals[idx(x,z)] = calculateNormal(x, z,
+                                                 imageWidth,
+                                                 imageHeight,
+                                                 heights);
+        }
+    }
+
+    auto heightMap = std::make_shared<HeightMap>(width, depth, imageWidth, imageHeight, heights);
+    auto prop = std::make_shared<Prop>();
+
+    for (int cz = 0; cz < imageHeight - 1; cz += CHUNK_SIZE)
+    {
+        for (int cx = 0; cx < imageWidth - 1; cx += CHUNK_SIZE)
+        {
+            auto mesh = std::make_shared<Mesh>();
+
+            std::vector<Vertex> vertices;
+            vertices.reserve((CHUNK_SIZE + 1) * (CHUNK_SIZE + 1));
+            std::vector<unsigned> indices;
+            indices.reserve(CHUNK_SIZE * CHUNK_SIZE * 6);
+
+            int maxX = std::min(cx + CHUNK_SIZE, imageWidth - 1);
+            int maxZ = std::min(cz + CHUNK_SIZE, imageHeight - 1);
+
+            for (int z = cz; z <= maxZ; z++)
+            {
+                for (int x = cx; x <= maxX; x++)
+                {
+                    float xPercent = static_cast<float>(x) / (imageWidth - 1);
+                    float zPercent = static_cast<float>(z) / (imageHeight - 1);
+
+                    float vx = (xPercent - 0.5f) * width;
+                    float vz = (zPercent - 0.5f) * depth;
+                    float vy = heights[idx(x, z)];
+
+                    glm::vec3 pos(vx, vy, vz);
+
+                    float u = xPercent;
+                    float v = zPercent;
+
+                    glm::vec2 uv(u, v);
+
+                    glm::vec3 n = normals[idx(x, z)];
+
+                    vertices.push_back(Vertex{pos, uv, n});
+                }
+            }
+            int chunkWidth = maxX - cx + 1;
+
+            for (int z = 0; z < (maxZ - cz); z++)
+            {
+                for (int x = 0; x < (maxX - cx); x++)
+                {
+                    int i0 = z * chunkWidth + x;
+                    int i1 = i0 + 1;
+                    int i2 = i0 + chunkWidth;
+                    int i3 = i2 + 1;
+
+                    indices.push_back(i0);
+                    indices.push_back(i2);
+                    indices.push_back(i1);
+
+                    indices.push_back(i1);
+                    indices.push_back(i2);
+                    indices.push_back(i3);
+                }
+            }
+            MeshEntry entry{};
+            entry.init(vertices, indices);
+            entry.materialIndex = 0;
+            mesh->addEntry(entry);
+            std::shared_ptr<Object> object = Object::make(mesh, "cpu_height");
+            object->setMaterial(0.5, 1);
+
+            prop->addRenderable(object);
+        }
+    }
+    stbi_image_free(data);
+    return {heightMap, prop};
+}
+
+glm::vec3 PropMaker::calculateNormal(const int x, const int z, const int imageWidth, const int imageHeight,
+                                       const std::vector<float> &heights)
+{
+    auto idx = [&](const int _x, const int _z)
+    {
+        return _z * imageWidth + _x;
+    };
+    // Get heights of neighbors (with bounds checking)
+    const float hL = (x > 0) ? heights[idx((x - 1), z)] : heights[idx(x, z)];
+    const float hR = (x < imageWidth - 1) ? heights[idx(x + 1, z)] : heights[idx(x, z)];
+    const float hD = (z > 0) ? heights[idx(x, z - 1)] : heights[idx(x, z)];
+    const float hU = (z < imageHeight - 1) ? heights[idx(x, z + 1)] : heights[idx(x, z)];
+
+    // Deduce normal from height difference
+    // The constant (2.0) should match your grid spacing for perfect accuracy
+    const glm::vec3 normal = glm::normalize(glm::vec3(hL - hR, 2.0f, hD - hU));
+    return normal;
+}
+
 
 std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3 &color,
-                                          const glm::vec4 &lightProperties, const glm::vec3 &lightAttenuation)
+                                          const glm::vec3 &lightProperties, const glm::vec3 &lightAttenuation)
 {
     const auto sphere = Object::make(
         std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/sphere_smooth.obj"),
@@ -33,7 +170,7 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
     light->setColor(color);
 
     light->setAttenuation(lightAttenuation.x, lightAttenuation.y, lightAttenuation.z);
-    light->setProperties(lightProperties.x, lightProperties.y, lightProperties.z, lightProperties.w);
+    light->setProperties(lightProperties.x, lightProperties.y, lightProperties.z);
     sphere->setPosition(position);
     sphere->setScale(scale);
 
@@ -45,28 +182,18 @@ std::shared_ptr<Prop> PropMaker::makeLamp(const glm::vec3 &position, const glm::
     return prop;
 }
 
-std::pair<std::shared_ptr<Prop>, std::shared_ptr<DirectionalLight>> PropMaker::makeSun(const glm::vec3 &position,
-                                                                                       const glm::vec3 &scale, const glm::vec3 &color)
+std::pair<std::shared_ptr<Prop>, std::shared_ptr<DirectionalLight>> PropMaker::makeSun(const glm::vec3& position,
+    const glm::vec3& scale, const glm::vec3& color)
 {
-    const auto sphere = Object::make(
-        std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/sphere_smooth.obj"),
-        "solid");
-    const auto light = DirectionalLight::make();
+    const auto directionalLight = DirectionalLight::make();
 
-    light->setTarget({0, 0, 0});
-    sphere->attach(light);
-    sphere->setColor(color);
-    light->setColor(color);
+    const auto ligthBall = makeLamp(position, scale, color, glm::vec3(0.5, 0.9, 1), glm::vec3(1, 0, 0));
 
-    sphere->setPosition(position);
-    sphere->setScale(scale);
+    directionalLight->setTarget({0, 0, 0});
+    ligthBall->getMainObject()->attach(directionalLight);
+    directionalLight->setColor(color);
 
-    auto prop = std::make_shared<Prop>();
-
-    prop->addRenderable(sphere);
-    prop->setMainObject(sphere);
-
-    return {prop, light};
+    return {ligthBall, directionalLight};
 }
 
 std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<HeightMap> &heightMap)
@@ -78,10 +205,12 @@ std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<HeightMap> &hei
 
     const auto lamp = PropMaker::makeLamp(
         glm::vec3(1.0, 15.0, 1.5), glm::vec3(0.1), glm::vec3(1, 0, 0),
-        glm::vec4(0.1, 0.9, 1, 32), glm::vec3(5, 0.2, 0));
+        glm::vec3(0.1, 3, 1), glm::vec3(1, 1, 0));
 
     plane->attach(lamp->getMainObject(), {0, -0.43, -6.1}, true, true);
     plane->attach(spinnyThing, {0, 0, 0}, true, true, false);
+
+    plane->setMaterial(1, 256);
 
     prop->addRenderable(plane);
     prop->addRenderable(spinnyThing);
@@ -90,7 +219,7 @@ std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<HeightMap> &hei
     return prop;
 }
 
-std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, const std::shared_ptr<HeightMap> &heightMap)
+std::pair<std::shared_ptr<Prop>, std::shared_ptr<ParticleGenerator>> PropMaker::makeFirecamp(const float x, const float z, const std::shared_ptr<HeightMap> &heightMap)
 {
     const auto firecamp = Object::make(
         std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/Campfire/Campfire OBJ.obj"),
@@ -99,10 +228,12 @@ std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, cons
     firecamp->setPosition(glm::vec3(x, heightMap->getHeight(x, z), z));
     firecamp->setScale(glm::vec3(0.2, 0.2, 0.2));
 
+    firecamp->setMaterial(0.5, 1);
+
     auto prop = std::make_shared<Prop>();
-    auto light = PropMaker::makeLamp(
-        glm::vec3(1.0, 15.0, 1.5), glm::vec3(1, 1, 1), glm::vec3(1, 0, 0),
-        glm::vec4(0, 0.3, 0, 1), glm::vec3(0.5, 0.1, 0));
+    const auto light = PropMaker::makeLamp(
+        glm::vec3(1.0, 15.0, 1.5), glm::vec3(1, 1, 1), glm::vec3(1.0f, 0.5f, 0.0f),
+        glm::vec3(0.5, 2, 0.1), glm::vec3(1, 0.1, 0));
 
     auto pg = ParticleGenerator::make(ParticleParams{
         .spread = 0.2,
@@ -116,11 +247,11 @@ std::shared_ptr<Prop> PropMaker::makeFirecamp(const float x, const float z, cons
     constexpr auto offset = glm::vec3(2.6, 0, 0);
 
     firecamp->attach(light->getMainObject(), offset, false);
-    firecamp->attach(pg, offset);
+    firecamp->attach(pg, offset, false);
     prop->addRenderable(firecamp);
     prop->addRenderable(pg);
     prop->setMainObject(firecamp);
-    return prop;
+    return {prop, pg};
 }
 
 std::shared_ptr<Prop> PropMaker::makeRings(const std::shared_ptr<HeightMap> &heightMap)
@@ -156,7 +287,7 @@ std::shared_ptr<Prop> PropMaker::makeRings(const std::shared_ptr<HeightMap> &hei
 
         ring->setPosition(glm::vec3(x, y, z));
         ring->rotate(0, glm::radians(90.0f), 0);
-
+        ring->setMaterial(1, 256);
         prop->addRenderable(ring);
     }
     return prop;
