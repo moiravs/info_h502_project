@@ -203,10 +203,20 @@ std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<HeightMap> &hei
     auto prop = std::make_shared<Prop>();
 
     const auto lamp = PropMaker::makeLamp(
+        glm::vec3(1.0, 15.0, 1.5), glm::vec3(0.1), glm::vec3(1, 1, 1),
+        glm::vec3(0.1, 3, 1), glm::vec3(1, 1, 0));
+
+    const auto lamp2 = PropMaker::makeLamp(
         glm::vec3(1.0, 15.0, 1.5), glm::vec3(0.1), glm::vec3(1, 0, 0),
         glm::vec3(0.1, 3, 1), glm::vec3(1, 1, 0));
 
+    const auto lamp3 = PropMaker::makeLamp(
+        glm::vec3(1.0, 15.0, 1.5), glm::vec3(0.1), glm::vec3(0, 1, 0),
+        glm::vec3(0.1, 3, 1), glm::vec3(1, 1, 0));
+
     plane->attach(lamp->getMainObject(), {0, -0.43, -6.1}, true, true);
+    plane->attach(lamp2->getMainObject(), {-3.43, -0.2, 0.5}, true, true);
+    plane->attach(lamp3->getMainObject(), {3.43, -0.2, 0.5}, true, true);
     plane->attach(spinnyThing, {0, 0, 0}, true, true, false);
 
     plane->setMaterial(1, 256);

@@ -209,7 +209,7 @@ int main()
 
 			geometryFBO->begin();
 
-			Game::renderScene({trees, skybox, firecamp, plane, terrain, rings, water});
+			Game::renderScene({trees, skybox, firecamp, plane, terrain, water});
 
 			geometryFBO->end();
 
@@ -226,7 +226,7 @@ int main()
 			waterReflectionFBO->bindTextures();
 			waterRefractionFBO->bindTextures();
 
-			Game::renderScene({sun, firecampParticles});
+			Game::renderScene({sun, firecampParticles, rings});
 
 			glDepthMask(GL_TRUE);
 			lightFBO->end();
