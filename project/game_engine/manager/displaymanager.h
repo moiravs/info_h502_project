@@ -57,9 +57,9 @@ public:
 
     static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos);
 
-    int getWidth();
+    int getWidth() const;
 
-    int getHeight();
+    int getHeight() const;
 
     static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 
