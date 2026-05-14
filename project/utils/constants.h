@@ -77,6 +77,8 @@ constexpr int ROCK_TEX = GL_TEXTURE11;
 constexpr int ROCK_TEX_IDX = 11;
 constexpr int SNOW_TEX = GL_TEXTURE12;
 constexpr int SNOW_TEX_IDX = 12;
+constexpr int ATM_COLOR_TEX = GL_TEXTURE13;
+constexpr int ATM_COLOR_TEX_IDX = 13;
 
 // Bindings
 const std::vector<std::string> UBO_BINDING_NAMES = {

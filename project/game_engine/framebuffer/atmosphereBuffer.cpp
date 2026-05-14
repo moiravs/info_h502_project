@@ -1,22 +1,22 @@
 
-#include "lightFrameBuffer.h"
+#include "atmosphereBuffer.h"
 
 #include "../../utils/utils.h"
 #include "../../utils/constants.h"
 
-LightFrameBuffer::LightFrameBuffer(const int width, const int height, const GLuint depthTexture) : FrameBuffer(width, height)
+AtmosphereFrameBuffer::AtmosphereFrameBuffer(const int width, const int height, const GLuint depthTexture) : FrameBuffer(width, height)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, this->_fbo);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
 }
 
-void LightFrameBuffer::bindTextures()
+void AtmosphereFrameBuffer::bindTextures()
 {
-    glActiveTexture(LIT_COLOR_TEX);
+    glActiveTexture(ATM_COLOR_TEX);
     glBindTexture(GL_TEXTURE_2D, this->_tex);
 }
 
-void LightFrameBuffer::createTextures()
+void AtmosphereFrameBuffer::createTextures()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, this->_fbo);
     createColorTexture(this->_tex, GL_COLOR_ATTACHMENT0);
@@ -35,20 +35,19 @@ void LightFrameBuffer::createTextures()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void LightFrameBuffer::begin()
+void AtmosphereFrameBuffer::begin()
 {
     FrameBuffer::begin();
     glDisable(GL_DEPTH_TEST);
-    glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void LightFrameBuffer::end()
+void AtmosphereFrameBuffer::end()
 {
     FrameBuffer::end();
-    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-GLuint LightFrameBuffer::getTexture() const
+GLuint AtmosphereFrameBuffer::getTexture() const
 {
     return this->_tex;
 }

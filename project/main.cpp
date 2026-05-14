@@ -42,14 +42,29 @@
 #include "game_engine/renderer/waterRenderer.h"
 #include "game_engine/renderer/spriteRenderer.h"
 #include "game_engine/shader/lightShader.h"
+#include "game_engine/shader/atmosphereShader.h"
+
 #include "utils/constants.h"
 #include "utils/textureViewer.h"
 #include <map>
 #include "game_engine/entity/text.h"
 #include "SFML/Audio.hpp"
+#include "game_engine/framebuffer/atmosphereBuffer.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
+float getWaterIntersection(glm::vec3 rayOrigin, glm::vec3 rayDir, float waterHeight)
+{
+	glm::vec3 planeNormal = glm::vec3(0.0f, 1.0f, 0.0f);
+	float denom = glm::dot(planeNormal, rayDir);
+	if (std::abs(denom) > 1e-6)
+	{
+		float t = (waterHeight - rayOrigin.y) / rayDir.y;
+		if (t >= 0)
+			return t;
+	}
+	return -1.0f;
+}
 int main()
 {
 
@@ -123,9 +138,15 @@ int main()
 	auto shadowFBO = std::make_shared<DepthMapFrameBuffer>(DEPTH_WIDTH, DEPTH_HEIGHT, sunLight);
 	shadowFBO->createTextures();
 	auto lightFBO = std::make_shared<LightFrameBuffer>(dm.getWidth(), dm.getHeight(), geometryFBO->getDepthTex());
+	auto atmosphereFBO = std::make_shared<AtmosphereFrameBuffer>(dm.getWidth(), dm.getHeight(), geometryFBO->getDepthTex());
+
 	lightFBO->createTextures();
+	atmosphereFBO->createTextures();
 
 	auto lightShader = std::make_shared<LightShader>();
+	auto atmosphereShader = std::make_shared<AtmosphereShader>();
+	atmosphereShader->use();
+	atmosphereShader->setVector2f("viewport_size", glm::vec2(dm.getWidth(), dm.getHeight()));
 
 	auto reflectionPlane = glm::vec4(0, 1, 0, WATER_HEIGHT);
 	auto refractionPlane = glm::vec4(0, -1, 0, WATER_HEIGHT);
@@ -177,6 +198,7 @@ int main()
 			float sunZ = std::cos(currentTime * orbitSpeed) * orbitRadius;
 
 			sun->setPosition(glm::vec3(sunX, sunY, sunZ));
+			atmosphereShader->setVector3f("sunDir", glm::vec3(sunX, sunY, sunZ));
 
 			lightManager.updateUBO();
 			camera->updateUBO();
@@ -213,6 +235,7 @@ int main()
 
 			geometryFBO->end();
 
+			// == LIGHT ==
 			lightFBO->begin();
 
 			geometryFBO->bindTextures();
@@ -234,6 +257,29 @@ int main()
 			dm.resizeViewport(dm.getWidth(), dm.getHeight());
 			textureViewer.render(lightFBO->getTexture(), false);
 
+			// == ATMOSPHERE ==
+			atmosphereFBO->begin();
+
+			geometryFBO->bindTextures();
+			shadowFBO->bindTextures();
+
+			glDisable(GL_DEPTH_TEST); // IMPORTANT: Post-processing quads shouldn't depth test
+			atmosphereShader->render();
+
+			glEnable(GL_DEPTH_TEST);
+			glDepthMask(GL_FALSE);
+
+			waterReflectionFBO->bindTextures();
+			waterRefractionFBO->bindTextures();
+
+			Game::renderScene({sun, firecampParticles, rings});
+
+			glDepthMask(GL_TRUE);
+			atmosphereFBO->end();
+
+			textureViewer.render(atmosphereFBO->getTexture(), false);
+
+			// == OTHERS ==
 			game.checkIfPlaneInRing(plane, rings, heightMap);
 
 			glDisable(GL_DEPTH_TEST); // Ensure it draws on top of everything
