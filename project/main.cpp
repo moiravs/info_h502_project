@@ -259,22 +259,9 @@ int main()
 
 			// == ATMOSPHERE ==
 			atmosphereFBO->begin();
-
-			geometryFBO->bindTextures();
-			shadowFBO->bindTextures();
-
-			glDisable(GL_DEPTH_TEST); // IMPORTANT: Post-processing quads shouldn't depth test
+			atmosphereFBO->bindTextures();
 			atmosphereShader->render();
 
-			glEnable(GL_DEPTH_TEST);
-			glDepthMask(GL_FALSE);
-
-			waterReflectionFBO->bindTextures();
-			waterRefractionFBO->bindTextures();
-
-			Game::renderScene({sun, firecampParticles, rings});
-
-			glDepthMask(GL_TRUE);
 			atmosphereFBO->end();
 
 			textureViewer.render(atmosphereFBO->getTexture(), false);
