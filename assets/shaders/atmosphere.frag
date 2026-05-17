@@ -11,11 +11,13 @@ uniform sampler2D material;
 uniform sampler2D shadow;
 uniform vec2 viewport_size;
 
+#define MAX_LIGHTS 128
+
 layout(std140) uniform Lights {
-    vec4 lightPositions[32];
-    vec4 lightProperties[32];   
-    vec4 lightAttenuations[32]; 
-    vec4 lightColors[32];
+    vec4 lightPositions[MAX_LIGHTS];
+    vec4 lightProperties[MAX_LIGHTS];
+    vec4 lightAttenuations[MAX_LIGHTS];
+    vec4 lightColors[MAX_LIGHTS];
     mat4 sunPV;
     vec4 sunDir;
     int lightCount;
@@ -49,10 +51,10 @@ float linearize(float depthVal) {
     return (2.0 * near * far) / (far + near - z * (far - near));
 }
 
-void GADD(vec3 PP, vec3 sunDir, float density, float falloff, out float g, out vec3 li) {
+void GADD(vec3 PP, vec3 sunDirection, float density, float falloff, out float g, out vec3 li) {
     g = density * exp(-falloff * max(0.0, PP.y));
     
-    float NdotL = max(dot(vec3(0.0, 1.0, 0.0), normalize(sunDir.xyz)), 0.0); 
+    float NdotL = max(dot(vec3(0.0, 1.0, 0.0), normalize(sunDirection.xyz)), 0.0); 
     vec3 sunColor = vec3(1.0, 0.95, 0.85);
     
     vec3 ambientSky = vec3(0.2, 0.35, 0.5) * 0.4;
@@ -62,7 +64,7 @@ void GADD(vec3 PP, vec3 sunDir, float density, float falloff, out float g, out v
 void main() {
     float rawDepth = texture(depth, TexCoords).r;
     bool isSky = (rawDepth >= 1.0);
-    
+    vec4 sunDirection = sunDir;
     vec3 rayDir = get_ray_direction();
     vec3 rawSceneColor = texture(color, TexCoords).rgb; 
 
@@ -84,7 +86,7 @@ void main() {
     vec3 li = vec3(0.0);
     
     vec3 PP = origin + t * rayDir;
-    GADD(PP, sunDir.xyz, density, falloff, dtau, li);
+    GADD(PP, sunDirection.xyz, density, falloff, dtau, li);
     
     float ss = min(clamp(1.0 / (k * dtau + 0.001), minstepsize, maxstepsize), te - t);
     t += ss;
@@ -92,7 +94,7 @@ void main() {
     vec3 Cv = vec3(0.0); 
     vec3 Ov = vec3(0.0); 
     
-    vec3 activesunDirection = normalize(sunDir.xyz);
+    vec3 activesunDirection = normalize(sunDirection.xyz);
     float cosTheta = dot(rayDir, activesunDirection);
     float rayleighPhase = 0.75 * (1.0 + cosTheta * cosTheta);
     
@@ -101,7 +103,7 @@ void main() {
         vec3 last_li = li;
         
         PP = origin + t * rayDir;
-        GADD(PP, sunDir.xyz, density, falloff, dtau, li);
+        GADD(PP, sunDirection.xyz, density, falloff, dtau, li);
         
         float tau = 0.5 * ss * (dtau + last_dtau);
         vec3 lighttau = 0.5 * ss * (li * dtau + last_li * last_dtau);

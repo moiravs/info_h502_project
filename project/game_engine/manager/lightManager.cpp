@@ -7,6 +7,7 @@
 
 #include "../entity/light/pointLight.h"
 #include "mainCamera.h"
+#include <glm/gtx/string_cast.hpp>
 
 LightManager::LightManager() : UboProvider("Lights", sizeof(LightBlock)) {}
 
@@ -52,6 +53,8 @@ void LightManager::updateUBO()
     glm::vec3 camPos = MainCamera::get()->getPosition();
 
     glm::vec4 direction = glm::vec4(glm::normalize(this->_sun->getPosition() - camPos), 1.0);
+
+    std::cout << glm::to_string(this->_sun->getPosition()) << std::endl;
     g.sunDir = direction;
 
     for (int i = 0; i < g.count; i++)
