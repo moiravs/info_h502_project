@@ -256,10 +256,11 @@ int main()
 			waterRefractionFBO->bindTextures();
 
 			Game::renderScene({
+				skybox,
+
 				sun,
 				firecampParticles,
 				rings,
-				skybox,
 			});
 
 			glDepthMask(GL_TRUE);
