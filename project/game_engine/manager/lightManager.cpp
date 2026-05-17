@@ -53,7 +53,7 @@ void LightManager::updateUBO()
     glm::vec3 camPos = MainCamera::get()->getPosition();
 
     glm::vec4 direction = glm::vec4(glm::normalize(this->_sun->getPosition() - camPos), 1.0);
-
+    g.sunDir = direction;
     for (int i = 0; i < g.count; i++)
     {
         g.positions[i] = glm::vec4(lights[i]->getPosition(), 0);

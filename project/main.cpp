@@ -257,7 +257,6 @@ int main()
 
 			Game::renderScene({
 				skybox,
-
 				sun,
 				firecampParticles,
 				rings,
