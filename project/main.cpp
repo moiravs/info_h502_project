@@ -265,15 +265,14 @@ int main()
 			glDepthMask(GL_TRUE);
 			lightFBO->end();
 
-			dm.resizeViewport(dm.getWidth(), dm.getHeight());
-			textureViewer.render(lightFBO->getTexture(), false);
-
 			// == ATMOSPHERE ==
 			atmosphereFBO->begin();
 			atmosphereFBO->bindTextures();
 			atmosphereShader->render();
 
 			atmosphereFBO->end();
+
+		    dm.resizeViewport(dm.getWidth(), dm.getHeight());
 
 			textureViewer.render(atmosphereFBO->getTexture(), false);
 

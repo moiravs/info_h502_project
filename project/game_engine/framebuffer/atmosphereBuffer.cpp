@@ -39,12 +39,12 @@ void AtmosphereFrameBuffer::begin()
 {
     FrameBuffer::begin();
     glDisable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void AtmosphereFrameBuffer::end()
 {
     FrameBuffer::end();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 GLuint AtmosphereFrameBuffer::getTexture() const
