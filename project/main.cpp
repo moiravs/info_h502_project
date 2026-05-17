@@ -204,7 +204,7 @@ int main()
 			glm::vec3 camPos = MainCamera::get()->getPosition();
 
 			glm::vec3 direction = glm::normalize(sunPos - camPos);
-			atmosphereShader->setVector3f("sunDirection", direction);
+			// atmosphereShader->setVector3f("sunDirection", direction);
 
 			lightManager.updateUBO();
 			camera->updateUBO();

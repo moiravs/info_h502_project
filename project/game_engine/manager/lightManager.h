@@ -17,7 +17,7 @@ struct LightBlock
     glm::vec4 attenuations[MAX_LIGHTS]; // x=constant, y=linear,  z=quadratic, w=UNUSED
     glm::vec4 colors[MAX_LIGHTS];       // x=r,        y=g,       z=b,         w=UNUSED
     glm::mat4 sunPV;
-    glm::vec3 sunDir;
+    glm::vec4 sunDir;
     int count;
     int pad1;
     int pad2;

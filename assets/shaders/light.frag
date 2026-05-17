@@ -10,7 +10,7 @@ layout(std140) uniform Lights {
     vec4 lightAttenuations[MAX_LIGHTS];
     vec4 lightColors[MAX_LIGHTS];
     mat4 sunPV;
-    vec3 sunDir;
+    vec4 sunDir;
     int lightCount;
     int pad1;
     int pad2;
