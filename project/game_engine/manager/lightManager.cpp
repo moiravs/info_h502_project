@@ -6,10 +6,11 @@
 #include "uboManager.h"
 
 #include "../entity/light/pointLight.h"
+#include "mainCamera.h"
 
-LightManager::LightManager(): UboProvider("Lights", sizeof(LightBlock)) {}
+LightManager::LightManager() : UboProvider("Lights", sizeof(LightBlock)) {}
 
-LightManager& LightManager::get()
+LightManager &LightManager::get()
 {
     static LightManager instance;
     return instance;
@@ -45,23 +46,27 @@ void LightManager::notify()
 
 void LightManager::updateUBO()
 {
-    if (!this->needsUpdate) return;
     LightBlock g{};
     g.count = static_cast<int>(lights.size());
     g.sunPV = this->_sun->getPV();
+    glm::vec3 camPos = MainCamera::get()->getPosition();
 
-    for (int i = 0; i < g.count; i++) {
+    glm::vec3 direction = glm::normalize(this->_sun->getDirection() - camPos);
+    g.sunDir = direction;
+
+    for (int i = 0; i < g.count; i++)
+    {
         g.positions[i] = glm::vec4(lights[i]->getPosition(), 0);
         g.properties[i] = glm::vec4(lights[i]->getAmbient(), lights[i]->getDiffuse(),
-            lights[i]->getSpecular(), 0);
+                                    lights[i]->getSpecular(), 0);
         g.attenuations[i] = glm::vec4(lights[i]->getConstant(), lights[i]->getLinear(),
-            lights[i]->getQuadratic(), 0);
+                                      lights[i]->getQuadratic(), 0);
         g.colors[i] = glm::vec4(lights[i]->getColor(), 0);
     }
 
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, 0,
-                     sizeof(LightBlock),
-                     &g);
+                    sizeof(LightBlock),
+                    &g);
     this->needsUpdate = false;
 }

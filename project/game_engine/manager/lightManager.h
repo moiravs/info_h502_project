@@ -7,7 +7,6 @@
 #include "../shader/shader.h"
 #include "uboProvider.h"
 
-
 class DirectionalLight;
 class PointLight;
 
@@ -18,23 +17,26 @@ struct LightBlock
     glm::vec4 attenuations[MAX_LIGHTS]; // x=constant, y=linear,  z=quadratic, w=UNUSED
     glm::vec4 colors[MAX_LIGHTS];       // x=r,        y=g,       z=b,         w=UNUSED
     glm::mat4 sunPV;
+    glm::vec3 sunDir;
     int count;
     int pad1;
     int pad2;
     int pad3;
 };
 
-class LightManager : public UboProvider {
-    std::vector<std::shared_ptr<PointLight>> lights {};
+class LightManager : public UboProvider
+{
+    std::vector<std::shared_ptr<PointLight>> lights{};
     std::shared_ptr<DirectionalLight> _sun;
     bool needsUpdate = false;
     LightManager();
+
 public:
-    static LightManager& get();
+    static LightManager &get();
     void notify();
     void updateUBO();
     void registerPointLight(std::shared_ptr<PointLight> light);
     void registerDirectionalLight(const std::shared_ptr<DirectionalLight> &light);
 };
 
-#endif //INFOH502_CPP_LIGHTMANAGER_H
+#endif // INFOH502_CPP_LIGHTMANAGER_H

@@ -121,12 +121,12 @@ int main()
 
 	// Skybox
 	auto skybox = RenderableEntityMaker::makeRenderable<Skybox, SkyboxRenderer>(
-		"skybox", std::vector<std::string>{PATH_TO_SRC "/../assets/textures/cubemaps/skybox/right.jpg",
-										   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/left.jpg",
-										   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/top.jpg",
-										   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/bottom.jpg",
-										   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/front.jpg",
-										   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/back.jpg"});
+		"skybox", std::vector<std::string>{PATH_TO_SRC "/../assets/textures/cubemaps/skybox/px.png", // +X (Right)
+										   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/nx.png", // -X (Left)
+										   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/py.png", // +Y (Top)
+										   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/ny.png", // -Y (Bottom)
+										   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/pz.png", // +Z (Back)
+										   PATH_TO_SRC "/../assets/textures/cubemaps/skybox/nz.png"});
 
 	// FBOs
 	auto geometryFBO = std::make_shared<GeometryFrameBuffer>(dm.getWidth(), dm.getHeight());
@@ -183,6 +183,7 @@ int main()
 
 	while (!dm.shouldClose())
 	{
+		glEnable(GL_DITHER);
 		const double currentTime = glfwGetTime();
 		const double delta = currentTime - lastTime;
 		if (dm.currentState == GameState::PLAYING)
@@ -198,7 +199,12 @@ int main()
 			float sunZ = std::cos(currentTime * orbitSpeed) * orbitRadius;
 
 			sun->setPosition(glm::vec3(sunX, sunY, sunZ));
-			atmosphereShader->setVector3f("sunDir", glm::vec3(sunX, sunY, sunZ));
+			sunLight->setPosition(glm::vec3(sunX, sunY, sunZ));
+			glm::vec3 sunPos = glm::vec3(sunX, sunY, sunZ);
+			glm::vec3 camPos = MainCamera::get()->getPosition();
+
+			glm::vec3 direction = glm::normalize(sunPos - camPos);
+			atmosphereShader->setVector3f("sunDirection", direction);
 
 			lightManager.updateUBO();
 			camera->updateUBO();
@@ -231,7 +237,7 @@ int main()
 
 			geometryFBO->begin();
 
-			Game::renderScene({trees, skybox, firecamp, plane, terrain, water});
+			Game::renderScene({trees, firecamp, plane, terrain, water});
 
 			geometryFBO->end();
 
@@ -249,7 +255,12 @@ int main()
 			waterReflectionFBO->bindTextures();
 			waterRefractionFBO->bindTextures();
 
-			Game::renderScene({sun, firecampParticles, rings});
+			Game::renderScene({
+				sun,
+				firecampParticles,
+				rings,
+				skybox,
+			});
 
 			glDepthMask(GL_TRUE);
 			lightFBO->end();
