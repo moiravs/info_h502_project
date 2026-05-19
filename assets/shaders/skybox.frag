@@ -20,14 +20,6 @@ uniform samplerCube skybox;
 
 void main()
 {    
-    vec4 skyboxColor = texture(skybox, TexCoords);
-    
-    float dayFactor = smoothstep(-0.05, 0.15, sunDir.y);
-    
-    vec3 twilightColor = vec3(0.2, 0.35, 0.5) * 0.4;
-    
-    vec3 finalSky = mix(skyboxColor.rgb, twilightColor, dayFactor);
-    
-    gColor = vec4(finalSky, 1.0);
+    gColor = texture(skybox, TexCoords);
     gNormal = vec3(0.0);
 }

@@ -1,5 +1,7 @@
 #version 410 core
 
+// this whole shader is heavily inspired by https://www.youtube.com/watch?v=DxfEbulyFcY
+
 layout(location = 0) out vec4 lColor;
 
 in vec2 TexCoords; 
@@ -34,12 +36,12 @@ layout(std140) uniform CameraInfo {
 };
 
 const int numInScatteringPoints = 12;
-const int numOpticalDepthPoints = 4;
+const int numOpticalDepthPoints = 10;
 const float FLOAT_MAX = 10e20;
 
 const float atmosphereMaxHeight = 300.0;
-const float atmosphereMinHeight = -30.0;
-const float densityFalloff = 3.0;  
+const float atmosphereMinHeight = -15.0;
+const float densityFalloff = 25;
 uniform float atmosphereIntensity = 1.5; 
 
 const vec3 betaRayleigh = vec3(0.0058, 0.0135, 0.0331); 
@@ -60,6 +62,7 @@ vec3 getWorldPos(vec2 uv, float depthValue)
 
 // return the couple (distToAtm, distInAtm)
 vec2 rayAtm(vec3 rayOrigin, vec3 rayDir) {
+    if (rayOrigin.y < atmosphereMinHeight) return vec2(0, 0);
     if (rayOrigin.y < atmosphereMaxHeight) {
         // we are already in
         if (abs(rayDir.y) < 0.001) return vec2(0, FLOAT_MAX); // if the ray is flat, we stay in
@@ -84,17 +87,18 @@ vec2 rayAtm(vec3 rayOrigin, vec3 rayDir) {
 }
 
 float densityAtPoint(vec3 pos) {
-    float height01 = clamp(max(0.0, pos.y) / atmosphereMaxHeight, 0.0, 1.0);
+    float heightAboveSurface = max(0.0, pos.y - atmosphereMinHeight);
+    float height01 = heightAboveSurface / (atmosphereMaxHeight - atmosphereMinHeight);
     return exp(-height01 * densityFalloff) * (1.0 - height01);
 }
 
 float calculateOpticalDepth(vec3 rayOrigin, vec3 rayDir, float rayLength) {
     vec3 samplePoint = rayOrigin;
-    float stepSize = rayLength / float(numOpticalDepthPoints);
+    float stepSize = rayLength / (float(numOpticalDepthPoints) - 1);
     float opticalDepth = 0.0;
 
     for (int i = 0; i < numOpticalDepthPoints; i++) {
-        opticalDepth += densityAtPoint(samplePoint - camPosition.xyz) * stepSize;
+        opticalDepth += densityAtPoint(samplePoint) * stepSize;
         samplePoint += rayDir * stepSize;
     }
     return opticalDepth;
@@ -109,61 +113,56 @@ float miePhase(float cosAngle, float g) {
     return 1.0 / (4.0 * 3.141592) * (1.0 - g2) / pow(1.0 + g2 - 2.0 * g * cosAngle, 1.5);
 }
 
-vec3 calculateAtmosphere(vec3 rayOrigin, vec3 rayDir, float maxDistance, vec3 originalCol) {
-    vec3 dirToSun = normalize(sunDir.xyz);
-    float cosAngle = dot(rayDir, dirToSun);
-    
-    float pRayleigh = rayleighPhase(cosAngle);
-    float pMie = miePhase(cosAngle, 0.75);
-
-    vec2 temp = rayAtm(rayOrigin, rayDir);
-    float distanceToSpace = temp.x;
-    float marchLength = min(maxDistance, distanceToSpace);
-    
-    float stepSize = marchLength / float(numInScatteringPoints);
-    vec3 currentPos = rayOrigin;
-
-    vec3 scatteredLight = vec3(0.0);
-    float viewRayOpticalDepth = 0.0;
+vec3 calculateLight(vec3 rayOrigin, vec3 rayDir, float rayLength) {
+    vec3 inScatterPoint = rayOrigin;
+    vec3 dirToSun = normalize(vec3(sunDir));
+    if (dirToSun.y < 0) return vec3(0);
+    float stepSize = rayLength / (float(numInScatteringPoints) - 1);
+    float inScatteredLight = 0;
 
     for (int i = 0; i < numInScatteringPoints; i++) {
-        vec3 localPos = currentPos - rayOrigin;
-        float localDensity = densityAtPoint(localPos);
-        
-        viewRayOpticalDepth += localDensity * stepSize;
+        float localDensity = densityAtPoint(inScatterPoint);
+        float sunRayLength = rayAtm(inScatterPoint, dirToSun).y;
 
-        float sunRayOpticalDepth = calculateOpticalDepth(currentPos, dirToSun, atmosphereMaxHeight * 0.5);
+        // calculate optical depth from the point to the sun
+        float sunRayOpticalDepth = calculateOpticalDepth(inScatterPoint, dirToSun, sunRayLength);
+        // calculate optical depth from the point to the camera
+        float viewRayOpticalDepth = calculateOpticalDepth(inScatterPoint, -rayDir, i * stepSize);
 
-        vec3 totalOpticalDepth = (betaRayleigh + betaMie) * (viewRayOpticalDepth + sunRayOpticalDepth);
-        vec3 transmittance = exp(-totalOpticalDepth * 0.1);
+        //vec3 totalOpticalDepth = (betaRayleigh + betaMie) * (sunRayOpticalDepth);
+        float transmittance = exp(-(sunRayOpticalDepth + viewRayOpticalDepth));
+//        float transmittance = exp(-(viewRayOpticalDepth));
 
-        vec3 attenuation = localDensity * transmittance * stepSize;
-        scatteredLight += attenuation * (betaRayleigh * pRayleigh + betaMie * pMie);
+//        vec3 attenuation = localDensity * transmittance * stepSize;
+        inScatteredLight += localDensity * transmittance * stepSize;
+//        inScatteredLight += attenuation * (betaRayleigh * pRayleigh + betaMie * pMie);
 
-        currentPos += rayDir * stepSize;
+        inScatterPoint += rayDir * stepSize;
     }
 
-    scatteredLight *= atmosphereIntensity;
+    return vec3(inScatteredLight);
 
-    vec3 sunDisc = vec3(0.0);
-    
-    const float strictSunSize = 0.9995; 
-    const float strictSunEdge = 0.9998;
-
-    if (cosAngle > strictSunSize && dirToSun.y > 0.0) {
-        if (maxDistance >= 90000.0) { 
-            float sunAlpha = smoothstep(strictSunSize, strictSunEdge, cosAngle);
-            
-            vec3 sunColor = mix(vec3(5.0, 1.2, 0.1), vec3(4.0, 3.8, 3.5), clamp(dirToSun.y * 6.0, 0.0, 1.0));
-            float horizonGlowFade = clamp(dirToSun.y * 8.0, 0.0, 1.0);
-            sunDisc = sunColor * sunAlpha * horizonGlowFade;
-        }
-    }
-
-    float fogFactor = 0;
-    vec3 finalSceneColor = mix(originalCol, scatteredLight, fogFactor);
-
-    return finalSceneColor + scatteredLight * 0.2 + sunDisc;
+//    scatteredLight *= atmosphereIntensity;
+//
+//    vec3 sunDisc = vec3(0.0);
+//
+//    const float strictSunSize = 0.9995;
+//    const float strictSunEdge = 0.9998;
+//
+//    if (cosAngle > strictSunSize && dirToSun.y > 0.0) {
+//        if (maxDistance >= 90000.0) {
+//            float sunAlpha = smoothstep(strictSunSize, strictSunEdge, cosAngle);
+//
+//            vec3 sunColor = mix(vec3(5.0, 1.2, 0.1), vec3(4.0, 3.8, 3.5), clamp(dirToSun.y * 6.0, 0.0, 1.0));
+//            float horizonGlowFade = clamp(dirToSun.y * 8.0, 0.0, 1.0);
+//            sunDisc = sunColor * sunAlpha * horizonGlowFade;
+//        }
+//    }
+//
+//    float fogFactor = 0;
+//    vec3 finalSceneColor = mix(originalCol, scatteredLight, fogFactor);
+//
+//    return finalSceneColor + scatteredLight * 0.2 + sunDisc;
 }
 
 void main() {
@@ -180,14 +179,13 @@ void main() {
     vec2 hitInfo = rayAtm(rayOrigin, rayDir);
     float distToAtm = hitInfo.x;
     float distInAtm = min(hitInfo.y, sceneDepth - distToAtm);
-    lColor = vec4(vec3(distInAtm * 0.001), 1);
-    return;
 
-    vec3 finalColor = calculateAtmosphere(rayOrigin, rayDir, sceneDepth, originalCol);
-    
-    if (any(isnan(finalColor)) || any(isinf(finalColor))) {
-        lColor = vec4(originalCol, 1.0);
+    if (distInAtm > 0.0) {
+        const float eps = 0.0001;
+        vec3 pointInAtmosphere = rayOrigin + rayDir * (distToAtm + eps);
+        vec3 light = calculateLight(pointInAtmosphere, rayDir, distInAtm - 2 * eps);
+        lColor = vec4(originalCol * (1 - light.x) + light.x, 1);
     } else {
-        lColor = vec4(finalColor, 1.0);
+        lColor = vec4(originalCol, 1);
     }
 }
