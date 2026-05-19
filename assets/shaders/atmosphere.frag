@@ -35,20 +35,42 @@ layout(std140) uniform CameraInfo {
 
 const int numInScatteringPoints = 12;
 const int numOpticalDepthPoints = 4;
+const float FLOAT_MAX = 10e20;
 
-const float atmosphereRadius = 600.0;    
+const float atmosphereHeight = 300.0;
 const float densityFalloff = 3.0;  
 uniform float atmosphereIntensity = 1.5; 
 
 const vec3 betaRayleigh = vec3(0.0058, 0.0135, 0.0331); 
 const vec3 betaMie = vec3(0.004, 0.004, 0.004);
 
-float rayDomeIntersection(vec3 rayDir, float radius) {
-    return radius; 
+// return the couple (distToAtm, distInAtm)
+vec2 rayAtm(vec3 rayOrigin, vec3 rayDir) {
+    if (rayOrigin.y < atmosphereHeight) {
+        // we are already in
+        if (abs(rayDir.y) < 0.001) return vec2(0, FLOAT_MAX); // if the ray is flat, we stay in
+
+        // since we are in, we can stop the ray by either encountering the ground or the atmosphere limit
+        float t_atm = (atmosphereHeight - rayOrigin.y) / rayDir.y;
+        if (t_atm > 0) return vec2(0, t_atm); // we are were looking at the sky!
+
+        float t_ground = (0 - rayOrigin.y) / rayDir.y;
+        return vec2(0, t_ground);
+    } else {
+        // we are out
+        if (abs(rayDir.y) < 0.001) return vec2(FLOAT_MAX, 0); // if the ray is flat, we stay out
+
+        float t_atm = (atmosphereHeight - rayOrigin.y) / rayDir.y;
+        if (t_atm < 0) return vec2(FLOAT_MAX, 0); // we are looking in the wrong direction, we stay out
+
+        // we know that we will encounter the ground at some point.
+        float t_ground = (0 - rayOrigin.y) / rayDir.y;
+        return vec2(t_atm, t_ground - t_atm);
+    }
 }
 
 float densityAtPoint(vec3 pos) {
-    float height01 = clamp(max(0.0, pos.y) / atmosphereRadius, 0.0, 1.0);
+    float height01 = clamp(max(0.0, pos.y) / atmosphereHeight, 0.0, 1.0);
     return exp(-height01 * densityFalloff) * (1.0 - height01);
 }
 
@@ -80,7 +102,8 @@ vec3 calculateAtmosphere(vec3 rayOrigin, vec3 rayDir, float maxDistance, vec3 or
     float pRayleigh = rayleighPhase(cosAngle);
     float pMie = miePhase(cosAngle, 0.75);
 
-    float distanceToSpace = rayDomeIntersection(rayDir, atmosphereRadius);
+    vec2 temp = rayAtm(rayOrigin, rayDir);
+    float distanceToSpace = temp.x;
     float marchLength = min(maxDistance, distanceToSpace);
     
     float stepSize = marchLength / float(numInScatteringPoints);
@@ -95,7 +118,7 @@ vec3 calculateAtmosphere(vec3 rayOrigin, vec3 rayDir, float maxDistance, vec3 or
         
         viewRayOpticalDepth += localDensity * stepSize;
 
-        float sunRayOpticalDepth = calculateOpticalDepth(currentPos, dirToSun, atmosphereRadius * 0.5);
+        float sunRayOpticalDepth = calculateOpticalDepth(currentPos, dirToSun, atmosphereHeight * 0.5);
 
         vec3 totalOpticalDepth = (betaRayleigh + betaMie) * (viewRayOpticalDepth + sunRayOpticalDepth);
         vec3 transmittance = exp(-totalOpticalDepth * 0.1);
@@ -148,6 +171,11 @@ void main() {
     }
     
     vec3 rayOrigin = camPosition.xyz;
+    vec2 hitInfo = rayAtm(rayOrigin, rayDir);
+
+    lColor = vec4(hitInfo * 0.001, 0, 1);
+    return;
+
     vec3 finalColor = calculateAtmosphere(rayOrigin, rayDir, sceneDepth, originalCol);
     
     if (any(isnan(finalColor)) || any(isinf(finalColor))) {
