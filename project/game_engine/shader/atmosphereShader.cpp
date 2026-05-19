@@ -8,7 +8,7 @@ AtmosphereShader::AtmosphereShader()
 void AtmosphereShader::linkTextures() const
 {
     this->use();
-    glUniform1i(glGetUniformLocation(this->getID(), "color"), LIT_COLOR_TEX);
+    glUniform1i(glGetUniformLocation(this->getID(), "color"), LIT_COLOR_TEX_IDX);
     glUniform1i(glGetUniformLocation(this->getID(), "normal"), NORMAL_TEX_IDX);
     glUniform1i(glGetUniformLocation(this->getID(), "depth"), DEPTH_TEX_IDX);
     glUniform1i(glGetUniformLocation(this->getID(), "material"), MATERIAL_TEX_IDX);
