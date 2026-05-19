@@ -294,6 +294,11 @@ std::shared_ptr<Prop> PropMaker::makeRings(const std::shared_ptr<HeightMap> &hei
         const float z = minRandom + static_cast<float>(rand()) / RAND_MAX * (maxRandom - minRandom);
         const float y = glm::max(minHeightRandom + static_cast<float>(rand()) / RAND_MAX * (maxHeightRandom - minHeightRandom), heightMap->getHeight(x, z) + 10);
 
+        auto l = PointLight::make();
+        l->setColor(glm::vec3(1, 1, 0));
+        l->setProperties(0.5, 2, 0.1);
+        l->setAttenuation(1, 0.1, 0);
+        ring->attach(l, glm::vec3(2, 2, 0));
         ring->setPosition(glm::vec3(x, y, z));
         ring->rotate(0, glm::radians(90.0f), 0);
         ring->setMaterial(1, 256);

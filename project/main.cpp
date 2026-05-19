@@ -165,7 +165,7 @@ int main()
 	auto flowerField = PropMaker::makeFlowers(heightMap);
 	auto &lightManager = LightManager::get();
 	float orbitRadius = PLAN_SIZE_X / 2; // Distance from the center of the scene
-	float orbitSpeed = 1.f;			 // How fast the sun moves
+	float orbitSpeed = .1f;			 // How fast the sun moves
 	float orbitHeight = 100.0f;			 // Vertical height of the sun
 
 	auto [firecamp, firecampParticles] = PropMaker::makeFirecamp(5, 0, heightMap);
@@ -237,7 +237,7 @@ int main()
 
 			geometryFBO->begin();
 
-			Game::renderScene({trees, firecamp, plane, terrain, water});
+			Game::renderScene({trees, firecamp, plane, terrain, water, rings});
 
 			geometryFBO->end();
 
@@ -260,9 +260,6 @@ int main()
 				firecampParticles,
 			});
 		    glDepthMask(GL_TRUE);
-		    Game::renderScene({
-		        rings
-		    });
 
 			lightFBO->end();
 
