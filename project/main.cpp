@@ -253,12 +253,16 @@ int main()
 			waterReflectionFBO->bindTextures();
 			waterRefractionFBO->bindTextures();
 
+		    glDepthMask(GL_FALSE);
 			Game::renderScene({
 				skybox,
 				sun,
 				firecampParticles,
-				rings,
 			});
+		    glDepthMask(GL_TRUE);
+		    Game::renderScene({
+		        rings
+		    });
 
 			lightFBO->end();
 
