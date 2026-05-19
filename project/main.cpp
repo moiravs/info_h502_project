@@ -250,8 +250,6 @@ int main()
 			lightShader->render();
 
 			glEnable(GL_DEPTH_TEST);
-			glDepthMask(GL_FALSE);
-
 			waterReflectionFBO->bindTextures();
 			waterRefractionFBO->bindTextures();
 
@@ -262,17 +260,16 @@ int main()
 				rings,
 			});
 
-			glDepthMask(GL_TRUE);
 			lightFBO->end();
 
 			// == ATMOSPHERE ==
 			atmosphereFBO->begin();
-			atmosphereFBO->bindTextures();
-			atmosphereShader->render();
 
+			lightFBO->bindTextures();
+			atmosphereShader->render();
 			atmosphereFBO->end();
 
-		    dm.resizeViewport(dm.getWidth(), dm.getHeight());
+			dm.resizeViewport(dm.getWidth(), dm.getHeight());
 
 			textureViewer.render(atmosphereFBO->getTexture(), false);
 

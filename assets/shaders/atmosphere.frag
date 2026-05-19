@@ -5,10 +5,7 @@ layout(location = 0) out vec4 lColor;
 in vec2 TexCoords; 
 
 uniform sampler2D color;
-uniform sampler2D normal;
 uniform sampler2D depth;
-uniform sampler2D material;
-uniform sampler2D shadow;
 uniform vec2 viewport_size;
 
 #define MAX_LIGHTS 128
@@ -19,7 +16,7 @@ layout(std140) uniform Lights {
     vec4 lightAttenuations[MAX_LIGHTS];
     vec4 lightColors[MAX_LIGHTS];
     mat4 sunPV;
-    vec4 sunDir;
+    vec4 sunDir; 
     int lightCount;
     int pad1;
     int pad2;
@@ -36,100 +33,126 @@ layout(std140) uniform CameraInfo {
     vec4 camUp;
 };
 
-vec3 get_ray_direction() {
-    vec2 ndc = (gl_FragCoord.xy / viewport_size) * 2.0 - 1.0;
-    vec4 clip = vec4(ndc, -1.0, 1.0);
-    vec4 view_ray = iProj * clip;
-    view_ray = vec4(view_ray.xy, -1.0, 0.0);
-    return normalize(vec3(iView * view_ray));
+const int numInScatteringPoints = 12;
+const int numOpticalDepthPoints = 4;
+
+const float atmosphereRadius = 600.0;    
+const float densityFalloff = 3.0;  
+uniform float atmosphereIntensity = 1.5; 
+
+const vec3 betaRayleigh = vec3(0.0058, 0.0135, 0.0331); 
+const vec3 betaMie = vec3(0.004, 0.004, 0.004);
+
+float rayDomeIntersection(vec3 rayDir, float radius) {
+    return radius; 
 }
 
-float linearize(float depthVal) {
-    float near = 0.1; 
-    float far = 5000.0; 
-    float z = depthVal * 2.0 - 1.0; 
-    return (2.0 * near * far) / (far + near - z * (far - near));
+float densityAtPoint(vec3 pos) {
+    float height01 = clamp(max(0.0, pos.y) / atmosphereRadius, 0.0, 1.0);
+    return exp(-height01 * densityFalloff) * (1.0 - height01);
 }
 
-void GADD(vec3 PP, vec3 sunDirection, float density, float falloff, out float g, out vec3 li) {
-    g = density * exp(-falloff * max(0.0, PP.y));
+float calculateOpticalDepth(vec3 rayOrigin, vec3 rayDir, float rayLength) {
+    vec3 samplePoint = rayOrigin;
+    float stepSize = rayLength / float(numOpticalDepthPoints);
+    float opticalDepth = 0.0;
+
+    for (int i = 0; i < numOpticalDepthPoints; i++) {
+        opticalDepth += densityAtPoint(samplePoint - camPosition.xyz) * stepSize;
+        samplePoint += rayDir * stepSize;
+    }
+    return opticalDepth;
+}
+
+float rayleighPhase(float cosAngle) {
+    return 3.0 / (16.0 * 3.141592) * (1.0 + cosAngle * cosAngle);
+}
+
+float miePhase(float cosAngle, float g) {
+    float g2 = g * g;
+    return 1.0 / (4.0 * 3.141592) * (1.0 - g2) / pow(1.0 + g2 - 2.0 * g * cosAngle, 1.5);
+}
+
+vec3 calculateAtmosphere(vec3 rayOrigin, vec3 rayDir, float maxDistance, vec3 originalCol) {
+    vec3 dirToSun = normalize(sunDir.xyz);
+    float cosAngle = dot(rayDir, dirToSun);
     
-    float NdotL = max(dot(vec3(0.0, 1.0, 0.0), normalize(sunDirection.xyz)), 0.0); 
-    vec3 sunColor = vec3(1.0, 0.95, 0.85);
+    float pRayleigh = rayleighPhase(cosAngle);
+    float pMie = miePhase(cosAngle, 0.75);
+
+    float distanceToSpace = rayDomeIntersection(rayDir, atmosphereRadius);
+    float marchLength = min(maxDistance, distanceToSpace);
     
-    vec3 ambientSky = vec3(0.2, 0.35, 0.5) * 0.4;
-    li = (sunColor * NdotL * 4.0) + ambientSky; 
+    float stepSize = marchLength / float(numInScatteringPoints);
+    vec3 currentPos = rayOrigin;
+
+    vec3 scatteredLight = vec3(0.0);
+    float viewRayOpticalDepth = 0.0;
+
+    for (int i = 0; i < numInScatteringPoints; i++) {
+        vec3 localPos = currentPos - rayOrigin;
+        float localDensity = densityAtPoint(localPos);
+        
+        viewRayOpticalDepth += localDensity * stepSize;
+
+        float sunRayOpticalDepth = calculateOpticalDepth(currentPos, dirToSun, atmosphereRadius * 0.5);
+
+        vec3 totalOpticalDepth = (betaRayleigh + betaMie) * (viewRayOpticalDepth + sunRayOpticalDepth);
+        vec3 transmittance = exp(-totalOpticalDepth * 0.1);
+
+        vec3 attenuation = localDensity * transmittance * stepSize;
+        scatteredLight += attenuation * (betaRayleigh * pRayleigh + betaMie * pMie);
+
+        currentPos += rayDir * stepSize;
+    }
+
+    scatteredLight *= atmosphereIntensity;
+
+    vec3 sunDisc = vec3(0.0);
+    
+    const float strictSunSize = 0.9995; 
+    const float strictSunEdge = 0.9998;
+
+    if (cosAngle > strictSunSize && dirToSun.y > 0.0) {
+        if (maxDistance >= 90000.0) { 
+            float sunAlpha = smoothstep(strictSunSize, strictSunEdge, cosAngle);
+            
+            vec3 sunColor = mix(vec3(5.0, 1.2, 0.1), vec3(4.0, 3.8, 3.5), clamp(dirToSun.y * 6.0, 0.0, 1.0));
+            float horizonGlowFade = clamp(dirToSun.y * 8.0, 0.0, 1.0);
+            sunDisc = sunColor * sunAlpha * horizonGlowFade;
+        }
+    }
+
+    float fogFactor = 0;
+    vec3 finalSceneColor = mix(originalCol, scatteredLight, fogFactor);
+
+    return finalSceneColor + scatteredLight * 0.2 + sunDisc;
 }
 
 void main() {
+    vec3 originalCol = texture(color, TexCoords).rgb;
     float rawDepth = texture(depth, TexCoords).r;
-    bool isSky = (rawDepth >= 1.0);
-    vec4 sunDirection = sunDir;
-    vec3 rayDir = get_ray_direction();
-    vec3 rawSceneColor = texture(color, TexCoords).rgb; 
-
-    float density = 0.00007;    
-    float falloff = 0.002;     
-    float integstart = 0.0;
-    float integend    = 4000.0; 
-    float minstepsize = 4.0;   
-    float maxstepsize = 150.0;    
-    float k = 12.0;           
-
-    float maxDist     = isSky ? integend : min(linearize(rawDepth), integend);
-    float te = maxDist - 0.0001;
-
-    vec3 origin = camPosition.xyz;
     
-    float t = integstart;
-    float dtau = 0.0;
-    vec3 li = vec3(0.0);
+    vec2 ndc = TexCoords * 2.0 - 1.0;
+    float zNDC = rawDepth * 2.0 - 1.0; 
     
-    vec3 PP = origin + t * rayDir;
-    GADD(PP, sunDirection.xyz, density, falloff, dtau, li);
+    vec4 clipPos = vec4(ndc, zNDC, 1.0);
+    vec4 viewPos = iProj * clipPos;
+    viewPos /= viewPos.w;
     
-    float ss = min(clamp(1.0 / (k * dtau + 0.001), minstepsize, maxstepsize), te - t);
-    t += ss;
+    vec3 rayDir = normalize((iView * vec4(normalize(viewPos.xyz), 0.0)).xyz);
+    float sceneDepth = length(viewPos.xyz);
     
-    vec3 Cv = vec3(0.0); 
-    vec3 Ov = vec3(0.0); 
-    
-    vec3 activesunDirection = normalize(sunDirection.xyz);
-    float cosTheta = dot(rayDir, activesunDirection);
-    float rayleighPhase = 0.75 * (1.0 + cosTheta * cosTheta);
-    
-    while (t <= te) {
-        float last_dtau = dtau;
-        vec3 last_li = li;
-        
-        PP = origin + t * rayDir;
-        GADD(PP, sunDirection.xyz, density, falloff, dtau, li);
-        
-        float tau = 0.5 * ss * (dtau + last_dtau);
-        vec3 lighttau = 0.5 * ss * (li * dtau + last_li * last_dtau);
-        
-        vec3 dO = vec3(1.0) - vec3(exp(-tau * 0.7), exp(-tau * 1.3), exp(-tau * 3.5));
-        vec3 dC = lighttau * dO * rayleighPhase;
-        
-        Cv += (vec3(1.0) - Ov) * dC;
-        Ov += (vec3(1.0) - Ov) * dO;
-        
-        ss = min(clamp(1.0 / (k * dtau + 0.001), minstepsize, maxstepsize), te - t);
-        ss = max(ss, 0.005);
-        t += ss;
-        
-        if(ss <= 0.005 && t < te) { t += minstepsize; }
+    if (rawDepth >= 0.9999) {
+        sceneDepth = 999999.0;
     }
     
-    vec3 finalOutput = 45.0 * Cv + (vec3(1.0) - Ov) * rawSceneColor;
-
-    if (isSky) {
-        float sunDisk = smoothstep(0.9980, 0.9997, cosTheta);
-        finalOutput += vec3(35.0, 32.0, 27.0) * sunDisk * (vec3(1.0) - Ov);
+    vec3 rayOrigin = camPosition.xyz;
+    vec3 finalColor = calculateAtmosphere(rayOrigin, rayDir, sceneDepth, originalCol);
+    
+    if (any(isnan(finalColor)) || any(isinf(finalColor))) {
+        lColor = vec4(originalCol, 1.0);
+    } else {
+        lColor = vec4(finalColor, 1.0);
     }
-
-    finalOutput = finalOutput / (finalOutput + vec3(1.0));
-    finalOutput = pow(finalOutput, vec3(1.0 / 2.2)); 
-
-    lColor = vec4(finalOutput, 1.0);
 }

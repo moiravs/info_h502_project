@@ -6,16 +6,15 @@
 TextureViewer::TextureViewer()
 {
     constexpr float quad[] =
-    {
-        // pos      // uv
-        -1.f,  1.f, 0.f, 1.f,
-        -1.f, -1.f, 0.f, 0.f,
-         1.f, -1.f, 1.f, 0.f,
+        {
+            // pos      // uv
+            -1.f, 1.f, 0.f, 1.f,
+            -1.f, -1.f, 0.f, 0.f,
+            1.f, -1.f, 1.f, 0.f,
 
-        -1.f,  1.f, 0.f, 1.f,
-         1.f, -1.f, 1.f, 0.f,
-         1.f,  1.f, 1.f, 1.f
-    };
+            -1.f, 1.f, 0.f, 1.f,
+            1.f, -1.f, 1.f, 0.f,
+            1.f, 1.f, 1.f, 1.f};
 
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
@@ -32,8 +31,7 @@ TextureViewer::TextureViewer()
         GL_FLOAT,
         GL_FALSE,
         4 * sizeof(float),
-        (void*)0
-    );
+        (void *)0);
 
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(
@@ -42,8 +40,7 @@ TextureViewer::TextureViewer()
         GL_FLOAT,
         GL_FALSE,
         4 * sizeof(float),
-        (void*)(2 * sizeof(float))
-    );
+        (void *)(2 * sizeof(float)));
 
     textureShader = std::make_shared<Shader>(
         PATH_TO_SRC "/../assets/shaders/debugtexture.vert",
@@ -65,13 +62,11 @@ void TextureViewer::render(const GLuint textureID, const bool isDepth) const
 
     glUniform1i(
         glGetUniformLocation(textureShader->getID(), "tex"),
-        0
-    );
+        0);
 
     glUniform1i(
         glGetUniformLocation(textureShader->getID(), "isDepth"),
-        isDepth ? 1 : 0
-    );
+        isDepth ? 1 : 0);
 
     glBindVertexArray(vao);
 

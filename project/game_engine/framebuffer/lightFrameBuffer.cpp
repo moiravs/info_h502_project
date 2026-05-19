@@ -45,7 +45,6 @@ void LightFrameBuffer::begin()
 void LightFrameBuffer::end()
 {
     FrameBuffer::end();
-    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 GLuint LightFrameBuffer::getTexture() const
