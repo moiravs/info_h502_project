@@ -165,7 +165,7 @@ int main()
 	auto flowerField = PropMaker::makeFlowers(heightMap);
 	auto &lightManager = LightManager::get();
 	float orbitRadius = PLAN_SIZE_X / 2; // Distance from the center of the scene
-	float orbitSpeed = .1f;			 // How fast the sun moves
+	float orbitSpeed = .1f;				 // How fast the sun moves
 	float orbitHeight = 100.0f;			 // Vertical height of the sun
 
 	auto [firecamp, firecampParticles] = PropMaker::makeFirecamp(5, 0, heightMap);
@@ -253,13 +253,13 @@ int main()
 			waterReflectionFBO->bindTextures();
 			waterRefractionFBO->bindTextures();
 
-		    glDepthMask(GL_FALSE);
+			glDepthMask(GL_FALSE);
 			Game::renderScene({
 				skybox,
 				sun,
 				firecampParticles,
 			});
-		    glDepthMask(GL_TRUE);
+			glDepthMask(GL_TRUE);
 
 			lightFBO->end();
 
@@ -275,6 +275,7 @@ int main()
 			textureViewer.render(atmosphereFBO->getTexture(), false);
 
 			// == OTHERS ==
+			game.checkTerrainCollision(plane->getMainObject(), heightMap);
 			game.checkIfPlaneInRing(plane, rings, heightMap);
 
 			glDisable(GL_DEPTH_TEST); // Ensure it draws on top of everything
