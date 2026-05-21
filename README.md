@@ -1,4 +1,4 @@
-# info_h502_project
+# Flight Simulator
 
 ## Presentation of the project
 
