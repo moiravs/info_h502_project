@@ -30,15 +30,17 @@ To run this project, you will need
 - [https://www.opengl.org/](openGL)
 
 ### Installation
-`rm -rf build && cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE=Debug -S . -B build -G Ninja &&  cmake --build build
+```rm -rf build && cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE=Debug -S . -B build -G Ninja &&  cmake --build build```
 
 ### Usage
-`./build/VRproject
+```./build/VRproject```
 
 ### Controls
 
 ⬅️➡️⬆️⬇️ = To control the camera
+
 `Z`,`Q`,`S`,`D` = To control the plane
+
 `T` = Toggle the camera or the plane 
 
 ## Acknowledgments
