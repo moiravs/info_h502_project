@@ -48,3 +48,4 @@ Thanks to these websites for the models:
 - Plane: https://www.cgtrader.com/free-3d-models/military/military-vehicle/focke-wulf-fw-190-d-9-dora-3d-model-wwii-german-fighter
 - Campfire: https://www.cgtrader.com/free-3d-models/exterior/exterior-public/campfire-a6dfe064-3e9e-497f-97e4-7b3195effa79
 - AppleTree: https://www.cgtrader.com/free-3d-models/plant/leaf/apple-tree-d7daa804-0643-4496-bb53-06b73a6368ec
+- Font: https://all-free-download.com/font/download/gabriele_ribbon_fg_6918761.html
