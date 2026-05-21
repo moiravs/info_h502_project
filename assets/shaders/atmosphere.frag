@@ -40,18 +40,18 @@ const int numOpticalDepthPoints = 10;
 const float FLOAT_MAX = 10e20;
 
 const float atmosphereMaxHeight = 300.0;
+const float atmosphereMieMaxHeight = 300.0;
 const float atmosphereMinHeight = -15.0;
-const float densityFalloff = 20;
+const float densityFalloff = 25;
 const float atmosphereIntensity = 0.7;
 
 const float scatteringStrength = 1;
 const float scatterR = pow(400.0 / 700.0, 4) * scatteringStrength;
 const float scatterG = pow(400.0 / 530.0, 4) * scatteringStrength;
 const float scatterB = pow(400.0 / 440.0, 4) * scatteringStrength;
-const vec3 scatteringCoefficients = vec3(scatterR, scatterG, scatterB);
-
-const vec3 betaRayleigh = vec3(0.0058, 0.0135, 0.0331); 
-const vec3 betaMie = vec3(0.004, 0.004, 0.004);
+const vec3 betaRayleigh = vec3(scatterR, scatterG, scatterB);
+//const vec3 betaRayleigh = vec3(5.8e-6, 13.5e-6, 33.1e-6);
+const vec3 betaMie = vec3(0.1);
 
 vec3 getWorldPos(vec2 uv, float depthValue)
 {
@@ -91,26 +91,28 @@ vec2 rayAtm(vec3 rayOrigin, vec3 rayDir) {
     }
 }
 
-float densityAtPoint(vec3 pos) {
+float densityAtPoint(vec3 pos, float maxHeight) {
     float heightAboveSurface = max(0.0, pos.y - atmosphereMinHeight);
-    float height01 = heightAboveSurface / (atmosphereMaxHeight - atmosphereMinHeight);
+    float height01 = heightAboveSurface / (maxHeight - atmosphereMinHeight);
     return exp(-height01 * densityFalloff) * (1.0 - height01);
 }
 
-float calculateOpticalDepth(vec3 rayOrigin, vec3 rayDir, float rayLength) {
+vec2 calculateOpticalDepth(vec3 rayOrigin, vec3 rayDir, float rayLength) {
     vec3 samplePoint = rayOrigin;
     float stepSize = rayLength / (float(numOpticalDepthPoints) - 1);
-    float opticalDepth = 0.0;
+    float opticalDepthRayleigh = 0.0;
+    float opticalDepthMie = 0.0;
 
     for (int i = 0; i < numOpticalDepthPoints; i++) {
-        opticalDepth += densityAtPoint(samplePoint) * stepSize;
+        opticalDepthRayleigh += densityAtPoint(samplePoint, atmosphereMaxHeight) * stepSize;
+        opticalDepthMie += densityAtPoint(samplePoint, atmosphereMieMaxHeight) * stepSize;
         samplePoint += rayDir * stepSize;
     }
-    return opticalDepth;
+    return vec2(opticalDepthRayleigh, opticalDepthMie);
 }
 
 float rayleighPhase(float cosAngle) {
-    return 3.0 / (16.0 * 3.141592) * (1.0 + cosAngle * cosAngle);
+    return (1.0 + cosAngle * cosAngle) / 2;
 }
 
 float miePhase(float cosAngle, float g) {
@@ -121,30 +123,36 @@ float miePhase(float cosAngle, float g) {
 vec3 calculateLight(vec3 rayOrigin, vec3 rayDir, float rayLength, vec3 originalColor) {
     vec3 inScatterPoint = rayOrigin;
     vec3 dirToSun = normalize(vec3(sunDir));
+
     float stepSize = rayLength / (float(numInScatteringPoints) - 1);
     vec3 inScatteredLight = vec3(0);
-    float viewRayOpticalDepth = 0;
+    vec2 viewRayOpticalDepth = vec2(0);
+    float angle = dot(dirToSun, rayDir);
+    vec3 mie = vec3(0);
 
     for (int i = 0; i < numInScatteringPoints; i++) {
-        float localDensity = densityAtPoint(inScatterPoint);
+        float localRayleighDensity = densityAtPoint(inScatterPoint, atmosphereMaxHeight);
+        float localMieDensity = densityAtPoint(inScatterPoint, atmosphereMieMaxHeight);
         float sunRayLength = rayAtm(inScatterPoint, dirToSun).y;
 
         // calculate optical depth from the point to the sun
-        float sunRayOpticalDepth = calculateOpticalDepth(inScatterPoint, dirToSun, sunRayLength);
+        vec2 sunRayOpticalDepth = calculateOpticalDepth(inScatterPoint, dirToSun, sunRayLength);
         // calculate optical depth from the point to the camera
         viewRayOpticalDepth = calculateOpticalDepth(inScatterPoint, -rayDir, i * stepSize);
 
-        vec3 transmittance = exp(-(sunRayOpticalDepth + viewRayOpticalDepth) * scatteringCoefficients);
+        vec3 transmittance = exp(-((sunRayOpticalDepth.x + viewRayOpticalDepth.x) * betaRayleigh +
+                                  (sunRayOpticalDepth.y + viewRayOpticalDepth.y) * betaMie));
 
-        inScatteredLight += localDensity * transmittance * scatteringCoefficients * stepSize;
+        vec3 scatterRayleigh = localRayleighDensity * betaRayleigh * rayleighPhase(angle);
+
+        vec3 scatterMie = localMieDensity * betaMie * miePhase(angle, 0.76);
+
+        inScatteredLight += (scatterRayleigh + scatterMie) * transmittance * stepSize;
 
         inScatterPoint += rayDir * stepSize;
     }
 
-    float originalColorTransmittance = exp(-viewRayOpticalDepth * 0.01);
-
-    if (dirToSun.y < 0) return originalColor * originalColorTransmittance;
-    return originalColor * originalColorTransmittance + inScatteredLight * atmosphereIntensity;
+    return originalColor + inScatteredLight * atmosphereIntensity;
 }
 
 void main() {
