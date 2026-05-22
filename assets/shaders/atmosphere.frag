@@ -53,11 +53,11 @@ const vec3 betaRayleigh = vec3(scatterR, scatterG, scatterB);
 //const vec3 betaRayleigh = vec3(5.8e-6, 13.5e-6, 33.1e-6);
 const vec3 betaMie = vec3(0.1);
 
+
 vec3 getWorldPos(vec2 uv, float depthValue)
 {
     // convert [0,1] coordinates into [-1,1]^3 clip space coordinates
     vec4 clip = vec4(uv * 2.0 - 1.0, depthValue * 2.0 - 1.0, 1.0);
-
     // clip = PV * WorldPos, then, just solve for WorldPos
     vec4 viewPos = iProj * clip;
     viewPos /= viewPos.w;
@@ -128,7 +128,6 @@ vec3 calculateLight(vec3 rayOrigin, vec3 rayDir, float rayLength, vec3 originalC
     vec3 inScatteredLight = vec3(0);
     vec2 viewRayOpticalDepth = vec2(0);
     float angle = dot(dirToSun, rayDir);
-    vec3 mie = vec3(0);
 
     for (int i = 0; i < numInScatteringPoints; i++) {
         float localRayleighDensity = densityAtPoint(inScatterPoint, atmosphereMaxHeight);
@@ -144,15 +143,30 @@ vec3 calculateLight(vec3 rayOrigin, vec3 rayDir, float rayLength, vec3 originalC
                                   (sunRayOpticalDepth.y + viewRayOpticalDepth.y) * betaMie));
 
         vec3 scatterRayleigh = localRayleighDensity * betaRayleigh * rayleighPhase(angle);
-
+        
         vec3 scatterMie = localMieDensity * betaMie * miePhase(angle, 0.76);
 
         inScatteredLight += (scatterRayleigh + scatterMie) * transmittance * stepSize;
 
         inScatterPoint += rayDir * stepSize;
     }
+    if (rayDir.y > -0.5){
+    float sunGlowIntensity = pow(max(0.0, angle), 2000.0) * 10.0; 
+    sunGlowIntensity += pow(max(0.0, angle), 150.0) * 1.5;   
+    sunGlowIntensity += pow(max(0.0, angle), 10.0) * 0.2;   
+    
+    float depthFade = smoothstep(0.0, 500.0, rayLength); 
+    vec3 sunColor = vec3(1.0, 0.9, 0.7); 
+    
+    vec3 totalAtmosphere = inScatteredLight * atmosphereIntensity;
+    vec3 totalGlow = sunGlowIntensity * sunColor * depthFade * atmosphereIntensity;
 
-    return originalColor + inScatteredLight * atmosphereIntensity;
+    return originalColor + totalAtmosphere + totalGlow;
+    } else {
+          return originalColor + inScatteredLight * atmosphereIntensity;
+    }
+
+
 }
 
 void main() {
@@ -163,6 +177,9 @@ void main() {
 
     vec3 ray = worldPos - camPos;
     vec3 rayDir = normalize(ray);
+    if (abs(rayDir.y) > 0.9999) {
+        rayDir = normalize(vec3(rayDir.x + 0.0001, sign(rayDir.y) * 0.9999, rayDir.z + 0.0001));
+    }
     float sceneDepth = length(ray);
     
     vec3 rayOrigin = camPosition.xyz;
@@ -170,7 +187,7 @@ void main() {
     float distToAtm = hitInfo.x;
     float distInAtm = min(hitInfo.y, sceneDepth - distToAtm);
 
-    if (distInAtm > 0.0) {
+if (distInAtm > 0.0) {
         const float eps = 0.0001;
         vec3 pointInAtmosphere = rayOrigin + rayDir * (distToAtm + eps);
         vec3 light = calculateLight(pointInAtmosphere, rayDir, distInAtm - 2 * eps, originalCol);
