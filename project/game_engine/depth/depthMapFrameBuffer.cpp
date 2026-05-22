@@ -11,6 +11,8 @@ DepthMapFrameBuffer::DepthMapFrameBuffer(const int width, const int height, cons
 {
     this->_shader = std::make_shared<Shader>(PATH_TO_SRC "/../assets/shaders/depth.vert",
                                                  PATH_TO_SRC "/../assets/shaders/depth.frag");
+    this->_instShader = std::make_shared<Shader>(PATH_TO_SRC "/../assets/shaders/idepth.vert",
+                                                 PATH_TO_SRC "/../assets/shaders/idepth.frag");
 }
 
 void DepthMapFrameBuffer::createTextures()
@@ -34,6 +36,7 @@ void DepthMapFrameBuffer::begin()
     glDepthMask(GL_TRUE);
     glClear(GL_DEPTH_BUFFER_BIT);
     this->_shader->setMatrix4("PV", this->_depthCam->getPV());
+    this->_instShader->setMatrix4("PV", this->_depthCam->getPV());
 }
 
 void DepthMapFrameBuffer::end()
@@ -57,4 +60,9 @@ GLuint DepthMapFrameBuffer::getTexture() const
 std::shared_ptr<Shader> DepthMapFrameBuffer::getShader() const
 {
     return this->_shader;
+}
+
+std::shared_ptr<Shader> DepthMapFrameBuffer::getInstShader() const
+{
+    return this->_instShader;
 }
