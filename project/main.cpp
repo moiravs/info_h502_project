@@ -301,6 +301,8 @@ int main()
 							 dm.getHeight() / 2.0f,
 							 1.0f, glm::vec3(1, 1, 1));
 
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			spriteRenderer->render(spriteTexture, glm::vec2(500.0f, 500.0f), glm::vec2(500.0f, 397.0f), 0.0f);
 		}
 		dm.update();
