@@ -200,11 +200,6 @@ int main()
 
 			sun->setPosition(glm::vec3(sunX, sunY, sunZ));
 			sunLight->setPosition(glm::vec3(sunX, sunY, sunZ));
-			glm::vec3 sunPos = glm::vec3(sunX, sunY, sunZ);
-			glm::vec3 camPos = MainCamera::get()->getPosition();
-
-			glm::vec3 direction = glm::normalize(sunPos - camPos);
-			// atmosphereShader->setVector3f("sunDirection", direction);
 
 			lightManager.updateUBO();
 			camera->updateUBO();
@@ -212,7 +207,8 @@ int main()
 			// == SHADOWS ==
 			shadowFBO->begin();
 
-			Game::renderSceneWithShader({trees, terrain}, shadowFBO->getShader());
+			Game::renderSceneWithShader({terrain, plane, rings}, shadowFBO->getShader());
+			Game::renderSceneWithShader({trees}, shadowFBO->getInstShader());
 
 			shadowFBO->end();
 

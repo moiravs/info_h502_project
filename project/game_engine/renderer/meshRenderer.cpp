@@ -106,7 +106,7 @@ void MeshRenderer::renderWithShader(const std::shared_ptr<Shader> &shader)
         shader->setMatrix4("model", this->getEntity<Object>()->getModel());
 
         glBindVertexArray(_VAOs[i]);
-        glDrawElements(GL_TRIANGLES, entry.numIndices, GL_UNSIGNED_INT, nullptr);
+        this->drawElements(entry.numIndices);
     }
     glBindVertexArray(0);
 }

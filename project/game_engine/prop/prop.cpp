@@ -21,8 +21,13 @@ std::vector<std::shared_ptr<Renderable>> Prop::getRenderables()
 
 void Prop::renderWithShader(const std::shared_ptr<Shader> &shader)
 {
-    for (const auto &r : this->_renderables)
-        r->renderWithShader(shader);
+    if (!this->getMainObject())
+    {
+        for (const auto &r : this->_renderables)
+            r->renderWithShader(shader);
+    }
+    else
+        this->getMainObject()->render();
 }
 
 void Prop::addRenderable(const std::shared_ptr<Renderable> &renderable)
