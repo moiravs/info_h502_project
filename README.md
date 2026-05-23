@@ -50,3 +50,4 @@ Thanks to these amazing websites for the models and the textures:
 - AppleTree: https://www.cgtrader.com/free-3d-models/plant/leaf/apple-tree-d7daa804-0643-4496-bb53-06b73a6368ec
 - Font: https://all-free-download.com/font/download/gabriele_ribbon_fg_6918761.html
 - Skybox: https://svs.gsfc.nasa.gov/4851/
+- Textures for the terrain: https://www.magnific.com/

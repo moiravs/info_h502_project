@@ -18,15 +18,12 @@ uniform float textureScale = 0.1;
 
 void main()
 {
-    // --- 1. Prepare Triplanar Weights ---
     vec3 norm = normalize(v_normal);
     vec3 blending = abs(norm);
     blending = pow(blending, vec3(8.0)); // Sharpen the transition
     float totalWeight = blending.x + blending.y + blending.z;
     blending /= totalWeight;
 
-    // --- 2. Sample Textures Triplanarly ---
-    // Function-like approach: sample each texture from 3 sides
     vec3 grass = (texture(grassTex, v_fragPos.zy * textureScale).rgb * blending.x +
                   texture(grassTex, v_fragPos.xz * textureScale).rgb * blending.y +
                   texture(grassTex, v_fragPos.xy * textureScale).rgb * blending.z);
@@ -39,10 +36,8 @@ void main()
                   texture(snowTex, v_fragPos.xz * textureScale).rgb * blending.y +
                   texture(snowTex, v_fragPos.xy * textureScale).rgb * blending.z);
 
-    // --- 3. Base Color & Slope Blending ---
     vec3 baseColor;
     
-    // Logic: If slope is steep (norm.y is low), force Rock texture
     float slope = clamp(norm.y, 0.0, 1.0);
     float rockSplat = 1.0 - smoothstep(0.4, 0.7, slope); // 0.7 = flat, 0.4 = steep
 
@@ -56,7 +51,6 @@ void main()
         baseColor = mix(rock, snow, t);
     }
 
-    // Apply the slope-based rock override to fix stretching on cliffs
     baseColor = mix(baseColor, rock, rockSplat);
 
     gColor = vec4(baseColor, 1);
