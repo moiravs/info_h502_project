@@ -10,7 +10,8 @@
 
 Game::Game()
 {
-    success.openFromFile(PATH_TO_SRC "/../assets/music/success.mp3");
+    auto _ = success.openFromFile(PATH_TO_SRC "/../assets/music/success.mp3");
+    // the above function is marked [[nodiscard]] for some reason.
 }
 
 void Game::checkIfPlaneInRing(const std::shared_ptr<Prop> plane, const std::shared_ptr<Prop> rings, const std::shared_ptr<HeightMap> &heightMap)

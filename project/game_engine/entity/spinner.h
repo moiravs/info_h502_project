@@ -4,7 +4,6 @@
 #include "object.h"
 
 class Spinner : public Object {
-private:
     float _dyaw;
     float _dpitch;
     float _droll;

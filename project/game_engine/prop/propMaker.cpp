@@ -16,6 +16,8 @@
 #include <random>
 #include <stb_image.h>
 
+#include "../entity/sun.h"
+
 std::pair<std::shared_ptr<HeightMap>, std::shared_ptr<Prop>> PropMaker::terrainFromTexture(const std::string &texturePath,
                                                                                            const float width, const float depth)
 {
@@ -186,13 +188,27 @@ std::pair<std::shared_ptr<Prop>, std::shared_ptr<DirectionalLight>> PropMaker::m
 {
     const auto directionalLight = DirectionalLight::make();
 
-    const auto ligthBall = makeLamp(position, scale, color, glm::vec3(0.5, 0.9, 1), glm::vec3(1, 0, 0));
+    const auto sun = RenderableEntityMaker::makeRenderable<Sun, ObjectRenderer>("solid", std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/sphere_smooth.obj"), SUN_SPEED, SUN_PATH_RADIUS);
+    const auto light = PointLight::make();
+
+    light->setAttenuation(1, 0, 0);
+    light->setProperties(0.5, 0.9, 1);
+    light->setColor(color);
+    sun->setColor(color);
+    sun->setScale(scale);
+    sun->attach(light);
 
     directionalLight->setTarget({0, 0, 0});
-    ligthBall->getMainObject()->attach(directionalLight);
+    sun->attach(directionalLight);
     directionalLight->setColor(color);
 
-    return {ligthBall, directionalLight};
+    sun->setPosition(position);
+
+    auto prop = std::make_shared<Prop>();
+    prop->addRenderable(sun);
+    prop->setMainObject(sun);
+
+    return {prop, directionalLight};
 }
 
 std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<HeightMap> &heightMap)
