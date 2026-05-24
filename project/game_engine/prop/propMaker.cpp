@@ -211,7 +211,7 @@ std::pair<std::shared_ptr<Prop>, std::shared_ptr<DirectionalLight>> PropMaker::m
     return {prop, directionalLight};
 }
 
-std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<HeightMap> &heightMap)
+std::pair<std::shared_ptr<Prop>, std::shared_ptr<Prop>> PropMaker::makePlane(const std::shared_ptr<HeightMap> &heightMap)
 {
     const auto plane = RenderableEntityMaker::makeRenderable<Player, ObjectRenderer>("object", std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/plane/restoftheplane.obj"), heightMap);
     const auto spinnyThing = RenderableEntityMaker::makeRenderable<Spinner, ObjectRenderer>("object", std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/plane/helice.obj"), 0, 0, PLANE_SPINNER_RAD_PER_SEC);
@@ -230,7 +230,7 @@ std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<HeightMap> &hei
         glm::vec3(1.0, 15.0, 1.5), glm::vec3(0.1), glm::vec3(0, 1, 0),
         glm::vec3(0.1, 3, 1), glm::vec3(1, 1, 0));
 
-    plane->attach(lamp->getMainObject(), {0, -0.43, -6.1}, true, true);
+    plane->attach(lamp->getMainObject(), {0, -0.26, -6.3}, false, true);
     plane->attach(lamp2->getMainObject(), {-3.43, -0.2, 0.5}, true, true);
     plane->attach(lamp3->getMainObject(), {3.43, -0.2, 0.5}, true, true);
     plane->attach(spinnyThing, {0, 0, 0}, true, true, false);
@@ -241,7 +241,7 @@ std::shared_ptr<Prop> PropMaker::makePlane(const std::shared_ptr<HeightMap> &hei
     prop->addRenderable(spinnyThing);
     prop->setMainObject(plane);
     prop->addRenderable(lamp);
-    return prop;
+    return {prop, lamp};
 }
 
 std::pair<std::shared_ptr<Prop>, std::shared_ptr<ParticleGenerator>> PropMaker::makeFirecamp(const float x, const float z, const std::shared_ptr<HeightMap> &heightMap)

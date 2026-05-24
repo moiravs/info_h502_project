@@ -155,7 +155,7 @@ int main()
 	auto water = RenderableEntityMaker::makeRenderable<Object, WaterRenderer>(
 		Mesh::createPlane(PLAN_SIZE_X / 2, WATER_HEIGHT));
 
-	auto plane = PropMaker::makePlane(heightMap);
+	auto [plane, planeLight] = PropMaker::makePlane(heightMap);
 
 	ControllerManager::get()->setPlayer(std::dynamic_pointer_cast<Player>(plane->getMainObject()));
 	ControllerManager::get()->setIsPlayerControlled(DEFAULT_CAMERA_LOCKED_ON_PLAYER);
@@ -244,6 +244,7 @@ int main()
 				skybox,
 				sun,
 				firecampParticles,
+			    planeLight
 			});
 			glDepthMask(GL_TRUE);
 
