@@ -155,7 +155,7 @@ int main()
 	auto water = RenderableEntityMaker::makeRenderable<Object, WaterRenderer>(
 		Mesh::createPlane(PLAN_SIZE_X / 2, WATER_HEIGHT));
 
-	auto plane = PropMaker::makePlane(heightMap);
+	auto [plane, planeLight] = PropMaker::makePlane(heightMap);
 
 	ControllerManager::get()->setPlayer(std::dynamic_pointer_cast<Player>(plane->getMainObject()));
 	ControllerManager::get()->setIsPlayerControlled(DEFAULT_CAMERA_LOCKED_ON_PLAYER);
@@ -164,9 +164,6 @@ int main()
 	auto trees = PropMaker::makeTrees(heightMap);
 	auto flowerField = PropMaker::makeFlowers(heightMap);
 	auto &lightManager = LightManager::get();
-	float orbitRadius = PLAN_SIZE_X / 2; // Distance from the center of the scene
-	float orbitSpeed = .1f;				 // How fast the sun moves
-	float orbitHeight = 100.0f;			 // Vertical height of the sun
 
 	auto [firecamp, firecampParticles] = PropMaker::makeFirecamp(5, 0, heightMap);
 	double lastTime = glfwGetTime();
@@ -193,13 +190,6 @@ int main()
 			lastTime = currentTime;
 
 			Game::update(delta, {trees, water, skybox, sun, firecamp, plane, terrain, rings});
-
-			float sunX = 0.0f;
-			float sunY = std::sin(currentTime * orbitSpeed) * orbitRadius;
-			float sunZ = std::cos(currentTime * orbitSpeed) * orbitRadius;
-
-			sun->setPosition(glm::vec3(sunX, sunY, sunZ));
-			sunLight->setPosition(glm::vec3(sunX, sunY, sunZ));
 
 			lightManager.updateUBO();
 			camera->updateUBO();
@@ -254,6 +244,7 @@ int main()
 				skybox,
 				sun,
 				firecampParticles,
+			    planeLight
 			});
 			glDepthMask(GL_TRUE);
 

@@ -120,7 +120,7 @@ float miePhase(float cosAngle, float g) {
     return 1.0 / (4.0 * 3.141592) * (1.0 - g2) / pow(1.0 + g2 - 2.0 * g * cosAngle, 1.5);
 }
 
-vec3 calculateLight(vec3 rayOrigin, vec3 rayDir, float rayLength, vec3 originalColor) {
+vec3 calculateLight(vec3 rayOrigin, vec3 rayDir, float rayLength, vec3 originalColor, float depth) {
     vec3 inScatterPoint = rayOrigin;
     vec3 dirToSun = normalize(vec3(sunDir));
 
@@ -150,23 +150,21 @@ vec3 calculateLight(vec3 rayOrigin, vec3 rayDir, float rayLength, vec3 originalC
 
         inScatterPoint += rayDir * stepSize;
     }
-    if (rayDir.y > -0.5){
-    float sunGlowIntensity = pow(max(0.0, angle), 2000.0) * 10.0; 
-    sunGlowIntensity += pow(max(0.0, angle), 150.0) * 1.5;   
-    sunGlowIntensity += pow(max(0.0, angle), 10.0) * 0.2;   
-    
-    float depthFade = smoothstep(0.0, 500.0, rayLength); 
-    vec3 sunColor = vec3(1.0, 0.9, 0.7); 
-    
-    vec3 totalAtmosphere = inScatteredLight * atmosphereIntensity;
-    vec3 totalGlow = sunGlowIntensity * sunColor * depthFade * atmosphereIntensity;
 
-    return originalColor + totalAtmosphere + totalGlow;
-    } else {
-          return originalColor + inScatteredLight * atmosphereIntensity;
+    if (depth == 1) {
+        float sunGlowIntensity = pow(max(0.0, angle), 2000.0) * 10.0 +
+                                 pow(max(0.0, angle), 150.0) * 1.5 +
+                                 pow(max(0.0, angle), 10.0) * 0.2;
+
+        float depthFade = smoothstep(0.0, 500.0, rayLength);
+        vec3 sunColor = vec3(1.0, 0.9, 0.7);
+
+        vec3 totalAtmosphere = inScatteredLight * atmosphereIntensity;
+        vec3 totalGlow = sunGlowIntensity * sunColor * depthFade * atmosphereIntensity;
+
+        return originalColor + totalAtmosphere + totalGlow;
     }
-
-
+    return originalColor + inScatteredLight * atmosphereIntensity;
 }
 
 void main() {
@@ -190,7 +188,7 @@ void main() {
 if (distInAtm > 0.0) {
         const float eps = 0.0001;
         vec3 pointInAtmosphere = rayOrigin + rayDir * (distToAtm + eps);
-        vec3 light = calculateLight(pointInAtmosphere, rayDir, distInAtm - 2 * eps, originalCol);
+        vec3 light = calculateLight(pointInAtmosphere, rayDir, distInAtm - 2 * eps, originalCol, rawDepth);
         lColor = vec4(light, 1);
     } else {
         lColor = vec4(originalCol, 1);

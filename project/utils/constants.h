@@ -16,8 +16,8 @@ constexpr unsigned int DEPTH_HEIGHT = 4096;
 constexpr int PLAN_SIZE_X = 1000;
 constexpr int WATER_HEIGHT = 0;
 
-constexpr int REFLECTION_WIDTH = 320;
-constexpr int REFLECTION_HEIGHT = 180;
+constexpr int REFLECTION_WIDTH = 1280;
+constexpr int REFLECTION_HEIGHT = 720;
 constexpr int REFRACTION_WIDTH = 1280;
 constexpr int REFRACTION_HEIGHT = 720;
 
@@ -42,14 +42,18 @@ constexpr float MAX_CAM_DIST = 100.f;
 constexpr float PLANE_PITCH_SPEED = 2.f;
 constexpr float PLANE_ROLL_SPEED = 2.f;
 constexpr float PLANE_TURN_SPEED = 1.f;
-constexpr float PLANE_SPEED = 0.4f;
-constexpr float PLANE_ROLL_AMORTIZE = 0.01f;
+constexpr float PLANE_SPEED = 30.f;
+constexpr float PLANE_ROLL_AMORTIZE = 1.f;
 constexpr float PLANE_SPINNER_RAD_PER_SEC = 30.f;
 
 constexpr int MAX_LIGHTS = 128;
 constexpr int CHUNK_SIZE = 128;
 
 constexpr unsigned MAX_PARTICLES = 10000;
+
+// sun
+constexpr float SUN_SPEED = 0.05f;
+constexpr float SUN_PATH_RADIUS = static_cast<float>(PLAN_SIZE_X) / 2 + 50.f;
 
 // SHADERS
 

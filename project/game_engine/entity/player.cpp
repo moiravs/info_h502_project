@@ -118,9 +118,9 @@ glm::vec3 Player::findCameraOffset() const
 
 void Player::update(const float delta)
 {
-    this->rotate(0, -this->getPitch() * PLANE_ROLL_AMORTIZE, -this->getRoll() * PLANE_ROLL_AMORTIZE);
-    this->rotate(this->getRoll() * PLANE_TURN_SPEED * delta, 0, 0);
-    this->setPosition(this->getPosition() + this->getFront() * PLANE_SPEED);
+    this->rotate(this->getRoll() * PLANE_TURN_SPEED * delta, -this->getPitch() * PLANE_ROLL_AMORTIZE * delta, -this->getRoll() * PLANE_ROLL_AMORTIZE * delta);
+    //this->rotate(this->getRoll() * PLANE_TURN_SPEED * delta, 0, 0);
+    this->setPosition(this->getPosition() + this->getFront() * PLANE_SPEED * delta);
 
     RenderableEntity::update(delta);
 }
