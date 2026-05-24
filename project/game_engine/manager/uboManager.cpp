@@ -11,9 +11,9 @@ UboManager::UboManager()
     }
 }
 
-void UboManager::registerShader(const Shader* shader)
+void UboManager::registerShader(const Shader *shader)
 {
-    for (const auto & [name, binding] : this->bindings)
+    for (const auto &[name, binding] : this->bindings)
     {
         const GLuint blockIndex = glGetUniformBlockIndex(shader->getID(), name.c_str());
         if (blockIndex != GL_INVALID_INDEX)
@@ -23,12 +23,12 @@ void UboManager::registerShader(const Shader* shader)
     }
 }
 
-GLuint UboManager::getBinding(const std::string& name) const
+GLuint UboManager::getBinding(const std::string &name) const
 {
     return this->bindings.at(name);
 }
 
-UboManager& UboManager::get()
+UboManager &UboManager::get()
 {
     static UboManager instance;
     return instance;

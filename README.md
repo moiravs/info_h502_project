@@ -24,15 +24,40 @@ This project is a flight simulator that aims to learn multiple techniques in Ope
 ## ⬇️ Installation
 ### Prerequisites
 To run this project, you will need
+- [https://www.opengl.org/](openGL)
+
+
+### Setup Steps
+
+1. Clone the repository (with `--recursive` flag to also install the submodules)
+```
+git clone https://github.com/moiravs/info_h502_project --recursive
+```
+
+2. Install the dependencies
+
+You will need the three following packages:
 - [https://freetype.org/](freetype)
 - [https://www.assimp.org/](assimp)
 - [https://www.sfml-dev.org/](sfml)
-- [https://www.opengl.org/](openGL)
 
-### Installation
+They can be installed:
+
+- Arch
+```sudo pacman -S sfml freetype2 assimp```
+
+- macOS 
+```brew install sfml freetype assimp```
+
+- Ubuntu
+```sudo apt install sfml freetype2 assimp```
+
+3. Compile
 ```rm -rf build && cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE=Debug -S . -B build -G Ninja &&  cmake --build build```
 
 ### Usage
+
+To launch the project, use the following command:
 ```./build/VRproject```
 
 ### Controls
@@ -51,3 +76,5 @@ Thanks to these amazing websites for the models and the textures:
 - Font: https://all-free-download.com/font/download/gabriele_ribbon_fg_6918761.html
 - Skybox: https://svs.gsfc.nasa.gov/4851/
 - Textures for the terrain: https://www.magnific.com/
+
+Thank you also to this really cool website to learn OpenGL which has been really useful in this project: https://learnopengl.com/
