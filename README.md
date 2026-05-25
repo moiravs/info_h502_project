@@ -59,6 +59,8 @@ Ninja can be installed with the command `winget install Ninja-build.Ninja`
 
 Sorry for what follows, we greatly recommend compiling on absolutely anything else than Windows.
 
+All of the following steps should be done from the "x64 Native Tools Command Prompt" (which should come with VS)
+
 In `info_h502_project`: 
 `git clone https://github.com/microsoft/vcpkg`
 `cd vcpkg`
@@ -68,15 +70,16 @@ In `info_h502_project`:
 
 Copy the contents of `info_h502_project/vcpkg/installed/x64-windows/bin` to `info_h502_project/build`
 Delete `info_h502_project/CMakeLists.txt` and rename `info_h502_project/CMakeListsWindows.txt` to `info_h502_project/CMakeLists.txt`
-Run step 3 from the "x64 Native Tools Command Prompt" (which should come with VS)
 
 3. Compile
 ```cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_BUILD_TYPE=Release -S . -B build -G Ninja &&  cmake --build build```
 
 ### Usage
 
-To launch the project, use the following command:
+To launch the project, use the following command on Unix:
 ```./build/VRproject```
+
+Or simply launch `./build/VRproject.exe` on Windows.
 
 ### Controls
 
