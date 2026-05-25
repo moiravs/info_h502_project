@@ -363,7 +363,6 @@ std::shared_ptr<Prop> PropMaker::makeFlowers(const std::shared_ptr<HeightMap> &h
         treeMatrices[index].push_back(model);
     }
 
-    // const auto crocus = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/crocus/12974_crocus_flower_v1_l3.obj");
     const auto sunflower = std::make_shared<Mesh>(PATH_TO_SRC "/../assets/models/sunflower/Sunflowers set.obj");
     auto prop = std::make_shared<Prop>();
 
