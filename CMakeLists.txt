@@ -5,38 +5,56 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
+include(FetchContent)
 
-# Find packages
 find_package(assimp REQUIRED)
 find_package(OpenGL REQUIRED)
-find_package(SFML 3 REQUIRED COMPONENTS Graphics Window System Audio)
 
-# GLAD
+find_package(SFML 3 QUIET COMPONENTS Graphics Window System Audio)
+
+if(NOT SFML_FOUND)
+    message(STATUS "SFML 3 not found locally. Fetching from GitHub...")
+    
+    FetchContent_Declare(
+        SFML
+        GIT_REPOSITORY https://github.com/SFML/SFML.git
+        GIT_TAG        3.0.0
+    )
+
+    set(SFML_BUILD_EXAMPLES OFF CACHE INTERNAL "")
+    set(SFML_BUILD_DOC OFF CACHE INTERNAL "")
+
+    FetchContent_MakeAvailable(SFML)
+    
+    add_library(SFML::Graphics ALIAS sfml-graphics)
+    add_library(SFML::Window ALIAS sfml-window)
+    add_library(SFML::System ALIAS sfml-system)
+    add_library(SFML::Audio ALIAS sfml-audio)
+else()
+    message(STATUS "Found local SFML version: ${SFML_VERSION}")
+endif()
+
 add_library(glad STATIC 3rdParty/glad/src/glad.c)
 set_target_properties(glad PROPERTIES LINKER_LANGUAGE C)
 target_include_directories(glad PUBLIC 3rdParty/glad/include)
 
-# GLFW
 find_package(glfw3 QUIET)
 if(NOT glfw3_FOUND)
-    option(GLFW_BUILD_DOCS OFF)
-    option(GLFW_BUILD_EXAMPLES OFF)
-    option(GLFW_BUILD_TESTS OFF)
+    set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "")
+    set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "")
+    set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "")
     add_subdirectory(3rdParty/glfw)
     target_include_directories(glad PUBLIC 3rdParty/glfw/include)
 endif()
 
-# Freetype
 find_package(Freetype QUIET)
 if(NOT Freetype_FOUND)
     add_subdirectory(3rdParty/freetype)
-    # Use generator expressions to wrap the path
     target_include_directories(freetype PUBLIC
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/freetype/include>
     )
 endif()
 
-# Global includes
 target_include_directories(glad INTERFACE
         3rdParty/glad/include/
         3rdParty/glm/
@@ -44,26 +62,28 @@ target_include_directories(glad INTERFACE
         ${FREETYPE_INCLUDE_DIRS}
 )
 
-# Define paths as macros
 add_compile_definitions(PATH_TO_OBJECTS="${CMAKE_CURRENT_SOURCE_DIR}/assets/models")
 add_compile_definitions(PATH_TO_TEXTURE="${CMAKE_CURRENT_SOURCE_DIR}/assets/textures")
 add_compile_definitions(PATH_TO_SRC="${CMAKE_CURRENT_SOURCE_DIR}/project")
 
 add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
 
-# Solutions (conditional)
 file(GLOB_RECURSE ALL_PROJECT_SOURCES
         "project/*.cpp"
         "project/*.h"
         "project/*.hpp"
 )
 
-#add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
-#add_link_options(-fsanitize=address)
-
-# Use the discovered files to create your executable
 add_executable(VRproject ${ALL_PROJECT_SOURCES})
 
-target_link_libraries(VRproject PUBLIC assimp::assimp OpenGL::GL glfw glad ${FREETYPE_LIBRARIES} SFML::Graphics
-        SFML::Window SFML::System SFML::Audio)
-
+target_link_libraries(VRproject PUBLIC 
+    assimp::assimp 
+    OpenGL::GL 
+    glfw 
+    glad 
+    ${FREETYPE_LIBRARIES} 
+    SFML::Graphics
+    SFML::Window 
+    SFML::System 
+    SFML::Audio
+)
