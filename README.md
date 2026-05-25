@@ -25,14 +25,16 @@ This project is a flight simulator that aims to learn multiple techniques in Ope
 ### Prerequisites
 To run this project, you will need
 - [https://www.opengl.org/](openGL)
-
+- [https://cmake.org/](CMake)
 
 ### Setup Steps
 
-1. Clone the repository (with `--recursive` flag to also install the submodules)
+1. Clone the repository (with `--recursive` flag to also install all the submodules: assimp, glad, glfw, glm, stb)
 ```
 git clone https://github.com/moiravs/info_h502_project --recursive
 ```
+
+
 
 2. Install the dependencies
 
