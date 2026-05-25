@@ -40,6 +40,8 @@ You will need the three following packages:
 - [https://freetype.org/](freetype)
 - [https://www.assimp.org/](assimp)
 - [https://www.sfml-dev.org/](sfml)
+- [https://ninja-build.org/](ninja)
+- C++ build tools
 
 They can be installed:
 
@@ -52,8 +54,24 @@ They can be installed:
 - Ubuntu
 ```sudo apt install libassimp-dev libfreetype-dev ninja-build libfreetype-dev libwayland-dev pkg-config wayland-protocols libxkbcommon-dev libegl1-mesa-dev libegl-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev```
 
+- Windows
+Ninja can be installed with the command `winget install Ninja-build.Ninja`
+
+Sorry for what follows, we greatly recommend compiling on absolutely anything else than Windows.
+
+In `info_h502_project`: 
+`git clone https://github.com/microsoft/vcpkg`
+`cd vcpkg`
+`bootstrap-vcpkg.bat`
+`vcpkg install assimp:x64-windows`
+`vcpkg install freetype:x64-windows`
+
+Copy the contents of `info_h502_project/vcpkg/installed/x64-windows/bin` to `info_h502_project/build`
+Delete `info_h502_project/CMakeLists.txt` and rename `info_h502_project/CMakeListsWindows.txt` to `info_h502_project/CMakeLists.txt`
+Run step 3 from the "x64 Native Tools Command Prompt" (which should come with VS)
+
 3. Compile
-```cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_BUILD_TYPE=Debug -S . -B build -G Ninja &&  cmake --build build```
+```cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_BUILD_TYPE=Release -S . -B build -G Ninja &&  cmake --build build```
 
 ### Usage
 
