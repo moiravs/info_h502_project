@@ -50,7 +50,7 @@ They can be installed:
 ```brew install sfml freetype assimp```
 
 - Ubuntu
-```sudo apt install sfml freetype2 assimp```
+```sudo apt install libassimp-dev libfreetype-dev ninja-build libfreetype-dev libwayland-dev pkg-config wayland-protocols libxkbcommon-dev libegl1-mesa-dev libegl-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev```
 
 3. Compile
 ```cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_BUILD_TYPE=Debug -S . -B build -G Ninja &&  cmake --build build```
