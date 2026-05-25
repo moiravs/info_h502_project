@@ -3,6 +3,7 @@
 #define INFOH502_CPP_FRUSTUM_H
 
 #include <glm/glm.hpp>
+#include <array>
 
 enum SignedTest
 {

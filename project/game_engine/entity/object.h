@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <glm/glm.hpp>
+#include <array>
 
 #include "entity.h"
 #include <memory>
