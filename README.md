@@ -53,7 +53,7 @@ They can be installed:
 ```sudo apt install sfml freetype2 assimp```
 
 3. Compile
-```cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE=Debug -S . -B build -G Ninja &&  cmake --build build```
+```cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_BUILD_TYPE=Debug -S . -B build -G Ninja &&  cmake --build build```
 
 ### Usage
 
@@ -62,11 +62,29 @@ To launch the project, use the following command:
 
 ### Controls
 
-⬅️➡️⬆️⬇️ = To control the camera
+`T` = Toggle freecam
 
-`Z`,`Q`,`S`,`D` = To control the plane
+Plane camera:
 
-`T` = Toggle the camera or the plane 
+⬅️➡️⬆️⬇️ / mouse = Control the camera
+
+`Z`,`Q`,`S`,`D` = Move the plane
+
+`SCROLL` = Change the distance to the plane
+
+`LSHIFT + SCROLL` = Zoom
+
+Free camera: 
+
+⬅️➡️⬆️⬇️ / mouse = Control the camera
+
+`Z`,`Q`,`S`,`D` = Move the camera
+
+`LSHIFT` = Go down
+
+`SPACE` = Go up
+
+`SCROLL` = Zoom
 
 ## Acknowledgments
 Thanks to these amazing websites for the models and the textures:
