@@ -62,13 +62,17 @@ Sorry for what follows, we greatly recommend compiling on absolutely anything el
 All of the following steps should be done from the "x64 Native Tools Command Prompt" (which should come with VS)
 
 In `info_h502_project`: 
-`git clone https://github.com/microsoft/vcpkg`
-`cd vcpkg`
-`bootstrap-vcpkg.bat`
-`vcpkg install assimp:x64-windows`
-`vcpkg install freetype:x64-windows`
+
+```
+git clone https://github.com/microsoft/vcpkg
+cd vcpkg
+bootstrap-vcpkg.bat
+vcpkg install assimp:x64-windows
+vcpkg install freetype:x64-windows
+```
 
 Copy the contents of `info_h502_project/vcpkg/installed/x64-windows/bin` to `info_h502_project/build`
+
 Delete `info_h502_project/CMakeLists.txt` and rename `info_h502_project/CMakeListsWindows.txt` to `info_h502_project/CMakeLists.txt`
 
 3. Compile
